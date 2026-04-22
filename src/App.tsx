@@ -71,6 +71,13 @@ function Sidebar() {
           Sound
         </button>
       </div>
+      {hint && !soundOpen && (
+        <div className="fixed right-[88px] z-[600] px-4 py-2.5 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] animate-fade-in pointer-events-none"
+          style={{ top: '50%', transform: 'translateY(calc(-50% + 56px))', background: 'var(--dh-sidebar-bg)', backdropFilter: 'blur(16px)', border: '1px solid var(--dh-glass-border)' }}>
+          <p className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark font-medium whitespace-nowrap">♪ Tap to enable sound</p>
+          <span className="absolute right-[-5px] top-1/2 -translate-y-1/2 w-2.5 h-2.5 rotate-45" style={{ background: 'var(--dh-sidebar-bg)', borderRight: '1px solid var(--dh-glass-border)', borderTop: '1px solid var(--dh-glass-border)' }} />
+        </div>
+      )}
       {soundOpen && (
         <div className="fixed right-5 bottom-[90px] z-[600] rounded-[20px] p-5 w-[220px] shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
           style={{ background: 'var(--dh-sidebar-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--dh-glass-border)' }}>
