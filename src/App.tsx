@@ -265,13 +265,21 @@ function StatsPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-const App = () => (
-  <ErrorBoundary>
-    <QuizProvider>
-      <Toaster />
-      <AppContent />
-    </QuizProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  // The app reads from localStorage, plays sounds, and runs animations — all
+  // client-only. Skip SSR entirely to avoid hydration mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
+  return (
+    <ErrorBoundary>
+      <QuizProvider>
+        <Toaster />
+        <AppContent />
+      </QuizProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;
