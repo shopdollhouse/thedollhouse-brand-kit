@@ -18,7 +18,20 @@ function Sidebar() {
   const [track, setTrack] = useState(-1);
   const [vol, setVol] = useState(0.45);
   const [paused, setPaused] = useState(false);
+  const [hint, setHint] = useState(false);
   const tracks = ['Soft Pink Noise', 'Fireplace & Rain', 'Gentle Waves', 'Café Murmur', 'Forest Rain'];
+
+  // Show a one-time hint that sound is available
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('dh-sound-hint-seen')) return;
+    const t = setTimeout(() => {
+      setHint(true);
+      localStorage.setItem('dh-sound-hint-seen', '1');
+      setTimeout(() => setHint(false), 5000);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleTrack = (i: number) => {
     const newTrack = toggleAmbientTrack(i, track, vol);
