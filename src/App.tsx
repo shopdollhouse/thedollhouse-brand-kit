@@ -117,7 +117,7 @@ function AppContent() {
     <div
       className="relative h-screen overflow-hidden flex flex-col"
       style={
-        currentScreen !== 'gate'
+        currentScreen === 'welcome'
           ? {
               backgroundImage: `url(${welcomeBg})`,
               backgroundSize: 'cover',
