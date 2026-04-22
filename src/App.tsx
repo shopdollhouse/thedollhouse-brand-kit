@@ -10,7 +10,7 @@ import ResultsScreen from './components/screens/ResultsScreen';
 import { Toaster } from 'sonner';
 import { playClick, toggleAmbientTrack, setAmbientVolume, pauseAmbient, isAmbientPaused } from '@/lib/sounds';
 import { useState, useRef } from 'react';
-import welcomeBg from '@/assets/welcome-bg.png';
+import gateBg from '@/assets/gate-bg.jpg';
 
 function Sidebar() {
   const { theme, toggleTheme, showStats, setShowStats } = useQuiz();
@@ -117,9 +117,9 @@ function AppContent() {
     <div
       className="relative h-screen overflow-hidden flex flex-col"
       style={
-        currentScreen === 'welcome'
+        currentScreen === 'gate'
           ? {
-              backgroundImage: `url(${welcomeBg})`,
+              backgroundImage: `url(${gateBg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',

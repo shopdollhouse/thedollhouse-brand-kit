@@ -12,7 +12,7 @@ import { playClick, playRoomUnlock, toggleAmbientTrack, setAmbientVolume } from 
 import { Copy, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
-import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.png';
+import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
 import dollhouseLogo from '@/assets/dollhouse-arch-logo.png';
 
 const ArchIcon = ({ size = 52 }: { size?: number }) => (
