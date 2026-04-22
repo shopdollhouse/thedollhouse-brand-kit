@@ -16,14 +16,23 @@ export default function ParticleCanvas() {
       rot: number; rotV: number;
     }> = [];
 
+    // Respect users who prefer reduced motion — skip animation entirely.
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     function resize() {
-      canvas!.width = window.innerWidth;
-      canvas!.height = window.innerHeight;
+      canvas!.width = window.innerWidth * dpr;
+      canvas!.height = window.innerHeight * dpr;
+      canvas!.style.width = window.innerWidth + 'px';
+      canvas!.style.height = window.innerHeight + 'px';
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
     window.addEventListener('resize', resize);
 
-    for (let i = 0; i < 35; i++) {
+    // Fewer particles = much less per-frame work.
+    const COUNT = 18;
+    for (let i = 0; i < COUNT; i++) {
       hearts.push({
         x: Math.random() * window.innerWidth,
         y: Math.random() * window.innerHeight,
@@ -35,6 +44,20 @@ export default function ParticleCanvas() {
         rotV: (Math.random() - 0.5) * 0.015,
       });
     }
+
+    // Cache the accent colour once instead of reading computed style every frame.
+    let cachedRgb = '196,168,154';
+    const readAccent = () => {
+      try {
+        const v = getComputedStyle(document.body).getPropertyValue('--dh-accent-rgb').trim();
+        if (v) cachedRgb = v;
+      } catch {}
+    };
+    readAccent();
+    // Re-read when the theme class changes on <html>/<body>.
+    const themeObserver = new MutationObserver(readAccent);
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     function drawHeart(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, rotation: number) {
       ctx.save();
@@ -51,36 +74,47 @@ export default function ParticleCanvas() {
 
     function draw() {
       if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const style = getComputedStyle(document.body);
-      const rgb = style.getPropertyValue('--dh-accent-rgb').trim() || '196,168,154';
-      
-      hearts.forEach(h => {
-        ctx.save();
-        ctx.globalAlpha = h.o;
-        ctx.fillStyle = `rgba(${rgb},1)`;
-        drawHeart(ctx, h.x, h.y, h.size, h.rot);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = `rgba(${cachedRgb},1)`;
+
+      for (let i = 0; i < hearts.length; i++) {
+        const p = hearts[i];
+        ctx.globalAlpha = p.o;
+        drawHeart(ctx, p.x, p.y, p.size, p.rot);
         ctx.fill();
-        ctx.restore();
-        h.x += h.vx; h.y += h.vy; h.rot += h.rotV;
-        // Gentle horizontal drift
-        h.vx += (Math.random() - 0.5) * 0.01;
-        if (h.x < -20) h.x = canvas.width + 10;
-        if (h.x > canvas.width + 20) h.x = -10;
-        // Float upward and reset when off top
-        if (h.y < -20) {
-          h.y = canvas.height + 10;
-          h.x = Math.random() * canvas.width;
-          h.o = Math.random() * 0.45 + 0.15;
+        p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+        p.vx += (Math.random() - 0.5) * 0.01;
+        if (p.x < -20) p.x = w + 10;
+        if (p.x > w + 20) p.x = -10;
+        if (p.y < -20) {
+          p.y = h + 10;
+          p.x = Math.random() * w;
+          p.o = Math.random() * 0.45 + 0.15;
         }
-      });
+      }
+      ctx.globalAlpha = 1;
       animId = requestAnimationFrame(draw);
     }
+
+    // Pause animation when the tab isn't visible to save CPU.
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId);
+      } else {
+        animId = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
     draw();
 
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      themeObserver.disconnect();
     };
   }, []);
 
