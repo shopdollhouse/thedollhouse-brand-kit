@@ -115,7 +115,6 @@ function AppContent() {
 
   return (
     <div
-      suppressHydrationWarning
       className="relative h-screen overflow-hidden flex flex-col"
       style={
         currentScreen === 'gate'
