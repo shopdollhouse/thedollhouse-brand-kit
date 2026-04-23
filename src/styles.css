@@ -172,6 +172,16 @@
 .animate-shimmer-sweep { animation: shimmerSweep 1.2s ease-in-out infinite; }
 
 /* ══ SCROLL REVEAL ══ */
+
+/* ══ PREMIUM INTERACTION UTILITIES ══ */
+.dh-snappy { transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.2s ease; }
+.dh-snappy:hover { transform: translateY(-1.5px); }
+.dh-snappy:active { transform: translateY(0); transition-duration: 0.08s; }
+.dh-cta { background: var(--dh-btn-bg); color: var(--dh-btn-text); box-shadow: var(--dh-shadow-soft); transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.2s ease; }
+.dh-cta:hover { transform: translateY(-2px); box-shadow: var(--dh-shadow-lift); filter: brightness(1.08); }
+.dh-cta:active { transform: translateY(0); transition-duration: 0.08s; }
+.dh-gold-text { background: var(--dh-gradient-gold); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+
 .dh-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
 .dh-reveal.dh-visible { opacity: 1; transform: translateY(0); }
 
