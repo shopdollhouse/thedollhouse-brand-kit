@@ -91,7 +91,7 @@ export default function QuizScreen() {
       </p>
 
       {/* Card */}
-      <div ref={cardRef} className="glass rounded-[20px] p-12 max-w-[560px] w-full shadow-[0_4px_32px_rgba(0,0,0,0.06)]">
+      <div ref={cardRef} className="glass rounded-[24px] p-12 max-w-[560px] w-full" style={{ boxShadow: 'var(--dh-shadow-soft)' }}>
         <p className="font-content text-center leading-[1.45] mb-8 font-medium" style={{ fontSize: 'clamp(18px, 3vw, 24px)', color: 'var(--dh-text)' }}>
           {q.text}
         </p>
@@ -115,8 +115,7 @@ export default function QuizScreen() {
             />
             <button
               onClick={goNext}
-              className="block w-full py-4 px-8 mt-4 rounded-[14px] font-content text-sm font-semibold cursor-pointer text-center transition-all hover:brightness-110 hover:-translate-y-0.5"
-              style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)' }}
+              className="dh-cta block w-full py-4 px-8 mt-4 rounded-[14px] font-content text-sm font-semibold cursor-pointer text-center"
             >
               Continue →
             </button>
