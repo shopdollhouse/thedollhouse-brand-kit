@@ -459,18 +459,32 @@ export default function ResultsScreen() {
                 Your Brand Blueprint
               </p>
 
-              {/* The big italic name */}
-              <h1
-                className="font-display italic leading-[0.98] mb-6"
-                style={{
-                  fontSize: 'clamp(56px, 9vw, 104px)',
-                  color: '#b8716a',
-                  fontWeight: 600,
-                  letterSpacing: '-1px',
-                }}
-              >
-                {brand || product}
-              </h1>
+              {/* The big italic name — auto-scales for long names */}
+              {(() => {
+                const heading = (brand || product || '').toString();
+                const len = heading.length || 1;
+                // Smoothly shrink as the name grows; clamp to a sensible floor/ceiling
+                const maxPx = len <= 10 ? 104 : len <= 14 ? 88 : len <= 18 ? 72 : len <= 24 ? 58 : 46;
+                const minPx = len <= 10 ? 56 : len <= 14 ? 48 : len <= 18 ? 40 : 32;
+                const vw = len <= 10 ? 9 : len <= 14 ? 7.5 : len <= 18 ? 6 : 5;
+                return (
+                  <h1
+                    className="font-display italic leading-[0.98] mb-6 mx-auto"
+                    style={{
+                      fontSize: `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`,
+                      color: '#b8716a',
+                      fontWeight: 600,
+                      letterSpacing: '-1px',
+                      maxWidth: '100%',
+                      overflowWrap: 'break-word',
+                      wordBreak: 'break-word',
+                      hyphens: 'auto',
+                    }}
+                  >
+                    {heading}
+                  </h1>
+                );
+              })()}
 
               {/* Tagline */}
               <p
