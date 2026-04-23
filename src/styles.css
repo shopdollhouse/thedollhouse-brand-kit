@@ -47,43 +47,53 @@
 }
 
 :root {
-  /* Blush Mode (default) */
-  --background: 12 50% 90%;
-  --bg2: 12 38% 85%;
-  --foreground: 15 55% 8%;
-  --card: 0 0% 100%;
-  --card-foreground: 15 55% 8%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 15 55% 8%;
-  --primary: 17 22% 69%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 17 22% 69%;
-  --secondary-foreground: 15 55% 8%;
-  --muted: 12 38% 85%;
-  --muted-foreground: 12 18% 37%;
-  --accent: 17 22% 69%;
-  --accent-foreground: 15 30% 52%;
+  /* Soft Editorial — Blush · Cream · Champagne Gold · Rose Gold */
+  --background: 28 55% 95%;        /* warm cream */
+  --bg2: 18 50% 92%;               /* blush wash */
+  --foreground: 18 35% 12%;        /* espresso */
+  --card: 30 50% 98%;              /* ivory */
+  --card-foreground: 18 35% 12%;
+  --popover: 30 50% 98%;
+  --popover-foreground: 18 35% 12%;
+  --primary: 33 38% 62%;           /* champagne gold */
+  --primary-foreground: 30 50% 98%;
+  --secondary: 14 45% 78%;         /* rose gold */
+  --secondary-foreground: 18 35% 12%;
+  --muted: 22 45% 90%;
+  --muted-foreground: 18 14% 38%;
+  --accent: 33 38% 62%;
+  --accent-foreground: 18 30% 22%;
   --destructive: 8 60% 53%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 17 22% 69%;
-  --input: 17 22% 69%;
-  --ring: 17 22% 69%;
+  --destructive-foreground: 30 50% 98%;
+  --border: 30 25% 82%;
+  --input: 30 25% 82%;
+  --ring: 33 38% 62%;
   --radius: 1rem;
 
-  /* Dollhouse specific tokens */
-  --dh-accent: #c4a89a;
-  --dh-accent-dark: #9c7b6e;
-  --dh-accent-rgb: 196, 168, 154;
-  --dh-text: #1e0f09;
-  --dh-text-mid: #6e5650;
-  --dh-text-light: #a8908a;
-  --dh-btn-bg: #2d1810;
-  --dh-btn-text: #ffffff;
-  --dh-dark-bg: #1a0e08;
-  --dh-particle: rgba(210, 120, 100, 0.22);
-  --dh-glass-bg: rgba(255, 255, 255, 0.52);
-  --dh-glass-border: rgba(196, 168, 154, 0.22);
-  --dh-sidebar-bg: rgba(255, 255, 255, 0.58);
+  /* Dollhouse — Champagne Gold · Blush · Rose Gold · Cream */
+  --dh-cream: #faf3ea;
+  --dh-blush: #f3dccd;
+  --dh-rose-gold: #d6a89a;
+  --dh-champagne: #c8a877;
+  --dh-champagne-deep: #a3854e;
+  --dh-accent: #c8a877;            /* champagne gold */
+  --dh-accent-dark: #a3854e;       /* deep champagne */
+  --dh-accent-rgb: 200, 168, 119;
+  --dh-rose-rgb: 214, 168, 154;
+  --dh-text: #1f140d;              /* espresso */
+  --dh-text-mid: #6b5240;
+  --dh-text-light: #a3897a;
+  --dh-btn-bg: #1f140d;            /* espresso button */
+  --dh-btn-text: #faf3ea;
+  --dh-dark-bg: #14100c;
+  --dh-particle: rgba(200, 168, 119, 0.22);
+  --dh-glass-bg: rgba(255, 250, 244, 0.62);
+  --dh-glass-border: rgba(200, 168, 119, 0.28);
+  --dh-sidebar-bg: rgba(255, 250, 244, 0.72);
+  --dh-shadow-soft: 0 10px 40px -12px rgba(163, 133, 78, 0.18);
+  --dh-shadow-lift: 0 18px 50px -16px rgba(163, 133, 78, 0.28);
+  --dh-gradient-gold: linear-gradient(135deg, #d8b886 0%, #a3854e 100%);
+  --dh-gradient-rose: linear-gradient(135deg, #f3dccd 0%, #d6a89a 100%);
 }
 
 .dark {
@@ -162,6 +172,16 @@
 .animate-shimmer-sweep { animation: shimmerSweep 1.2s ease-in-out infinite; }
 
 /* ══ SCROLL REVEAL ══ */
+
+/* ══ PREMIUM INTERACTION UTILITIES ══ */
+.dh-snappy { transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.2s ease; }
+.dh-snappy:hover { transform: translateY(-1.5px); }
+.dh-snappy:active { transform: translateY(0); transition-duration: 0.08s; }
+.dh-cta { background: var(--dh-btn-bg); color: var(--dh-btn-text); box-shadow: var(--dh-shadow-soft); transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.2s ease; }
+.dh-cta:hover { transform: translateY(-2px); box-shadow: var(--dh-shadow-lift); filter: brightness(1.08); }
+.dh-cta:active { transform: translateY(0); transition-duration: 0.08s; }
+.dh-gold-text { background: var(--dh-gradient-gold); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+
 .dh-reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
 .dh-reveal.dh-visible { opacity: 1; transform: translateY(0); }
 

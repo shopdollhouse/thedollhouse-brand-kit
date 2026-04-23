@@ -110,7 +110,7 @@ export default function GateScreen() {
           </button>
         </div>
         {err && <p className="font-ui text-[10px] tracking-[2px] text-[#c4604a] mt-2">Incorrect password — try again</p>}
-        <button onClick={go} disabled={loading} className="block w-full py-[13px] px-8 rounded-[14px] font-ui text-[11px] tracking-[3px] uppercase font-medium cursor-pointer text-center mt-3 transition-opacity" style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', opacity: loading ? 0.7 : 1 }}>
+        <button onClick={go} disabled={loading} className="dh-cta block w-full py-[13px] px-8 rounded-[14px] font-ui text-[11px] tracking-[3px] uppercase font-medium cursor-pointer text-center mt-3" style={{ opacity: loading ? 0.7 : 1 }}>
           {loadMsg}
         </button>
       </div>

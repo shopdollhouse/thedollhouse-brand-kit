@@ -37,7 +37,7 @@ export default function WelcomeScreen() {
       </div>
 
       {/* Welcome card */}
-      <div className="glass rounded-[20px] p-[52px_48px] max-w-[520px] w-full shadow-[0_8px_48px_rgba(0,0,0,0.07)]">
+      <div className="glass rounded-[24px] p-[52px_48px] max-w-[520px] w-full" style={{ boxShadow: 'var(--dh-shadow-soft)' }}>
         <p className="font-display italic text-[22px] text-center leading-[1.6] mb-0" style={{ color: 'var(--dh-text)' }}>
           You already know what you want to build.<br /><em>Now let's build it.</em>
         </p>
@@ -68,12 +68,7 @@ export default function WelcomeScreen() {
         
         <button
           onClick={() => setScreen('questions')}
-          className="block w-full py-4 px-8 rounded-2xl font-ui text-[11px] tracking-[3px] uppercase font-medium cursor-pointer text-center mt-6 transition-all hover:brightness-110 hover:-translate-y-0.5"
-          style={{
-            background: 'var(--dh-btn-bg)',
-            color: 'var(--dh-btn-text)',
-            boxShadow: '0 4px 20px rgba(var(--dh-accent-rgb), 0.25)',
-          }}
+          className="dh-cta block w-full py-4 px-8 rounded-2xl font-ui text-[11px] tracking-[3px] uppercase font-medium cursor-pointer text-center mt-6"
         >
           Enter The Dollhouse →
         </button>
