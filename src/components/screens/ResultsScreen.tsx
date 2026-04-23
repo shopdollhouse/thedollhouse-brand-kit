@@ -952,11 +952,10 @@ export default function ResultsScreen() {
         </p>
 
         {/* Boutique Bento Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
           {[
             { name: 'Brand Workbook', tag: 'Build It Yourself', desc: 'An interactive web app walking you through every foundational business decision.', price: '$47', was: '$261', href: 'https://stan.store/shopdollhouse/p/-build-a-real-brand-from-scratch', icon: 'book' },
             { name: 'AI Prompt Kit', tag: '50+ Prompts', desc: 'Copy, content, strategy — prompts across 8 rooms, ready to customise and use instantly.', price: '$17', was: '', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-prompt-kit', icon: 'layers' },
-            { name: '2026 Digital Planner', tag: 'Plan Your Year', desc: 'Plan your entire 2026 in one beautiful all-in-one digital planner.', price: '$27', was: '$173', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-the-allinone-2026-digital-planner', icon: 'calendar' },
           ].map((item, i) => (
             <a key={i} href={item.href} target="_blank" rel="noreferrer"
               className="no-underline rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_56px_rgba(0,0,0,0.14)] flex flex-col group"
@@ -1076,7 +1075,11 @@ export default function ResultsScreen() {
           <div className="flex items-center justify-center gap-5 flex-wrap mb-5">
             <a href="https://stan.store/shopdollhouse" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">Stan Store</a>
             <span className="text-[10px]" style={{ color: 'rgba(var(--dh-accent-rgb), 0.25)' }}>◆</span>
+            <a href="https://www.etsy.com/shop/herDOLLHOUSE" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">Etsy</a>
+            <span className="text-[10px]" style={{ color: 'rgba(var(--dh-accent-rgb), 0.25)' }}>◆</span>
             <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">shopdollhouse.co</a>
+            <span className="text-[10px]" style={{ color: 'rgba(var(--dh-accent-rgb), 0.25)' }}>◆</span>
+            <a href="mailto:hello@shopdollhouse.co" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">hello@shopdollhouse.co</a>
           </div>
           <p className="font-display italic text-xs text-dh-text-light opacity-45 mb-8">@shopdollhouse</p>
 

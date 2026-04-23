@@ -12,27 +12,6 @@ const ArchIcon = () => (
   />
 );
 
-const testimonials = [
-  {
-    quote: "I genuinely had no idea what to sell or what to call it. I came out of this with a product idea, a brand name I actually love, a colour palette and a week one plan. I did my first sale four days later.",
-    name: "Mia T.",
-    desc: "Handmade jewellery, USA",
-    img: "https://i.pravatar.cc/60?img=47",
-  },
-  {
-    quote: "The platform setup section alone saved me weeks of Googling. It told me exactly which two platforms to focus on for my budget and walked me through the setup steps.",
-    name: "Jade S.",
-    desc: "Digital products, Canada",
-    img: "https://i.pravatar.cc/60?img=25",
-  },
-  {
-    quote: "The branding section gave me hex codes, font pairings and logo directions that actually matched my vibe. My graphic designer said it was the clearest brief she had ever received.",
-    name: "Rachel K.",
-    desc: "Candle brand, Canada",
-    img: "https://i.pravatar.cc/60?img=32",
-  },
-];
-
 export default function WelcomeScreen() {
   const { setScreen } = useQuiz();
 
@@ -98,25 +77,6 @@ export default function WelcomeScreen() {
         >
           Enter The Dollhouse →
         </button>
-      </div>
-
-      {/* Testimonials */}
-      <div className="mt-8 flex flex-col gap-3.5 max-w-[480px] w-full">
-        {testimonials.map((t, i) => (
-          <div key={i} className="glass rounded-[18px] p-[22px_24px] text-left">
-            <p className="font-display italic text-[15px] leading-[1.75] mb-3" style={{ color: 'var(--dh-text)' }}>
-              "{t.quote}"
-            </p>
-            <div className="flex items-center gap-2.5">
-              <img src={t.img} alt={t.name} className="w-[38px] h-[38px] rounded-full object-cover flex-shrink-0" style={{ border: '1.5px solid var(--dh-glass-border)' }} />
-              <div>
-                <p className="font-ui text-[9px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{t.name}</p>
-                <p className="font-body text-[11px] text-dh-text-light font-light">{t.desc}</p>
-              </div>
-              <div className="ml-auto flex gap-0.5 text-dh-accent text-[13px]">★★★★★</div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
