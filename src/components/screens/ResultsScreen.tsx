@@ -412,8 +412,8 @@ export default function ResultsScreen() {
           style={{
             backgroundColor: '#f5dcd3',
             backgroundImage: `url(${dollhouseCoverBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+            backgroundPosition: 'left bottom',
             backgroundRepeat: 'no-repeat',
             minHeight: '720px',
             boxShadow: '0 30px 100px rgba(196,168,154,0.25), 0 0 0 1px rgba(196,168,154,0.18)',
