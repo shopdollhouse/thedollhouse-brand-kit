@@ -221,6 +221,17 @@ export default function ResultsScreen() {
 
   const displayName = name || 'You';
   const names = generateNames(product, aesthetic, customer, displayName, aiResults?.businessNames);
+  const coverTitle = (brand || product || '').toString().trim();
+  const coverWords = coverTitle.split(/\s+/).filter(Boolean);
+  const longestCoverWord = coverWords.reduce((longest, word) => Math.max(longest, word.length), 0);
+  const coverTitleFont =
+    longestCoverWord >= 16
+      ? 'clamp(34px, 4vw, 48px)'
+      : longestCoverWord >= 13
+        ? 'clamp(40px, 5vw, 62px)'
+        : longestCoverWord >= 10
+          ? 'clamp(48px, 6vw, 78px)'
+          : 'clamp(56px, 7.5vw, 104px)';
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const handleReset = () => { setShowResetConfirm(true); };
@@ -426,7 +437,7 @@ export default function ResultsScreen() {
           />
 
           {/* Right-side content column */}
-          <div className="relative z-[2] grid grid-cols-1 md:grid-cols-2 min-h-[720px]">
+          <div className="relative z-[2] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] min-h-[720px]">
             <div className="hidden md:block" />
 
             <div className="flex flex-col items-center justify-center text-center px-8 md:px-12 py-16">
@@ -459,32 +470,21 @@ export default function ResultsScreen() {
                 Your Brand Blueprint
               </p>
 
-              {/* The big italic name — auto-scales for long names */}
-              {(() => {
-                const heading = (brand || product || '').toString();
-                const len = heading.length || 1;
-                // Smoothly shrink as the name grows; clamp to a sensible floor/ceiling
-                const maxPx = len <= 10 ? 104 : len <= 14 ? 88 : len <= 18 ? 72 : len <= 24 ? 58 : 46;
-                const minPx = len <= 10 ? 56 : len <= 14 ? 48 : len <= 18 ? 40 : 32;
-                const vw = len <= 10 ? 9 : len <= 14 ? 7.5 : len <= 18 ? 6 : 5;
-                return (
-                  <h1
-                    className="font-display italic leading-[0.98] mb-6 mx-auto"
-                    style={{
-                      fontSize: `clamp(${minPx}px, ${vw}vw, ${maxPx}px)`,
-                      color: '#b8716a',
-                      fontWeight: 600,
-                      letterSpacing: '-1px',
-                      maxWidth: '100%',
-                      overflowWrap: 'break-word',
-                      wordBreak: 'break-word',
-                      hyphens: 'auto',
-                    }}
-                  >
-                    {heading}
-                  </h1>
-                );
-              })()}
+              <h1
+                className="font-display italic leading-[0.94] mb-6 mx-auto text-center text-balance"
+                style={{
+                  fontSize: coverTitleFont,
+                  color: '#b8716a',
+                  fontWeight: 600,
+                  letterSpacing: '-0.02em',
+                  maxWidth: 'min(100%, 500px)',
+                  overflowWrap: 'normal',
+                  wordBreak: 'normal',
+                  hyphens: 'none',
+                }}
+              >
+                {coverTitle}
+              </h1>
 
               {/* Tagline */}
               <p
