@@ -4,18 +4,7 @@ import { toast } from 'sonner';
 import { generateBlueprintPDF } from '@/lib/pdf-generator';
 import { getBrandIdentity } from '@/lib/brand-identity';
 import GoldConfetti from '../GoldConfetti';
-import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
-
-const ArchIcon = () => (
-  <img
-    src={dollhouseLogo}
-    alt="The Dollhouse"
-    width={40}
-    height={40}
-    className="object-contain rounded-full"
-    style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
-  />
-);
+import DollhouseMark from '@/components/DollhouseMark';
 
 interface DownloadCardProps { answers: Record<string, string>; aiResults: any; onDownloadRef?: (fn: () => void) => void; }
 
@@ -99,7 +88,7 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
       <div className="dh-no-print rounded-3xl p-[44px_36px] text-center relative overflow-hidden shadow-[0_16px_60px_rgba(0,0,0,0.18)] mb-7"
         style={{ background: 'var(--dh-dark-bg)' }}>
         <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(to right, transparent, var(--dh-accent), transparent)' }} />
-        <div className="mb-[18px]"><ArchIcon /></div>
+        <div className="mb-[18px]"><DollhouseMark size={40} /></div>
         <p className="font-ui text-[10px] tracking-[6px] uppercase mb-3.5 font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Save Your Blueprint</p>
         <p className="font-display italic mb-2" style={{ fontSize: 'clamp(20px, 3vw, 28px)', color: 'rgba(255,255,255,0.92)' }}>Your Blueprint is Ready</p>
         <p className="font-body text-sm font-light mb-6 leading-[1.8]" style={{ color: 'rgba(255,255,255,0.4)' }}>Beautifully typeset with your name, brand colours, and strategy — yours to keep forever.</p>

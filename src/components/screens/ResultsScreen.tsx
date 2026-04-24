@@ -13,18 +13,7 @@ import { Copy, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
 import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
-import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
-
-const ArchIcon = ({ size = 52 }: { size?: number }) => (
-  <img
-    src={dollhouseLogo}
-    alt="The Dollhouse"
-    width={size}
-    height={size}
-    className="object-contain rounded-full"
-    style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
-  />
-);
+import DollhouseMark from '@/components/DollhouseMark';
 
 const ROOMS = [
   ['r01', '01 Name'], ['r02', '02 Platforms'], ['r03', '03 Product'],
@@ -379,7 +368,7 @@ export default function ResultsScreen() {
               <div className="absolute top-0 left-[10%] right-[10%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.4), transparent)' }} />
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,168,154,0.12)', border: '1px solid rgba(196,168,154,0.2)' }}>
-                  <ArchIcon size={20} />
+                  <DollhouseMark size={20} />
                 </div>
                 <div>
                   <p className="font-ui text-[8px] tracking-[3px] uppercase font-medium mb-0.5" style={{ color: 'rgba(196,168,154,0.5)' }}>Blueprint Complete</p>
@@ -1059,7 +1048,7 @@ export default function ResultsScreen() {
         {/* ══ FOUNDER'S SIGN-OFF ══ */}
         <div className="rounded-3xl p-[52px_44px] mb-7 text-center relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e0f09, #2d1810, #1a0e08)', border: '1px solid rgba(196,168,154,0.12)' }}>
           <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.5), transparent)' }} />
-          <div className="animate-float-arch inline-block mb-5"><ArchIcon size={36} /></div>
+          <div className="animate-float-arch inline-block mb-5"><DollhouseMark size={36} /></div>
           <p className="font-display italic text-[24px] leading-[1.75] max-w-[520px] mx-auto mb-5" style={{ color: 'rgba(255,255,255,0.92)' }}>
             Your vision is ready for the world. Now, go build it.
           </p>
@@ -1084,7 +1073,7 @@ export default function ResultsScreen() {
       {/* Footer */}
       <footer className="w-full py-[60px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="max-w-[600px] mx-auto px-5">
-          <div className="animate-float-arch inline-block mb-4"><ArchIcon size={32} /></div>
+          <div className="animate-float-arch inline-block mb-4"><DollhouseMark size={32} /></div>
           <p className="font-display italic text-[14px] text-dh-text-light mb-[18px]">Find us everywhere</p>
           <div className="flex items-center justify-center gap-5 flex-wrap mb-5">
             <a href="https://stan.store/shopdollhouse" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">Stan Store</a>

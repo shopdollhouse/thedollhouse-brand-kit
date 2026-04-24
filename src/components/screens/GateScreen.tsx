@@ -2,18 +2,7 @@ import { useState, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { playChime, playDoorClick } from '@/lib/sounds';
 import GateUnlockOverlay from '../GateUnlockOverlay';
-import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
-
-const ArchIcon = ({ size = 52 }: { size?: number }) => (
-  <img
-    src={dollhouseLogo}
-    alt="The Dollhouse"
-    width={size}
-    height={size}
-    className="object-contain rounded-full"
-    style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
-  />
-);
+import DollhouseMark from '@/components/DollhouseMark';
 
 const PASSWORDS = ['ENTERTHEROOM'];
 
@@ -51,7 +40,7 @@ export default function GateScreen() {
     <GateUnlockOverlay active={unlocking} onDone={handleUnlockDone} />
     <div className="flex min-h-full flex-col items-center justify-center px-5 py-6 animate-rise-in relative z-[1]">
       <div className="animate-float-arch mb-3">
-        <ArchIcon size={40} />
+        <DollhouseMark size={40} />
       </div>
       <p className="font-display italic text-[15px] text-dh-accent-dark tracking-[6px] text-center mb-[2px] opacity-70">the</p>
       <h1 className="font-display italic font-normal text-center tracking-[clamp(5px,0.8vw,10px)] uppercase leading-none" style={{ fontSize: 'clamp(36px, 5.5vw, 56px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
