@@ -2,15 +2,15 @@ import { useState, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { playChime, playDoorClick } from '@/lib/sounds';
 import GateUnlockOverlay from '../GateUnlockOverlay';
-import dollhouseLogo from '@/assets/dollhouse-arch-logo.png';
+import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
 
 const ArchIcon = ({ size = 52 }: { size?: number }) => (
   <img
     src={dollhouseLogo}
     alt="The Dollhouse"
     width={size}
-    height={size * 1.32}
-    className="object-contain"
+    height={size}
+    className="object-contain rounded-full"
     style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
   />
 );
