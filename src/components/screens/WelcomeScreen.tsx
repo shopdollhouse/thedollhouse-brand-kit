@@ -1,13 +1,13 @@
 import { useQuiz } from '@/context/QuizContext';
-import dollhouseLogo from '@/assets/dollhouse-arch-logo.png';
+import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
 
 const ArchIcon = () => (
   <img
     src={dollhouseLogo}
     alt="The Dollhouse"
     width={70}
-    height={92}
-    className="object-contain"
+    height={70}
+    className="object-contain rounded-full"
     style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
   />
 );

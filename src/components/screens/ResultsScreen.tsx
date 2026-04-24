@@ -13,15 +13,15 @@ import { Copy, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
 import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
-import dollhouseLogo from '@/assets/dollhouse-arch-logo.png';
+import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
 
 const ArchIcon = ({ size = 52 }: { size?: number }) => (
   <img
     src={dollhouseLogo}
     alt="The Dollhouse"
     width={size}
-    height={size * 1.32}
-    className="object-contain"
+    height={size}
+    className="object-contain rounded-full"
     style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
   />
 );
