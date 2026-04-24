@@ -4,13 +4,17 @@ import { toast } from 'sonner';
 import { generateBlueprintPDF } from '@/lib/pdf-generator';
 import { getBrandIdentity } from '@/lib/brand-identity';
 import GoldConfetti from '../GoldConfetti';
+import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
 
 const ArchIcon = () => (
-  <svg width="34" height="47" viewBox="0 -8 56 86" fill="none">
-    <path d="M10 78 L10 28 Q10 5 28 5 Q46 5 46 28 L46 78" stroke="var(--dh-accent)" strokeWidth="1.3" fill="none" />
-    <path d="M17 78 L17 31 Q17 16 28 16 Q39 16 39 31 L39 78" stroke="var(--dh-accent)" strokeWidth="0.6" fill="none" opacity="0.4" />
-    <path d="M28 2 L27 0.9 C26.2 0 25 0 24.2 0.9 C23.4 1.8 23.4 3.1 24.2 4 L28 8 L31.8 4 C32.6 3.1 32.6 1.8 31.8 0.9 C31 0 29.8 0 29 0.9 Z" fill="var(--dh-accent)" opacity="0.8" />
-  </svg>
+  <img
+    src={dollhouseLogo}
+    alt="The Dollhouse"
+    width={40}
+    height={40}
+    className="object-contain rounded-full"
+    style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
+  />
 );
 
 interface DownloadCardProps { answers: Record<string, string>; aiResults: any; onDownloadRef?: (fn: () => void) => void; }
