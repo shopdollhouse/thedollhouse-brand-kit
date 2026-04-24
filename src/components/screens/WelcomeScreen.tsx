@@ -1,16 +1,5 @@
 import { useQuiz } from '@/context/QuizContext';
-import dollhouseLogo from '@/assets/dollhouse-logo.jpg';
-
-const ArchIcon = () => (
-  <img
-    src={dollhouseLogo}
-    alt="The Dollhouse"
-    width={70}
-    height={70}
-    className="object-contain rounded-full"
-    style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
-  />
-);
+import DollhouseMark from '@/components/DollhouseMark';
 
 export default function WelcomeScreen() {
   const { setScreen } = useQuiz();
@@ -18,7 +7,7 @@ export default function WelcomeScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-start pt-[80px] px-5 pb-[120px] animate-rise-in relative z-[1]">
       <div className="animate-float-arch mb-6">
-        <ArchIcon />
+        <DollhouseMark size={70} />
       </div>
       
       {/* Pill */}
