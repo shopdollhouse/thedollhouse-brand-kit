@@ -16,8 +16,8 @@ export default function WelcomeScreen() {
         Brand Starter System
       </div>
       
-      <p className="font-display italic text-dh-text-light tracking-[6px] text-center mb-[1px]" style={{ fontSize: 'clamp(14px, 2vw, 18px)' }}>the</p>
-      <h1 className="font-display not-italic font-medium text-center tracking-[clamp(7px,1vw,12px)] uppercase leading-none" style={{ fontSize: 'clamp(42px, 6.5vw, 66px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
+      <p className="dh-wordmark-kicker text-center mb-1" style={{ fontSize: 'clamp(26px, 4vw, 42px)' }}>the</p>
+      <h1 className="dh-wordmark text-center" style={{ fontSize: 'clamp(48px, 7vw, 82px)' }}>Dollhouse</h1>
       
       <div className="flex items-center gap-3.5 w-[200px] mx-auto mt-0 mb-7">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[var(--dh-accent)]" />

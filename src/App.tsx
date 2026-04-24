@@ -168,8 +168,8 @@ function AppContent() {
             pointerEvents: 'all',
           }}>
             <div className="flex items-baseline gap-[5px] cursor-default select-none">
-              <span className="font-display italic text-[11px] text-dh-accent-dark tracking-[3px] opacity-70 uppercase">THE</span>
-              <span className="font-display not-italic font-medium text-[17px] tracking-[4px] uppercase" style={{ color: 'var(--dh-text)' }}>DOLLHOUSE</span>
+              <span className="dh-wordmark-kicker text-[15px] opacity-90">the</span>
+              <span className="dh-wordmark-nav text-[17px]">DOLLHOUSE</span>
             </div>
             <nav className="absolute left-1/2 -translate-x-1/2 flex gap-0.5">
               {[['welcome', 'Welcome'], ['questions', 'Quiz'], ['results', 'Results']].map(([s, l]) => (
