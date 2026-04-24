@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
       </div>
       
       <p className="font-display italic text-dh-text-light tracking-[6px] text-center mb-[1px]" style={{ fontSize: 'clamp(14px, 2vw, 18px)' }}>the</p>
-      <h1 className="font-display italic font-normal text-center tracking-[clamp(5px,0.8vw,10px)] uppercase leading-none" style={{ fontSize: 'clamp(40px, 6.5vw, 64px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
+      <h1 className="font-display not-italic font-medium text-center tracking-[clamp(7px,1vw,12px)] uppercase leading-none" style={{ fontSize: 'clamp(42px, 6.5vw, 66px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
       
       <div className="flex items-center gap-3.5 w-[200px] mx-auto mt-0 mb-7">
         <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[var(--dh-accent)]" />

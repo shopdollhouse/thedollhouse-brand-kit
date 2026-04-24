@@ -43,7 +43,7 @@ export default function GateScreen() {
         <DollhouseMark size={40} />
       </div>
       <p className="font-display italic text-[15px] text-dh-accent-dark tracking-[6px] text-center mb-[2px] opacity-70">the</p>
-      <h1 className="font-display italic font-normal text-center tracking-[clamp(5px,0.8vw,10px)] uppercase leading-none" style={{ fontSize: 'clamp(36px, 5.5vw, 56px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
+      <h1 className="font-display not-italic font-medium text-center tracking-[clamp(7px,1vw,12px)] uppercase leading-none" style={{ fontSize: 'clamp(38px, 5.5vw, 58px)', color: 'var(--dh-text)' }}>Dollhouse</h1>
       <p className="font-ui text-xs tracking-[5px] italic text-dh-text-light font-light text-center mt-1 mb-4">private access</p>
 
       {/* Ornament */}
