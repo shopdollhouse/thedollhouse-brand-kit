@@ -56,9 +56,10 @@ export default {
       },
       fontFamily: {
         display: ['Cormorant Garamond', 'serif'],
-        body: ['DM Sans', 'sans-serif'],
-        ui: ['Jost', 'sans-serif'],
-        content: ['Plus Jakarta Sans', 'sans-serif'],
+        'display-sc': ['Cormorant SC', 'serif'],
+        body: ['Outfit', 'sans-serif'],
+        ui: ['Outfit', 'sans-serif'],
+        content: ['Outfit', 'sans-serif'],
       },
     },
   },
