@@ -33,6 +33,13 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   const dark: [number, number, number] = [30, 15, 9];
   const white: [number, number, number] = [255, 255, 255];
   const textDark: [number, number, number] = [45, 30, 22];
+  // Cover-specific blush palette (matches reference)
+  const blushBg: [number, number, number] = [248, 224, 218];
+  const blushBgDeep: [number, number, number] = [240, 206, 200];
+  const rose: [number, number, number] = [196, 122, 122];     // brand-name rose
+  const roseSoft: [number, number, number] = [173, 110, 110]; // body italic
+  const gold: [number, number, number] = [184, 144, 92];      // chip + ornament gold
+  const goldSoft: [number, number, number] = [200, 170, 130];
 
   // Derive all quiz data
   const d = derive(data.answers);
@@ -81,61 +88,149 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
     writeText(`• ${text}`, 9);
   };
 
-  // ═══ COVER PAGE ═══
-  doc.setFillColor(...dark);
+  // ═══ COVER PAGE — blush editorial ═══
+  // Soft blush background (subtle vertical wash)
+  doc.setFillColor(...blushBg);
   doc.rect(0, 0, W, H, 'F');
-  doc.setDrawColor(...accent);
+  // Deeper blush band along the bottom
+  doc.setFillColor(...blushBgDeep);
+  doc.rect(0, H - 60, W, 60, 'F');
+  // Inner rounded "card" frame
+  doc.setDrawColor(...goldSoft);
   doc.setLineWidth(0.3);
-  doc.line(W * 0.2, 12, W * 0.8, 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(...accent);
-  y = 60;
-  doc.text('THE DOLLHOUSE', W / 2, y, { align: 'center' });
-  doc.setFontSize(11);
-  y += 14;
-  doc.text('Your Brand Blueprint', W / 2, y, { align: 'center' });
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(36);
-  doc.setTextColor(...white);
-  y += 22;
-  doc.text(brand.toUpperCase(), W / 2, y, { align: 'center' });
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(11);
-  doc.setTextColor(...accent);
-  y += 14;
-  doc.text(`A personalised strategy built for ${data.name}`, W / 2, y, { align: 'center' });
-  y += 16;
-  doc.setDrawColor(...accent);
-  doc.setLineWidth(0.2);
-  doc.line(W * 0.35, y, W * 0.65, y);
-  y += 12;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(...accent);
-  doc.text([data.aesthetic, date, '12 Rooms'].join('  ·  '), W / 2, y, { align: 'center' });
+  doc.roundedRect(10, 10, W - 20, H - 20, 6, 6, 'S');
 
-  // Colour swatches on cover
+  // Tiny doorway/arch mark at top center
+  const archCx = W / 2;
+  const archTop = 30;
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(0.5);
+  // arch body
+  doc.line(archCx - 5, archTop + 14, archCx - 5, archTop + 4);
+  doc.line(archCx + 5, archTop + 14, archCx + 5, archTop + 4);
+  // arch curve (approx with two short lines)
+  doc.line(archCx - 5, archTop + 4, archCx, archTop);
+  doc.line(archCx, archTop, archCx + 5, archTop + 4);
+  // little finial dot
+  doc.setFillColor(...gold);
+  doc.circle(archCx, archTop - 2, 0.7, 'F');
+
+  // "— THE DOLLHOUSE —" header (spaced caps with side rules)
+  y = archTop + 24;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...gold);
+  const headerText = 'T H E   D O L L H O U S E';
+  doc.text(headerText, W / 2, y, { align: 'center' });
+  // side rules
+  const headerWidth = doc.getTextWidth(headerText);
+  doc.setDrawColor(...goldSoft);
+  doc.setLineWidth(0.3);
+  const ruleY = y - 1.2;
+  doc.line(W / 2 - headerWidth / 2 - 14, ruleY, W / 2 - headerWidth / 2 - 4, ruleY);
+  doc.line(W / 2 + headerWidth / 2 + 4, ruleY, W / 2 + headerWidth / 2 + 14, ruleY);
+
+  // "Your Brand Blueprint" italic kicker
+  y += 18;
+  doc.setFont('times', 'italic');
+  doc.setFontSize(15);
+  doc.setTextColor(...roseSoft);
+  doc.text('Your Brand Blueprint', W / 2, y, { align: 'center' });
+
+  // BIG italic brand name (the "Stickers" of the reference)
+  y += 26;
+  doc.setFont('times', 'italic');
+  doc.setFontSize(64);
+  doc.setTextColor(...rose);
+  // Auto-shrink to fit
+  let displayBrand = brand;
+  let bSize = 64;
+  while (doc.getTextWidth(displayBrand) > contentW - 20 && bSize > 28) {
+    bSize -= 2;
+    doc.setFontSize(bSize);
+  }
+  doc.text(displayBrand, W / 2, y, { align: 'center' });
+
+  // Italic descriptor line
+  y += 18;
+  doc.setFont('times', 'italic');
+  doc.setFontSize(11);
+  doc.setTextColor(...roseSoft);
+  const tagline = `A personalised strategy built entirely around ${data.name}'s vision, aesthetic, and goals.`;
+  const taglineLines = doc.splitTextToSize(tagline, contentW - 30);
+  doc.text(taglineLines, W / 2, y, { align: 'center' });
+  y += taglineLines.length * 5 + 6;
+
+  // Heart ornament divider
+  doc.setDrawColor(...goldSoft);
+  doc.setLineWidth(0.25);
+  doc.line(W * 0.32, y, W * 0.46, y);
+  doc.line(W * 0.54, y, W * 0.68, y);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...gold);
+  doc.text('♥', W / 2, y + 1.2, { align: 'center' });
+
+  // Three rounded "pill" metadata chips
+  y += 16;
+  const chips = [
+    (data.aesthetic || 'Editorial').toUpperCase(),
+    date.toUpperCase(),
+    '12 ROOMS',
+  ];
+  const chipH = 9;
+  const chipPadX = 6;
+  const chipGap = 6;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  const chipWidths = chips.map(t => doc.getTextWidth(t) + chipPadX * 2);
+  const totalChipsW = chipWidths.reduce((a, b) => a + b, 0) + chipGap * (chips.length - 1);
+  let cx = (W - totalChipsW) / 2;
+  chips.forEach((t, i) => {
+    const cw = chipWidths[i];
+    doc.setDrawColor(...goldSoft);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(cx, y, cw, chipH, chipH / 2, chipH / 2, 'S');
+    doc.setTextColor(...gold);
+    doc.text(t, cx + cw / 2, y + 5.8, { align: 'center' });
+    cx += cw + chipGap;
+  });
+
+  // Circle heart medallion
+  y += 28;
+  doc.setDrawColor(...goldSoft);
+  doc.setLineWidth(0.5);
+  doc.circle(W / 2, y, 6, 'S');
+  doc.setFontSize(11);
+  doc.setTextColor(...gold);
+  doc.text('♥', W / 2, y + 2, { align: 'center' });
+
+  // Colour swatches (smaller, beneath the medallion)
   if (data.colours.length > 0) {
-    y += 30;
-    const swatchSize = 14;
-    const gap = 6;
-    const totalW = data.colours.length * swatchSize + (data.colours.length - 1) * gap;
-    let sx = (W - totalW) / 2;
+    y += 18;
+    const swatchSize = 10;
+    const sgap = 5;
+    const totalSW = data.colours.length * swatchSize + (data.colours.length - 1) * sgap;
+    let sx = (W - totalSW) / 2;
     data.colours.forEach(c => {
       const rgb = hexToRgb(c.hex || '#c4a89a');
       doc.setFillColor(...rgb);
-      doc.roundedRect(sx, y, swatchSize, swatchSize, 2, 2, 'F');
-      doc.setFontSize(5);
-      doc.setTextColor(...accent);
-      doc.text(c.hex || '', sx + swatchSize / 2, y + swatchSize + 5, { align: 'center' });
-      sx += swatchSize + gap;
+      doc.setDrawColor(...goldSoft);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(sx, y, swatchSize, swatchSize, 1.6, 1.6, 'FD');
+      sx += swatchSize + sgap;
     });
+    y += swatchSize + 5;
   }
+
+  // "Personal Use Only" footer (spaced caps)
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(...gold);
+  doc.text('P E R S O N A L   U S E   O N L Y', W / 2, H - 22, { align: 'center' });
   doc.setFontSize(5);
-  doc.setTextColor(...accent);
-  doc.text(`Licensed to ${data.name} · Personal Use Only · © 2026 The Dollhouse`, W / 2, H - 16, { align: 'center' });
-  doc.line(W * 0.25, H - 22, W * 0.75, H - 22);
+  doc.setTextColor(...goldSoft);
+  doc.text(`Licensed to ${data.name} · © 2026 The Dollhouse`, W / 2, H - 16, { align: 'center' });
 
   // ═══ ROOM 01: THE FRONT DOOR ═══
   addPage('01', 'The Front Door');
