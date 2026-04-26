@@ -215,12 +215,12 @@ export default function ResultsScreen() {
   const longestCoverWord = coverWords.reduce((longest, word) => Math.max(longest, word.length), 0);
   const coverTitleFont =
     longestCoverWord >= 16
-      ? 'clamp(34px, 4vw, 48px)'
+      ? 'clamp(28px, 3.4vw, 40px)'
       : longestCoverWord >= 13
-        ? 'clamp(40px, 5vw, 62px)'
+        ? 'clamp(34px, 4.2vw, 52px)'
         : longestCoverWord >= 10
-          ? 'clamp(48px, 6vw, 78px)'
-          : 'clamp(56px, 7.5vw, 104px)';
+          ? 'clamp(40px, 5vw, 64px)'
+          : 'clamp(46px, 6vw, 80px)';
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const handleReset = () => { setShowResetConfirm(true); };
