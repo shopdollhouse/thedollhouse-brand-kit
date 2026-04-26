@@ -131,20 +131,20 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.line(W / 2 + headerWidth / 2 + 4, ruleY, W / 2 + headerWidth / 2 + 14, ruleY);
 
   // "Your Brand Blueprint" italic kicker
-  y += 18;
+  y += 14;
   doc.setFont('times', 'italic');
   doc.setFontSize(15);
   doc.setTextColor(...roseSoft);
   doc.text('Your Brand Blueprint', W / 2, y, { align: 'center' });
 
   // BIG italic brand name (the "Stickers" of the reference)
-  y += 26;
+  y += 22;
   doc.setFont('times', 'italic');
-  doc.setFontSize(64);
+  doc.setFontSize(56);
   doc.setTextColor(...rose);
   // Auto-shrink to fit
   let displayBrand = brand;
-  let bSize = 64;
+  let bSize = 56;
   while (doc.getTextWidth(displayBrand) > contentW - 20 && bSize > 28) {
     bSize -= 2;
     doc.setFontSize(bSize);
@@ -152,7 +152,7 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.text(displayBrand, W / 2, y, { align: 'center' });
 
   // Italic descriptor line
-  y += 18;
+  y += 14;
   doc.setFont('times', 'italic');
   doc.setFontSize(11);
   doc.setTextColor(...roseSoft);
@@ -172,7 +172,7 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.text('♥', W / 2, y + 1.2, { align: 'center' });
 
   // Three rounded "pill" metadata chips
-  y += 16;
+  y += 12;
   const chips = [
     (data.aesthetic || 'Editorial').toUpperCase(),
     date.toUpperCase(),
@@ -197,7 +197,7 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   });
 
   // Circle heart medallion
-  y += 28;
+  y += 22;
   doc.setDrawColor(...goldSoft);
   doc.setLineWidth(0.5);
   doc.circle(W / 2, y, 6, 'S');
@@ -207,17 +207,18 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
 
   // Colour swatches (smaller, beneath the medallion)
   if (data.colours.length > 0) {
-    y += 18;
-    const swatchSize = 10;
+    y += 14;
+    const swatchSize = 8;
     const sgap = 5;
-    const totalSW = data.colours.length * swatchSize + (data.colours.length - 1) * sgap;
+    const cols = data.colours.slice(0, 6);
+    const totalSW = cols.length * swatchSize + (cols.length - 1) * sgap;
     let sx = (W - totalSW) / 2;
-    data.colours.forEach(c => {
+    cols.forEach(c => {
       const rgb = hexToRgb(c.hex || '#c4a89a');
       doc.setFillColor(...rgb);
       doc.setDrawColor(...goldSoft);
       doc.setLineWidth(0.2);
-      doc.roundedRect(sx, y, swatchSize, swatchSize, 1.6, 1.6, 'FD');
+      doc.roundedRect(sx, y, swatchSize, swatchSize, 1.4, 1.4, 'FD');
       sx += swatchSize + sgap;
     });
     y += swatchSize + 5;
