@@ -42,7 +42,7 @@ export default function GateScreen() {
       <div className="animate-float-arch mb-3">
         <DollhouseMark size={40} />
       </div>
-      <p className="dh-wordmark-kicker text-center mb-1 opacity-90" style={{ fontSize: 'clamp(24px, 3.5vw, 38px)' }}>THE</p>
+      <p className="dh-wordmark-kicker text-center mb-1 opacity-90 uppercase" style={{ fontSize: 'clamp(11px, 1.4vw, 14px)', letterSpacing: '0.35em' }}>The</p>
       <h1 className="dh-wordmark text-center uppercase" style={{ fontSize: 'clamp(56px, 8vw, 96px)', letterSpacing: '0.04em' }}>DOLLHOUSE</h1>
       <p className="font-ui text-xs tracking-[5px] italic text-dh-text-light font-light text-center mt-1 mb-4">private access</p>
 
