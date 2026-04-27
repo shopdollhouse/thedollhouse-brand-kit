@@ -30,7 +30,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#8C5A58', n: 'Antique Mauve', use: 'Secondary text, hover states', why: 'Adds depth and richness. Works as a quiet counterpoint to the softness — grounded without being heavy.' },
         { c: '#2A1518', n: 'Plum Noir', use: 'Headlines, footer, strong contrast', why: 'Replaces harsh black. Provides all the contrast you need while staying true to the warm, feminine palette.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + DM Sans';
       typoWhy = `Playfair brings editorial elegance — ${customer} associate serif fonts with trust and expertise. DM Sans is clean and modern for body text, ensuring readability on screens where ${customer} will be buying.`;
       logo = 'Elegant italic serif wordmark with a thin crescent or arch motif above the name. Premium and editorial — unmistakably female-led.';
       logo2 = 'Monogram lettermark in a circle with hairline rules above and below.';
@@ -41,7 +41,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#A07868', n: 'Dusty Terracotta', use: 'Accent details, price tags', why: 'Earthy warmth that grounds the palette. Creates visual anchors without competing with your product photography.' },
         { c: '#1e0f09', n: 'Espresso', use: 'All body text, primary contrast', why: 'Deep, warm dark that reads as sophisticated rather than harsh. Your text will feel handwritten, not printed.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + DM Sans';
       typoWhy = `Cormorant Garamond has the intimacy of a handwritten letter — it tells ${customer} this brand has a story. Jost provides the clean structure needed for pricing, labels, and navigation.`;
       logo = 'Hand-drawn serif wordmark with a soft botanical — a single stem, pressed flower, or leaf. Should feel like it was stamped on tissue paper by hand.';
       logo2 = 'A minimal arch or oval wrapping the brand name. Clean enough for stickers, pretty enough to stand alone.';
@@ -52,7 +52,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#9C6E64', n: 'Rose Umber', use: 'Subheadings, decorative rules', why: 'Adds hierarchy and depth. Helps the eye navigate without aggressive colour contrast.' },
         { c: '#1e0f09', n: 'Espresso', use: 'Body text, strong headlines', why: 'Warm alternative to black that maintains the soft aesthetic while ensuring complete readability.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + DM Sans';
       typoWhy = `Cormorant Garamond makes ${prod} feel curated and intentional. DM Sans keeps everything readable and professional. Together they say: "beautiful and trustworthy."`;
       logo = `Delicate serif wordmark with soft rounded curves. Feels personal and warm — like a letter signed with love. Perfect for ${prod}.`;
       logo2 = 'Thin script initials inside a soft circle. Scales well on product labels and bio icons.';
@@ -80,7 +80,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#8A5A28', n: 'Burnished Oak', use: 'Supporting type, hover states', why: 'Adds editorial depth. Works as a secondary accent that reinforces the premium, established feeling.' },
         { c: '#1C1814', n: 'Ink', use: 'All headlines and body copy', why: 'Near-black with warmth. Prints beautifully and reads as authoritative on screen — exactly how bold brands build trust.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Libre Baskerville + Plus Jakarta Sans';
       typoWhy = `Libre Baskerville is the font equivalent of walking into a room with confidence. ${customer} trust bold, established typography. Plus Jakarta Sans provides modern readability that doesn't compete with the headlines.`;
       logo = 'A strong editorial serif wordmark — uppercase, wide-tracked, confident. The kind of logo that prints on a matte black business card and turns heads.';
       logo2 = 'A horizontal logo lock-up with a thin rule separating the brand name from a short descriptor line below.';
@@ -91,7 +91,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#6B4A28', n: 'Dark Cognac', use: 'Secondary calls to action', why: 'Deep amber that adds richness. Works beautifully in dark mode and on business cards.' },
         { c: '#1A1008', n: 'Midnight Brown', use: 'All text and primary elements', why: 'Near-black with amber warmth. Reads as strong and grounded — never cold or corporate.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Libre Baskerville + Plus Jakarta Sans';
       typoWhy = `Bebas Neue is unapologetically bold — it says "I'm here and I'm serious." ${customer} respect brands that don't apologise for taking up space. Plus Jakarta Sans balances this with clean, trustworthy body text.`;
       logo = 'Strong all-caps wordmark, tight letter-spacing, no decoration. Confidence in simplicity — the name is the brand.';
       logo2 = 'A bold monogram in a square or circle. Works as a stamp, favicon, or embossed detail.';
@@ -102,7 +102,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#8A5A28', n: 'Burnished Oak', use: 'Secondary details, borders', why: 'Provides visual hierarchy without introducing new colour energy. Keeps the palette tight and intentional.' },
         { c: '#1C1814', n: 'Ink', use: 'All body text and headlines', why: 'Strong, authoritative, and warm. The backbone of every editorial brand.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Libre Baskerville + Plus Jakarta Sans';
       typoWhy = `Libre Baskerville says "I know what I'm doing." ${customer} trust brands that look established. Plus Jakarta Sans handles the detail work — pricing, descriptions, navigation — with effortless clarity.`;
       logo = 'A strong serif wordmark, all-caps or sentence case. No icon needed — the typography does all the work.';
       logo2 = 'A horizontal logo lock-up with a thin rule separating brand name from a short descriptor line below.';
@@ -130,7 +130,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#A89880', n: 'Taupe', use: 'Secondary text, quiet accents', why: 'A sophisticated neutral that adds warmth to the minimal palette without introducing colour.' },
         { c: '#1A1410', n: 'Espresso', use: 'All primary text and headings', why: 'Warm near-black that reads as refined rather than corporate. Every word feels intentional.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Fraunces + Jost';
       typoWhy = `Fraunces is a "wonky" serif — minimal but with personality. It tells ${customer} your service is premium but approachable. Jost is geometric and clean, perfect for pricing and form fields.`;
       logo = 'A refined monogram or single-word logotype in a carefully spaced serif. Understated luxury — less is everything.';
       logo2 = 'Brand name in a thin serif with extended letter-spacing. No icon. The restraint is the luxury signal.';
@@ -141,7 +141,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#A0A098', n: 'Stone', use: 'Secondary text, muted icons', why: 'Establishes clear visual hierarchy. Helps users scan your product pages efficiently.' },
         { c: '#1C1C1A', n: 'Charcoal', use: 'All primary text, headlines', why: 'Maximum contrast for readability on screens. Your product descriptions need to be effortlessly legible.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Fraunces + Jost';
       typoWhy = `Inter was literally designed for screens — it's the most readable sans-serif available. For ${prod}, readability converts to sales. Jost adds geometric personality to headlines without sacrificing clarity.`;
       logo = `Clean sans-serif wordmark for ${prod} — works at 16px on screen and large format print. Scalability is the entire brief.`;
       logo2 = 'A geometric icon mark — a simple shape that represents your core concept — paired with the wordmark in a horizontal lock-up.';
@@ -152,7 +152,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#B8B0A8', n: 'Warm Grey', use: 'Supporting text, quiet details', why: 'The invisible workhorse — guides users through your content without demanding attention.' },
         { c: '#1A1A18', n: 'Near Black', use: 'All type, primary contrast', why: 'Clean, professional, and unmistakable. Every word lands with clarity.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Fraunces + Jost';
       typoWhy = `Fraunces brings just enough personality to prevent your minimal brand from feeling cold. DM Sans handles body text with the kind of quiet efficiency that ${customer} appreciate without noticing.`;
       logo = 'A geometric wordmark with precise, generous spacing. Nothing decorative — the restraint is the aesthetic.';
       logo2 = 'Brand name with a thin horizontal rule underneath. Clean, intentional, and professional without being corporate.';
@@ -180,7 +180,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#A07848', n: 'Amber', use: 'CTAs, highlights, buttons', why: `Earthy amber converts because it feels natural and trustworthy. ${customer} are more likely to click something that doesn't scream "ad."` },
         { c: '#2A1A08', n: 'Dark Soil', use: 'All text, strong contrast elements', why: 'Deep earth tone that grounds every page. Reads as wise, established, and rooted — exactly the trust signal your brand needs.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + Jost';
       typoWhy = `Cormorant Garamond has the gravitas of a hand-printed book — ${customer} associate serif fonts with heritage and trust. Jost provides clean, modern structure for UI elements where readability matters most.`;
       logo = `A refined botanical badge or crest-style mark for your ${prod} brand — like it could be stamped in wax. Premium, handcrafted, irreplaceable.`;
       logo2 = 'A clean serif wordmark with a thin botanical element running beneath it — a branch or single leaf. Elegant and story-driven.';
@@ -191,7 +191,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#9A7048', n: 'Clay', use: 'CTAs, buttons, active states', why: 'Earthy and decisive — gives your buttons authority without breaking the warm palette. Converts because it feels trustworthy.' },
         { c: '#2A1A0A', n: 'Bark', use: 'All body text and headings', why: 'Deep, rich brown that reads as organic and handcrafted. Every line of text feels like it was written by hand.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + Jost';
       typoWhy = `Playfair Display tells ${customer} this is a brand with a story worth reading. DM Sans handles the practical details — pricing, descriptions, shipping info — with unobtrusive clarity.`;
       logo = `Hand-drawn or textured wordmark for ${prod} with a botanical element — leaf, branch, or organic shape. Should feel like it grew from the earth.`;
       logo2 = 'A circular badge with the brand name inside and a simple botanical ring. Works as a sticker, product label, and social avatar.';
@@ -202,7 +202,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#9A7848', n: 'Toffee', use: 'Buttons, active states', why: 'Rich warmth that commands attention without aggression. The colour of action in an earthy palette.' },
         { c: '#2A1C08', n: 'Dark Earth', use: 'All text, primary contrast', why: 'Grounded and wise. The deepest tone in your palette provides all the contrast you need.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Cormorant Garamond + Jost';
       typoWhy = `Cormorant Garamond evokes the feeling of handwritten letters and artisan labels. ${customer} are drawn to brands that feel personal and rooted. DM Sans keeps the functional elements clean.`;
       logo = 'Textured badge-style logo with a hand-stamped or carved aesthetic. Earthy, roots-forward, and story-driven.';
       logo2 = 'A flowing script brand name with a small organic element — a seed, sprig, or fingerprint texture. Intimate and handmade in feeling.';
@@ -231,7 +231,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#FF8C6B', n: 'Coral', use: 'CTAs, buttons, active highlights', why: `Energetic and clickable — ${customer} are drawn to warm, vibrant CTAs. This colour says "fun" and "do it now" simultaneously.` },
         { c: '#2A1040', n: 'Deep Violet', use: 'All text, strong contrast', why: 'Unexpected dark that makes the warm palette pop. More interesting than black, more playful than grey.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Nunito + Plus Jakarta Sans';
       typoWhy = `Nunito is round, friendly, and approachable — it tells ${customer} your brand is fun before they read a single word. Plus Jakarta Sans adds just enough structure for credibility.`;
       logo = `Rounded wordmark for ${prod} with a bouncy companion icon — something that moves on the page. Energetic, joyful, and Gen-Z coded.`;
       logo2 = 'An abstract doodle-style icon mark — imperfect, hand-feeling, and immediately likeable as a profile picture.';
@@ -242,7 +242,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#7B6BFF', n: 'Electric Violet', use: 'CTAs, key accents, hover', why: 'Bold and unmissable — the action colour in your palette. High contrast against the light background drives clicks.' },
         { c: '#1A1030', n: 'Deep Ink', use: 'All body text, headlines', why: 'Purple-tinted dark that ties the whole palette together. More cohesive than pure black.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Nunito + Plus Jakarta Sans';
       typoWhy = `Nunito's rounded forms make ${prod} feel friendly and approachable — essential for digital products where ${customer} need to trust before they buy. DM Sans handles the details with clean professionalism.`;
       logo = `A bold, playful wordmark for ${prod} with a pop of colour. Stands out in a grid feed and feels effortlessly fun and modern.`;
       logo2 = 'A simple geometric badge in the accent colour — single letter or abstract mark. Doubles as an app icon and product watermark.';
@@ -253,7 +253,7 @@ export function getBrandIdentity(aesthetic: string, vibe: string, budget: string
         { c: '#FFB347', n: 'Mango', use: 'Buttons, CTAs, active elements', why: `Warm, appetising orange that drives action. ${customer} are statistically more likely to click warm-toned buttons.` },
         { c: '#1A2A10', n: 'Forest', use: 'All text, high contrast elements', why: 'Deep green that reads as natural and trustworthy. A refreshing alternative to black that supports the playful palette.' },
       ];
-      typo = 'Cormorant Garamond + Outfit';
+      typo = 'Nunito + Plus Jakarta Sans';
       typoWhy = `Nunito's friendly rounded letterforms match the playful energy of your ${prod} brand. ${customer} will feel welcomed and energised. Plus Jakarta Sans keeps navigation and pricing professional.`;
       logo = `Playful rounded wordmark or illustrated icon + wordmark combination for ${prod}. Approachable, fun, and impossible to forget.`;
       logo2 = 'A small illustrated character or object that represents your brand personality — works as a sticker, watermark, and social icon.';
