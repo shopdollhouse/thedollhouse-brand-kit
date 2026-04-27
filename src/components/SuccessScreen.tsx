@@ -5,7 +5,11 @@ import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
 import html2canvas from 'html2canvas';
 
-export default function SuccessScreen() {
+interface SuccessScreenProps {
+  onClose?: () => void;
+}
+
+export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
   const { answers, resetAll, setScreen } = useQuiz();
   const certificateRef = useRef<HTMLDivElement>(null);
   const name = (answers.firstName || '').split(' ')[0] || 'Founder';
@@ -178,7 +182,11 @@ export default function SuccessScreen() {
           <button
             onClick={() => {
               playClick('soft');
-              setScreen('results');
+              if (onClose) {
+                onClose();
+              } else {
+                setScreen('results');
+              }
             }}
             className="w-full py-3 rounded-xl font-ui text-[10px] tracking-[2px] uppercase font-medium text-dh-text-light transition-all"
             style={{

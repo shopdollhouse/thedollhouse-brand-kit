@@ -16,6 +16,7 @@ import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
 import DollhouseMark from '@/components/DollhouseMark';
 import CreatorNote from '../CreatorNote';
 import ResetConfirmDialog from '../ResetConfirmDialog';
+import SuccessScreen from '../SuccessScreen';
 
 const ROOMS = [
   ['r01', '01 Name'], ['r02', '02 Platforms'], ['r03', '03 Product'],
@@ -24,7 +25,7 @@ const ROOMS = [
   ['r10', '10 90-Day'], ['r11', '11 Mission'], ['r12', '12 Design'],
 ];
 
-function StickyNav({ onReset, onDownload }: { onReset: () => void; onDownload: () => void }) {
+function StickyNav({ onReset, onDownload, onCelebrate }: { onReset: () => void; onDownload: () => void; onCelebrate: () => void }) {
   const [active, setActive] = useState('r01');
   useEffect(() => {
     const handler = () => {
@@ -55,9 +56,14 @@ function StickyNav({ onReset, onDownload }: { onReset: () => void; onDownload: (
       <div className="flex items-center justify-between px-5 py-2" style={{ borderBottom: '1px solid var(--dh-glass-border)' }}>
         <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-medium">THE DOLLHOUSE</p>
         <div className="flex items-center gap-2">
-          <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+          <button onClick={() => { playClick('soft'); onCelebrate(); }}
             className="font-ui text-[9px] tracking-[2px] uppercase rounded-full py-1 px-3 cursor-pointer transition-all hover:opacity-80"
             style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
+            ✨ Celebrate
+          </button>
+          <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+            className="font-ui text-[9px] tracking-[2px] uppercase rounded-full py-1 px-3 cursor-pointer transition-all hover:opacity-80"
+            style={{ background: 'none', color: 'var(--dh-text-light)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
             ⬇ Download
           </button>
           <button onClick={() => { playClick('back'); onReset(); }}
@@ -126,7 +132,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 // ShortcutBar removed — was overlapping content and felt dev-facing
 
-function LeftSidebar({ activeRoom, onDownload }: { activeRoom: string; onDownload: () => void }) {
+function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: string; onDownload: () => void; onCelebrate: () => void }) {
   const scrollTo = (id: string) => {
     const el = document.querySelector(`[data-room-id="${id}"]`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -171,9 +177,16 @@ function LeftSidebar({ activeRoom, onDownload }: { activeRoom: string; onDownloa
         <span className="text-[11px] leading-none">♥</span>
         Shop
       </button>
-      <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+      <div className="h-px mx-2" style={{ background: 'rgba(var(--dh-accent-rgb), 0.15)' }} />
+      <button onClick={() => { playClick('soft'); onCelebrate(); }}
         className={bb}
         style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none', borderRadius: '10px' }}>
+        <span className="text-[11px] leading-none">✨</span>
+        Celebrate
+      </button>
+      <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+        className={bb}
+        style={{ background: 'none', color: 'var(--dh-text-light)', border: 'none' }}>
         <span className="text-[11px] leading-none">⬇</span>
         Save
       </button>
@@ -203,6 +216,7 @@ export default function ResultsScreen() {
   const downloadRef = useRef<(() => void) | null>(null);
   const [showReadyPopup, setShowReadyPopup] = useState(true);
   const [showConfetti, setShowConfetti] = useState(true);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const unlockedRooms = useRef<Set<string>>(new Set());
 
   const copyScript = (text: string) => {
@@ -394,7 +408,7 @@ export default function ResultsScreen() {
       <div className="fixed top-0 left-0 right-0 h-[2px] z-[200]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.1)' }}>
         <div className="h-full transition-all duration-150" style={{ width: `${scrollProgress * 100}%`, background: 'linear-gradient(90deg, var(--dh-accent), var(--dh-accent-dark))' }} />
       </div>
-      <LeftSidebar activeRoom={activeRoom} onDownload={() => downloadRef.current?.()} />
+      <LeftSidebar activeRoom={activeRoom} onDownload={() => downloadRef.current?.()} onCelebrate={() => setShowSuccessScreen(true)} />
       <div id="dh-results-inner" className="w-full max-w-[800px] mx-auto px-5 animate-cinematic-reveal" style={{ padding: '80px 20px 120px' }}>
 
         {/* ══ ROOM 00: THE COVER — Dollhouse Blush Edition ══ */}
@@ -1120,6 +1134,18 @@ export default function ResultsScreen() {
         onConfirm={confirmReset}
         onCancel={() => setShowResetConfirm(false)}
       />
+
+      {/* Success Screen Overlay */}
+      {showSuccessScreen && (
+        <>
+          <div className="fixed inset-0 z-[999] bg-black/40" onClick={() => setShowSuccessScreen(false)} />
+          <div className="fixed inset-0 z-[1000] pointer-events-none">
+            <div className="pointer-events-auto" onClick={e => e.stopPropagation()}>
+              <SuccessScreen onClose={() => setShowSuccessScreen(false)} />
+            </div>
+          </div>
+        </>
+      )}
       {/* ShortcutBar removed */}
     </div>
   );
