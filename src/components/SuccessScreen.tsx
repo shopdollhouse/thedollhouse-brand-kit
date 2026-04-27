@@ -31,21 +31,22 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
         const canvas = await html2canvas(certificateRef.current, {
           backgroundColor: '#faf3ea',
           scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          imageTimeout: 0,
         });
-        canvas.toBlob((blob: Blob | null) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${brand}-blueprint-certificate.png`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast('Certificate downloaded! Ready to share 📸');
-          }
-        });
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `${brand}-blueprint-certificate.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast('Certificate downloaded! Ready to share 📸');
       } catch (err) {
         console.error('Screenshot failed:', err);
-        toast('Copy the certificate to share');
+        toast('Error downloading. Try copying the image instead.');
       }
     }
   };
