@@ -163,9 +163,9 @@ function AppContent() {
             boxShadow: scrolled ? '0 1px 24px rgba(0,0,0,0.07)' : 'none',
             pointerEvents: 'all',
           }}>
-            <div className="flex items-baseline gap-[6px] cursor-default select-none">
-              <span className="dh-wordmark-kicker opacity-90" style={{ fontSize: '11px', letterSpacing: '0.35em' }}>the</span>
-              <span className="dh-wordmark" style={{ fontSize: '20px', letterSpacing: '0.04em' }}>DOLLHOUSE</span>
+            <div className="flex flex-col items-center cursor-default select-none gap-0">
+              <span className="dh-wordmark-kicker" style={{ fontSize: '9px', letterSpacing: '0.35em', opacity: 0.85 }}>the</span>
+              <span className="dh-wordmark" style={{ fontSize: '22px', letterSpacing: '0.04em', lineHeight: '1' }}>DOLLHOUSE</span>
             </div>
             <nav className="absolute left-1/2 -translate-x-1/2 flex gap-0.5">
               {[['welcome', 'Welcome'], ['questions', 'Quiz'], ['results', 'Results']].map(([s, l]) => (
