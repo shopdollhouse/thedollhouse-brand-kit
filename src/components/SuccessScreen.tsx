@@ -92,103 +92,100 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           <div className="h-1" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
 
           {/* Header with Rich Gradient */}
-          <div className="px-10 pt-10 pb-6 text-center relative"
+          <div className="px-10 pt-6 pb-4 text-center relative"
                style={{ background: 'linear-gradient(135deg, var(--dh-accent) 0%, var(--dh-accent-dark) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)' }}>
             {/* Decorative corner elements */}
             <div className="absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 border-white opacity-30" style={{ borderRadius: '2px' }} />
             <div className="absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 border-white opacity-30" style={{ borderRadius: '2px' }} />
 
-            <p className="font-ui text-[8px] tracking-[4px] uppercase text-white opacity-85 mb-3 font-semibold">
+            <p className="font-ui text-[7px] tracking-[3px] uppercase text-white opacity-85 mb-2 font-semibold">
               ✦ BRAND BLUEPRINT CERTIFICATE ✦
             </p>
-            <div className="inline-block mb-4 relative">
+            <div className="inline-block mb-2 relative">
               <div className="absolute -inset-3 rounded-full opacity-30" style={{ background: 'rgba(255,255,255,0.1)', filter: 'blur(8px)' }} />
-              <DollhouseMark size={56} />
+              <DollhouseMark size={40} />
             </div>
-            <p className="font-display italic text-[11px] tracking-[3px] text-white opacity-80">
+            <p className="font-display italic text-[9px] tracking-[2px] text-white opacity-80">
               Authentically Designed & Personalized
             </p>
           </div>
 
           {/* Main Content */}
-          <div className="px-12 py-14 text-center relative">
+          <div className="px-10 py-8 text-center relative">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, var(--dh-accent) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
             <div className="relative">
               {/* Preamble */}
-              <p className="font-body text-[11px] tracking-[2px] uppercase text-dh-text-light mb-6" style={{ letterSpacing: '2px' }}>
+              <p className="font-body text-[10px] tracking-[2px] uppercase text-dh-text-light mb-3" style={{ letterSpacing: '2px' }}>
                 This Certifies That
               </p>
 
               {/* Brand Name - Premium Treatment */}
-              <h1 className="font-display italic text-[52px] leading-[1.1] mb-3" style={{ color: 'var(--dh-accent-dark)', textShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+              <h1 className="font-display italic text-[42px] leading-[1.1] mb-2" style={{ color: 'var(--dh-accent-dark)', textShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                 {brand}
               </h1>
 
               {/* Decorative Line */}
-              <div className="flex items-center gap-3 justify-center mb-8">
-                <div className="flex-1 h-px max-w-[40px]" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent))' }} />
-                <span className="text-[16px]" style={{ color: 'var(--dh-accent)' }}>✦</span>
-                <div className="flex-1 h-px max-w-[40px]" style={{ background: 'linear-gradient(90deg, var(--dh-accent), transparent)' }} />
+              <div className="flex items-center gap-3 justify-center mb-4">
+                <div className="flex-1 h-px max-w-[30px]" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent))' }} />
+                <span className="text-[14px]" style={{ color: 'var(--dh-accent)' }}>✦</span>
+                <div className="flex-1 h-px max-w-[30px]" style={{ background: 'linear-gradient(90deg, var(--dh-accent), transparent)' }} />
               </div>
 
               {/* Person Name */}
-              <p className="font-body text-[13px] text-dh-text-mid mb-2">
+              <p className="font-body text-[11px] text-dh-text-mid mb-1">
                 in recognition of
               </p>
-              <p className="font-display italic text-[32px] text-dh-text mb-8" style={{ color: 'var(--dh-accent-dark)' }}>
+              <p className="font-display italic text-[26px] text-dh-text mb-5" style={{ color: 'var(--dh-accent-dark)' }}>
                 {name}
               </p>
 
               {/* Aesthetic Badge - Premium Style */}
-              <div className="inline-block mb-8 px-5 py-2.5 rounded-full border-2"
+              <div className="inline-block mb-5 px-4 py-2 rounded-full border-2"
                    style={{
                      background: 'rgba(var(--dh-accent-rgb), 0.08)',
                      border: '2px solid var(--dh-accent)',
                      boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.4)'
                    }}>
-                <p className="font-ui text-[9px] tracking-[3px] uppercase font-semibold text-dh-accent-dark">
+                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
                   {aestheticEmojis[aesthetic]} {aesthetic}
                 </p>
               </div>
 
               {/* Certificate Text */}
-              <div className="mb-10 max-w-[420px] mx-auto">
-                <p className="font-body text-[13px] text-dh-text-mid leading-[1.8] font-light">
-                  has successfully completed their personalized brand blueprint and demonstrated commitment to building a brand with intention, clarity, and lasting impact.
+              <div className="mb-6 max-w-[400px] mx-auto">
+                <p className="font-body text-[11px] text-dh-text-mid leading-[1.6] font-light">
+                  has completed their personalized brand blueprint and is ready to launch with intention, clarity, and lasting impact.
                 </p>
               </div>
 
               {/* Fancy Divider */}
-              <div className="flex items-center gap-3 justify-center mb-10">
-                <div className="w-8 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
-                <span className="text-[12px]" style={{ color: 'var(--dh-accent)' }}>♥</span>
-                <div className="w-8 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
+              <div className="flex items-center gap-2 justify-center mb-5">
+                <div className="w-6 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
+                <span className="text-[11px]" style={{ color: 'var(--dh-accent)' }}>♥</span>
+                <div className="w-6 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
               </div>
 
               {/* Date & Signature Section */}
-              <div className="border-t border-dashed" style={{ borderColor: 'rgba(var(--dh-accent-rgb), 0.25)', paddingTop: '20px' }}>
-                <p className="font-ui text-[9px] tracking-[2px] uppercase text-dh-text-light mb-4 font-medium">
-                  Completed on {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              <div className="border-t border-dashed" style={{ borderColor: 'rgba(var(--dh-accent-rgb), 0.25)', paddingTop: '12px' }}>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-text-light mb-2 font-medium">
+                  {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
-                <div className="mb-3">
-                  <DollhouseMark size={28} />
+                <div className="mb-2">
+                  <DollhouseMark size={24} />
                 </div>
-                <p className="font-display italic text-[16px] text-dh-accent-dark mb-1">
+                <p className="font-display italic text-[14px] text-dh-accent-dark">
                   The Dollhouse Studio
-                </p>
-                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-text-light opacity-60">
-                  Certified & Signed
                 </p>
               </div>
             </div>
           </div>
 
           {/* Footer Banner */}
-          <div className="px-10 py-5 text-center"
+          <div className="px-10 py-3 text-center"
                style={{ background: 'linear-gradient(135deg, rgba(var(--dh-accent-rgb), 0.12) 0%, rgba(var(--dh-accent-rgb), 0.08) 100%)', borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
-            <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark opacity-70 font-semibold">
-              ✧ Your Blueprint is Private · Your Success is Public ✧
+            <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark opacity-70 font-semibold">
+              ✧ Blueprint is Private · Success is Public ✧
             </p>
           </div>
 
@@ -197,10 +194,10 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 space-y-2.5">
+        <div className="mt-5 space-y-2">
           <button
             onClick={handleShare}
-            className="w-full py-3.5 rounded-xl font-ui text-[10px] tracking-[2px] uppercase font-semibold transition-all"
+            className="w-full py-3 rounded-xl font-ui text-[9px] tracking-[2px] uppercase font-semibold transition-all"
             style={{
               background: 'linear-gradient(135deg, var(--dh-accent) 0%, var(--dh-accent-dark) 100%)',
               color: 'white',
@@ -216,7 +213,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
           <button
             onClick={handleScreenshot}
-            className="w-full py-3.5 rounded-xl font-ui text-[10px] tracking-[2px] uppercase font-semibold transition-all"
+            className="w-full py-3 rounded-xl font-ui text-[9px] tracking-[2px] uppercase font-semibold transition-all"
             style={{
               background: 'white',
               color: 'var(--dh-accent-dark)',
@@ -239,7 +236,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
                 setScreen('results');
               }
             }}
-            className="w-full py-3.5 rounded-xl font-ui text-[10px] tracking-[2px] uppercase font-semibold text-dh-text-light transition-all"
+            className="w-full py-3 rounded-xl font-ui text-[9px] tracking-[2px] uppercase font-semibold text-dh-text-light transition-all"
             style={{
               background: 'rgba(var(--dh-accent-rgb), 0.06)',
               border: '1.5px solid rgba(var(--dh-accent-rgb), 0.3)',
@@ -253,12 +250,12 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
         </div>
 
         {/* Celebration Message */}
-        <div className="mt-8 text-center">
-          <p className="font-display italic text-[14px] text-dh-accent-dark mb-2">
+        <div className="mt-4 text-center">
+          <p className="font-display italic text-[13px] text-dh-accent-dark mb-1">
             You're officially ready.
           </p>
-          <p className="font-body text-[12px] text-dh-text-light leading-[1.6]">
-            Your blueprint is complete. Now go make that first sale. ✨
+          <p className="font-body text-[11px] text-dh-text-light leading-[1.5]">
+            Now go make that first sale. ✨
           </p>
         </div>
       </div>
