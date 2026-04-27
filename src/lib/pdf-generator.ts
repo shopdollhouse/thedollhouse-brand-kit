@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { derive } from './quiz-helpers';
+import { derive, getPricingStrategy, type PricingStrategy } from './quiz-helpers';
 
 interface PDFData {
   name: string;
@@ -101,19 +101,25 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.setLineWidth(0.3);
   doc.roundedRect(10, 10, W - 20, H - 20, 6, 6, 'S');
 
-  // Heart ornament at top center — brand signature
+  // Heart SVG logo at top center — brand signature
   const heartCx = W / 2;
-  const heartTop = 28;
-  doc.setFillColor(...gold);
-  doc.setLineWidth(0.5);
-  doc.setDrawColor(...gold);
-  // Draw simple heart shape using circles and lines
-  doc.circle(heartCx - 1.5, heartTop - 0.5, 1, 'F');
-  doc.circle(heartCx + 1.5, heartTop - 0.5, 1, 'F');
-  // Bottom point
-  doc.setLineWidth(0.3);
-  doc.line(heartCx - 2.5, heartTop, heartCx, heartTop + 2);
-  doc.line(heartCx, heartTop + 2, heartCx + 2.5, heartTop);
+  const heartTop = 27;
+  const goldHex = '%23b8904c';
+  const heartSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="${goldHex.replace('%23', '#')}" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+  const heartDataUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(heartSvg);
+  try {
+    doc.addImage(heartDataUrl, 'SVG', heartCx - 5, heartTop - 5, 10, 10);
+  } catch (e) {
+    // Fallback: simple heart shape
+    doc.setFillColor(...gold);
+    doc.setDrawColor(...gold);
+    doc.circle(heartCx - 1.2, heartTop - 0.8, 0.9, 'F');
+    doc.circle(heartCx + 1.2, heartTop - 0.8, 0.9, 'F');
+    const points = [[heartCx - 2, heartTop - 0.2], [heartCx, heartTop + 1.5], [heartCx + 2, heartTop - 0.2]];
+    doc.setLineWidth(0.3);
+    doc.line(heartCx - 2, heartTop - 0.2, heartCx, heartTop + 1.5);
+    doc.line(heartCx, heartTop + 1.5, heartCx + 2, heartTop - 0.2);
+  }
 
   // "— THE DOLLHOUSE —" header (spaced caps with side rules)
   y = heartTop + 24;
@@ -292,24 +298,50 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
 
   // ═══ ROOM 04: PRICING ═══
   addPage('04', 'The Money Room');
-  writeText(`Three tiers gives ${d.customer} a choice without confusion.`, 10, 'italic', accent);
+
+  // DEBUG: Log what we're using
+  console.log('Room 04 Debug:', {
+    vibe: d.vibe,
+    budget: d.budget,
+    product: data.product,
+    customer: d.customer
+  });
+
+  // Get smart pricing strategy based on product type
+  const pricingStrategy = getPricingStrategy(d.vibe, d.budget, data.product, d.customer);
+
+  // DEBUG: Log what strategy was returned
+  console.log('Pricing Strategy Type:', pricingStrategy.type);
+  console.log('Pricing Strategy:', pricingStrategy);
+
+  writeText(pricingStrategy.description, 10, 'bold', accent);
+  y += 2;
+  writeText(pricingStrategy.strategy, 10, 'italic', accent);
   y += 3;
 
-  const tierLabels = d.tierLabels || { entry: 'Entry', core: 'Core', premium: 'Premium', entryDesc: '', coreDesc: '', premiumDesc: '' };
-  writeLabel(tierLabels.entry);
-  writeText(d.priceEntry, 10, 'bold');
-  writeText(tierLabels.entryDesc || 'Lowest barrier. Gets them through the door.', 9);
+  writeLabel('Your Pricing Structure');
+
+  // Use pricing strategy tier names and prices directly
+  writeLabel(pricingStrategy.type === 'lowcost-bundling' ? 'Single Item' : pricingStrategy.type === 'digital' ? 'Entry' : pricingStrategy.type === 'service' ? 'Starter' : 'Entry');
+  writeText(pricingStrategy.entry, 10, 'bold');
+  writeText(pricingStrategy.type === 'lowcost-bundling' ? 'Removes barriers. Single item for curious first-time buyers.' : 'Lowest barrier. Entry point for new customers.', 9);
   y += 2;
 
-  writeLabel(tierLabels.core);
-  writeText(d.priceCore, 10, 'bold');
-  writeText(tierLabels.coreDesc || 'Your flagship. Best margin, best value.', 9);
+  writeLabel(pricingStrategy.type === 'lowcost-bundling' ? 'Bundle' : pricingStrategy.type === 'digital' ? 'Core Product' : pricingStrategy.type === 'service' ? 'Signature' : 'Core');
+  writeText(pricingStrategy.core, 10, 'bold');
+  writeText(pricingStrategy.type === 'lowcost-bundling' ? 'Your profit engine. Bundle increases order value 3-5x.' : 'Best margin. Best value. Where most customers buy.', 9);
   y += 2;
 
-  writeLabel(tierLabels.premium);
-  writeText(d.pricePrem, 10, 'bold');
-  writeText(tierLabels.premiumDesc || 'For buyers who want the best. Always have one.', 9);
+  writeLabel(pricingStrategy.type === 'lowcost-bundling' ? 'Deluxe Bundle' : pricingStrategy.type === 'digital' ? 'Bundle' : pricingStrategy.type === 'service' ? 'White-Glove' : 'Premium');
+  writeText(pricingStrategy.premium, 10, 'bold');
+  writeText(pricingStrategy.type === 'lowcost-bundling' ? 'Anchors value perception of lower tiers.' : 'Premium tier. Proves you have one. Always exclusive.', 9);
   y += 3;
+
+  writeLabel('Why This Pricing Works');
+  pricingStrategy.teachingPoints.slice(0, 3).forEach(point => {
+    writeBullet(point);
+  });
+  y += 2;
 
   // Sales Script
   writeLabel('Your High-Conversion Script');
@@ -320,8 +352,8 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   writeText(`CTA: ${d.salesScript.cta}`, 9, 'bold');
   y += 2;
 
-  writeLabel('Pricing Psychology');
-  writeText('Always show all three tiers. The premium tier makes the core tier look like a bargain. The entry tier captures price-sensitive buyers. Never apologize for your prices.', 9);
+  writeLabel('Pricing Confidence Check');
+  writeText('This price point allows you to: respect your time, cover costs, feel sustainable, and build profit. Never lower your price out of fear — that trains customers to wait for discounts.', 9, 'italic');
 
   // ═══ ROOM 05: SOCIAL ═══
   addPage('05', 'The Social Room');

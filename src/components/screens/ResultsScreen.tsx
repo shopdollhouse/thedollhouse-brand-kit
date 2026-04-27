@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
-import { derive, generateNames, applyThemePreset } from '@/lib/quiz-helpers';
+import { derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
 import RoomCard from '../results/RoomCard';
 import SummaryCard from '../results/SummaryCard';
 import FirstSaleRoom from '../results/FirstSaleRoom';
@@ -607,6 +607,18 @@ export default function ResultsScreen() {
             <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-medium flex items-center gap-3">Your Mission<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
             <p className="font-display italic text-[16px] leading-[1.9]" style={{ color: 'var(--dh-text)' }}>{missionLine}</p>
           </div>
+
+          {/* Blocker-Specific Mission Context */}
+          <div className="p-4 rounded-xl mt-3 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.03)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
+            <p className="font-body text-[12px] leading-[1.85] text-dh-text-light font-light">
+              {blocker === 'Not sure what to make or sell' ? `Your blocker was indecision. This blueprint makes the decision for you — stick to ${product} for the next 90 days.` :
+               blocker === "Don't know how to market" ? `Your blocker was marketing anxiety. We've built everything else here; now you just need to show up consistently.` :
+               blocker === 'Scared nobody will buy' ? `Your blocker was confidence. The fact is: your people are out there. The question is: will they find you? This blueprint gets you in front of them.` :
+               `Your blocker was getting started. Stop planning. This blueprint is your permission to begin.`}
+            </p>
+          </div>
+
           {/* Expert Strategy Note */}
           <div className="p-4 rounded-xl mt-3 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
             <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
@@ -631,12 +643,19 @@ export default function ResultsScreen() {
               <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">{aiResults?.platformReasons?.[p] || `${p} is the strongest match for your business type, budget, and the way you want to sell.`}</p>
             </div>
           ))}
-          {/* Expert Strategy Note */}
+          {/* Expert Strategy Note with Platform Context */}
           <div className="p-4 rounded-xl mt-4 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
             <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
-            <p className="font-display italic text-[13px] leading-[1.85] text-dh-text-light">
-              Expert Note: These platforms were selected because {customer} already shop there. We matched your selling style ({answers.sellType || 'Online'}), your budget ({answers.budget || 'flexible'}), and your product type to find where you'll get the fastest traction with the least friction.
-            </p>
+            <div>
+              <p className="font-display italic text-[13px] leading-[1.85] text-dh-text-light mb-2">
+                Expert Note: These platforms were selected because {customer} already shop there. We matched your selling style ({answers.sellType || 'Online'}), your budget ({answers.budget || 'flexible'}), and your product type to find where you'll get the fastest traction with the least friction.
+              </p>
+              <p className="font-body text-[12px] leading-[1.6] text-dh-text-light font-light" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.2)', paddingTop: '8px' }}>
+                {urgency === 'This week' ? `⏰ Your urgent timeline means you need the FASTEST platform to launch — prioritize ${topPlatforms[0]}.` : ''}
+                {answers.experience === 'Never' ? ` You're completely new, so we picked the simplest platforms to master first.` : ''}
+                {answers.budget === 'Higher' ? ` Your budget allows for paid tools — consider Shopify if you want advanced features.` : ''}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -646,6 +665,13 @@ export default function ResultsScreen() {
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {aiResults?.productRecommendation || `Your product is ${product}. Based on your answers — your budget, your audience, your time — this is the right thing to build first.`}
           </p>
+
+          {/* WHY THIS PRODUCT — Expert explanation */}
+          <div className="p-5 rounded-xl mb-4" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">Why This Product</p>
+            <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light whitespace-pre-line">{getProductExplanation(product, vibe, customer, answers.budget || '', blocker)}</p>
+          </div>
+
           <div className="p-4 rounded-xl mb-3" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
             <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Strategy for your niche</p>
             <p className="font-body text-[13px] leading-[1.85] text-dh-text-mid font-light">{productStrategy}</p>
@@ -661,25 +687,34 @@ export default function ResultsScreen() {
         {/* Room 04 - Money */}
         <div data-room-id="r04" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">04 — The Money Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Three tiers gives {customer} a choice without confusion. Most first-time buyers pick the middle tier — so price it to be your most profitable.</p>
-          <div className="grid gap-3.5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
-            {[
-              { label: tierLabels.entry, price: priceEntry, desc: tierLabels.entryDesc, hi: false },
-              { label: tierLabels.core, price: priceCore, desc: tierLabels.coreDesc, hi: true },
-              { label: tierLabels.premium, price: pricePrem, desc: tierLabels.premiumDesc, hi: false },
-            ].map(tier => (
-              <div key={tier.label} className="p-6 rounded-[18px] text-center relative" style={{ background: tier.hi ? 'rgba(var(--dh-accent-rgb), 0.1)' : 'rgba(var(--dh-accent-rgb), 0.04)', border: tier.hi ? '1.5px solid var(--dh-accent-dark)' : '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-                {tier.hi && <p className="absolute -top-[11px] left-1/2 -translate-x-1/2 font-ui text-[8px] tracking-[3px] uppercase py-1 px-3 rounded-full whitespace-nowrap font-medium" style={{ background: 'var(--dh-accent-dark)', color: 'var(--dh-btn-text)' }}>Start Here ✦</p>}
-                <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2.5 font-medium">{tier.label}</p>
-                <p className="font-display text-[28px] mb-1.5" style={{ color: 'var(--dh-text)' }}>{tier.price}</p>
-                <p className="font-body text-xs text-dh-text-light font-light leading-[1.5]">{tier.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="p-[18px_22px] rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
-            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">The Rule of Three</p>
-            <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">When given one price, buyers decide whether to buy. When given three, they decide <em>which</em> to buy. The middle tier anchors the decision — most people feel it's the safe, sensible choice.</p>
-          </div>
+          {/* Dynamic Pricing Strategy */}
+          {(() => {
+            const pricingStrategy = getPricingStrategy(vibe, answers.budget || '', product, customer);
+            return (
+              <>
+                <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">{pricingStrategy.description}</p>
+                <div className="grid gap-3.5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
+                  {[
+                    { label: 'Entry', price: pricingStrategy.entry.split(' ')[0], desc: pricingStrategy.entry.split('(')[1]?.replace(')', '') || '', hi: false },
+                    { label: pricingStrategy.type === 'digital' ? 'Core Product' : pricingStrategy.type === 'service' ? 'Signature Package' : pricingStrategy.type === 'curated' ? 'The Edit' : pricingStrategy.type === 'lowcost-bundling' ? 'Core' : 'Signature', price: pricingStrategy.core.split(' ')[0], desc: pricingStrategy.core.split('(')[1]?.replace(')', '') || '', hi: true },
+                    { label: pricingStrategy.type === 'digital' ? 'Bundle' : pricingStrategy.type === 'service' ? 'White-Glove' : pricingStrategy.type === 'curated' ? 'One-of-One' : pricingStrategy.type === 'lowcost-bundling' ? 'Deluxe' : 'Premium', price: pricingStrategy.premium.split(' ')[0], desc: pricingStrategy.premium.split('(')[1]?.replace(')', '') || '', hi: false },
+                  ].map(tier => (
+                    <div key={tier.label} className="p-6 rounded-[18px] text-center relative" style={{ background: tier.hi ? 'rgba(var(--dh-accent-rgb), 0.1)' : 'rgba(var(--dh-accent-rgb), 0.04)', border: tier.hi ? '1.5px solid var(--dh-accent-dark)' : '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+                      {tier.hi && <p className="absolute -top-[11px] left-1/2 -translate-x-1/2 font-ui text-[8px] tracking-[3px] uppercase py-1 px-3 rounded-full whitespace-nowrap font-medium" style={{ background: 'var(--dh-accent-dark)', color: 'var(--dh-btn-text)' }}>Start Here ✦</p>}
+                      <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2.5 font-medium">{tier.label}</p>
+                      <p className="font-display text-[28px] mb-1.5" style={{ color: 'var(--dh-text)' }}>{tier.price}</p>
+                      <p className="font-body text-xs text-dh-text-light font-light leading-[1.5]">{tier.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-[18px_22px] rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
+                  <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">{pricingStrategy.type === 'lowcost-bundling' ? 'Bundle Strategy' : 'Pricing Strategy'}</p>
+                  <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">{pricingStrategy.strategy}</p>
+                </div>
+              </>
+            );
+          })()}
+
 
           {/* Sales Script — Hook / Value / CTA */}
           <div className="mt-6">
@@ -738,9 +773,29 @@ export default function ResultsScreen() {
             </div>
           ))}
 
+          {/* Weekly Content Calendar */}
+          <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mt-6 mb-3.5 font-medium flex items-center gap-3">Your Weekly Content Calendar<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <p className="font-body text-[13px] text-dh-text-mid font-light leading-[1.8] whitespace-pre-line">{getWeeklyContentCalendar(answers.time || '', blocker)}</p>
+          </div>
+
+          {/* Blocker-Adapted Content Rotation */}
+          {(() => {
+            const adapted = getBlockerAdaptedRotation(blocker);
+            return (
+              <div className="p-4 rounded-xl mb-4 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+                <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Adapted for Your Situation ({adapted.pillar})</p>
+                  <p className="font-body text-[13px] leading-[1.8] text-dh-text-light font-light">{adapted.focus}</p>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* 3-Post Starter Strategy */}
-          <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mt-6 mb-3.5 font-medium flex items-center gap-3">Your 3-Post Starter Strategy<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-          <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mb-4">Post these three in your first week on {social[0]}. One educates, one connects, one sells. Repeat this rotation forever.</p>
+          <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mt-4 mb-3.5 font-medium flex items-center gap-3">Your 3-Post Content Pillars<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mb-4">Rotate these three types of content. Post one type per week, repeat infinitely.</p>
           {[
             { label: '📚 Education', text: d.threePostStrategy.education },
             { label: '🎬 Behind-the-Scenes', text: d.threePostStrategy.bts },
@@ -757,11 +812,37 @@ export default function ResultsScreen() {
         <div data-room-id="r05b" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">05b — The Foundation Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">These are the exact steps to get {name} live on {topPlatforms.join(' and ')}. Do one platform fully before touching the second.</p>
+
+          {/* Time expectation + budget note */}
+          <div className="p-4 rounded-xl mb-5 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-body text-[13px] leading-[1.8] text-dh-text-light font-light">
+                {answers.budget === 'Higher' ? 'You have budget for paid tools (Shopify, premium plugins). Skip the free DIY approach and invest in a platform that scales.' : 'Stick to free or low-cost platforms. Every feature you add later will still be available — start simple.'}
+              </p>
+              <p className="font-body text-[13px] leading-[1.8] text-dh-text-light font-light mt-2">
+                Platform setup should take 1-2 hours for the first platform, 30 min for the second. Don't overthink it.
+              </p>
+            </div>
+          </div>
+
           {(aiResults?.recommendedPlatforms || topPlatforms).map((p, i) => (
             <Acc key={i} title={`${p} — Step-by-Step Setup`}>
               {aiResults?.platformSetup?.[p] || `1. Create your account on ${p} with an email you check daily.\n2. Complete every field of your profile before going live.\n3. Add your first product or service listing with strong photos.\n4. Set up payment processing so you can receive money.\n5. Copy your profile link and put it in every social bio today.\n6. Post at least 3 pieces of content in your first week.\n7. Ask someone you trust for your first review or testimonial.`}
             </Acc>
           ))}
+
+          {/* Common Setup Mistakes */}
+          <div className="p-4 rounded-xl mt-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.03)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">Avoid These Setup Mistakes</p>
+            <ul className="font-body text-[12px] leading-[1.8] text-dh-text-light font-light space-y-1">
+              <li>❌ Waiting for perfect photos before going live</li>
+              <li>❌ Setting up both platforms simultaneously (you'll finish neither)</li>
+              <li>❌ Forgetting to test the buying process yourself first</li>
+              <li>❌ Not adding payment processing (your #1 revenue blocker)</li>
+              <li>❌ Writing long product descriptions instead of short, punchy ones</li>
+            </ul>
+          </div>
         </div>
 
         {/* Room 06 - First Sale */}
@@ -772,18 +853,36 @@ export default function ResultsScreen() {
         {/* Room 07 - Content Studio */}
         <div data-room-id="r07" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">07 — The Content Studio<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Content is how {customer} find you before they're ready to buy. These pillars give you an endless rotation — you'll never stare at a blank screen again.</p>
-          {(mk?.contentPillars?.length ? mk.contentPillars : [
-            { pillar: 'Pillar 01 — Show the work', description: `Behind-the-scenes, process, making-of. For a ${aesthetic.toLowerCase()} brand, this is especially powerful — ${customer} want to feel connected to the maker, not just the product.`, examplePosts: [] },
-            { pillar: 'Pillar 02 — Educate your buyer', description: pillar2, examplePosts: [] },
-            { pillar: 'Pillar 03 — Sell with story', description: `Results, testimonials, before/after. Collect feedback from your very first buyer and use it immediately. ${customer} trust other ${customer}.`, examplePosts: [] },
-          ]).map((cp: any, i: number) => (
-            <div key={i} className="p-[22px_26px] mb-3 rounded-r-xl" style={{ borderLeft: '2px solid var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.05)' }}>
-              <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">{cp.pillar}</p>
-              <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light mb-1">{cp.description}</p>
-              {cp.examplePosts?.map((ep: string, j: number) => <p key={j} className="font-body text-[13px] text-dh-text-mid italic font-light mb-1">→ "{ep}"</p>)}
-            </div>
-          ))}
+          {answers.time === 'Under 5 hours' ? (
+            <>
+              <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">With limited time, focus on ONE pillar that works for your situation. Rotate it weekly and repeat.</p>
+              {(() => {
+                const adapted = getBlockerAdaptedRotation(blocker);
+                return (
+                  <div className="p-5 rounded-xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.1)', border: '2px solid var(--dh-accent-dark)' }}>
+                    <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">Your Weekly Content Focus — {adapted.pillar}</p>
+                    <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">{adapted.focus}</p>
+                    <p className="font-body text-[12px] text-dh-text-light italic mt-3 border-t border-dh-accent-dark border-opacity-20 pt-3">Post once on your chosen platform every week. Batch-create on Sunday, schedule for Mon/Wed/Fri, and you're done.</p>
+                  </div>
+                );
+              })()}
+            </>
+          ) : (
+            <>
+              <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Content is how {customer} find you before they're ready to buy. These pillars give you an endless rotation — you'll never stare at a blank screen again.</p>
+              {(mk?.contentPillars?.length ? mk.contentPillars : [
+                { pillar: 'Pillar 01 — Show the work', description: `Behind-the-scenes, process, making-of. For a ${aesthetic.toLowerCase()} brand, this is especially powerful — ${customer} want to feel connected to the maker, not just the product.`, examplePosts: [] },
+                { pillar: 'Pillar 02 — Educate your buyer', description: pillar2, examplePosts: [] },
+                { pillar: 'Pillar 03 — Sell with story', description: `Results, testimonials, before/after. Collect feedback from your very first buyer and use it immediately. ${customer} trust other ${customer}.`, examplePosts: [] },
+              ]).map((cp: any, i: number) => (
+                <div key={i} className="p-[22px_26px] mb-3 rounded-r-xl" style={{ borderLeft: '2px solid var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.05)' }}>
+                  <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">{cp.pillar}</p>
+                  <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light mb-1">{cp.description}</p>
+                  {cp.examplePosts?.map((ep: string, j: number) => <p key={j} className="font-body text-[13px] text-dh-text-mid italic font-light mb-1">→ "{ep}"</p>)}
+                </div>
+              ))}
+            </>
+          )}
           <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mt-5 mb-2.5 font-medium">Your Brand Voice</p>
           <div className="p-[22px_26px] rounded-[14px]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
             <p className="font-display italic text-[16px] leading-[1.9]" style={{ color: 'var(--dh-text)' }}>{mk?.coreMessage || brandId.voice}</p>
@@ -794,6 +893,20 @@ export default function ResultsScreen() {
         <div data-room-id="r09" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">09 — The Marketing Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">This plan is built for someone {audience.toLowerCase()} — not a generic launch checklist. Every step is calibrated to your actual starting point.</p>
+
+          {/* WEEK 0 — Pre-Launch Prep */}
+          <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Week 0 — Before Launch</p>
+          <div className="p-4 rounded-xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <p className="font-body text-[13px] leading-[1.8] text-dh-text-mid font-light">Before you launch, do these once. This takes 1-2 hours and removes friction from your entire launch:</p>
+            <ul className="font-body text-[13px] text-dh-text-mid font-light leading-[1.8] mt-3 space-y-1">
+              <li>• Set up your primary platform ({topPlatforms[0]}) and add payment processing</li>
+              <li>• Write a 30-second pitch for your DMs and product descriptions</li>
+              <li>• Create 3-5 launch graphics or write launch captions ahead of time</li>
+              <li>• Identify 10 warm leads (past clients, friends, community members)</li>
+              <li>• Test your buying process as a customer to catch issues</li>
+            </ul>
+          </div>
+
           <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Your 3-Week Launch</p>
           {[['WEEK 1', launchPlan.w1], ['WEEK 2', launchPlan.w2], ['WEEK 3', launchPlan.w3]].map(([wk, txt], i) => (
             <div key={i} className="flex gap-3.5 items-start p-[18px_20px] rounded-xl mb-2.5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
@@ -801,10 +914,17 @@ export default function ResultsScreen() {
               <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light">{txt}</p>
             </div>
           ))}
-          <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mt-5 mb-2.5 font-medium">Quick Wins — Do These First</p>
-          <div className="flex flex-wrap gap-2">
-            {(mk?.quickWins || [`List on ${topPlatforms[0]}`, `Post 3x this week on ${social[0]}`, 'DM 5 warm leads', 'Ask for your first review', 'Add a link in bio']).map((w: string, i: number) => (
-              <span key={i} className="inline-flex items-center gap-2 py-2.5 px-[18px] rounded-full font-body text-[13px] font-light" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', color: 'var(--dh-text)' }}>◆ {w}</span>
+
+          <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mt-5 mb-3 font-medium">Prioritized Quick Wins — Start Here</p>
+          <div className="space-y-2">
+            {getPrioritizedQuickWins(topPlatforms, social, answers.budget || '').map((win: any) => (
+              <div key={win.order} className="p-3.5 rounded-xl flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+                <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2 flex-shrink-0 rounded font-medium" style={{ color: 'var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.1)' }}>#{win.order}</span>
+                <div className="flex-1">
+                  <p className="font-body text-[13px] text-dh-text-mid font-light">{win.task}</p>
+                  <p className="font-body text-[11px] text-dh-text-light font-light mt-1">{win.time} • {win.impact}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -813,27 +933,40 @@ export default function ResultsScreen() {
         <div data-room-id="r10" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">10 — The 90-Day Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Three months. That's all it takes to go from zero to a real, running business — if you focus on the right things at the right time.</p>
-          {[
-            ['MONTH 1 — Foundation', monthPlans.foundation],
-            ['MONTH 2 — Traction', monthPlans.traction],
-            ['MONTH 3 — Scale', monthPlans.scale],
-          ].map(([phase, text], i) => (
-            <div key={i} className="flex gap-3.5 items-start p-[18px_20px] rounded-xl mb-2.5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-              <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2.5 flex-shrink-0 mt-[3px] rounded font-medium whitespace-nowrap" style={{ color: 'var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>{phase}</span>
-              <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light">{text}</p>
-            </div>
-          ))}
-          {bp?.ninetyDayGoal && (
-            <div className="mt-4 p-5 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', borderLeft: '3px solid var(--dh-accent)' }}>
+          {(() => {
+            const targets = getMonthlyRevenueTargets(answers.budget || '', product);
+            return [
+              ['MONTH 1 — Foundation', monthPlans.foundation, targets.month1, 1],
+              ['MONTH 2 — Traction', monthPlans.traction, targets.month2, 2],
+              ['MONTH 3 — Scale', monthPlans.scale, targets.month3, 3],
+            ].map(([phase, text, revenue, month]: any) => (
+              <div key={month} className="mb-5">
+                <div className="flex gap-3.5 items-start p-[18px_20px] rounded-xl mb-2.5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+                  <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2.5 flex-shrink-0 mt-[3px] rounded font-medium whitespace-nowrap" style={{ color: 'var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>{phase}</span>
+                  <div className="flex-1">
+                    <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light">{text}</p>
+                    <p className="font-ui text-[9px] tracking-[2px] uppercase mt-2 font-medium" style={{ color: 'var(--dh-accent)' }}>Revenue Target: {revenue}</p>
+                  </div>
+                </div>
+                {/* Month-specific decision tree */}
+                <div className="p-3.5 rounded-xl ml-0 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.03)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+                  <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2 flex-shrink-0 rounded font-medium" style={{ color: 'var(--dh-accent-dark)', background: 'rgba(var(--dh-accent-rgb), 0.08)' }}>CHECK-IN</span>
+                  <p className="font-body text-[12px] leading-[1.7] text-dh-text-light font-light whitespace-pre-line">{getMonthlyDecisionTree(month)}</p>
+                </div>
+              </div>
+            ));
+          })()}
+          {(bp?.ninetyDayGoal || monthPlans.scale) && (
+            <div className="mt-6 p-5 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', borderLeft: '3px solid var(--dh-accent)' }}>
               <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Your 90-Day Goal</p>
-              <p className="font-body text-sm text-dh-text-mid font-light leading-7">{bp.ninetyDayGoal}</p>
+              <p className="font-body text-sm text-dh-text-mid font-light leading-7">{bp?.ninetyDayGoal || `By the end of month 3, your goal is: ${monthPlans.scale.split(' ').slice(0, 15).join(' ')}...`}</p>
             </div>
           )}
         </div>
 
         {/* Room 11 - Business Plan */}
         <div data-room-id="r11" className="dh-reveal">
-          <BusinessPlanRoom aiResults={aiResults} displayName={displayName} mission={mission} />
+          <BusinessPlanRoom aiResults={aiResults} displayName={displayName} mission={mission} answers={answers} />
         </div>
 
         {/* Room 12 - Branding */}

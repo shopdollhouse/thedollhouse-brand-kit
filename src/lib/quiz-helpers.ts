@@ -72,6 +72,101 @@ export function safeJSON(raw: string): any {
   try { return JSON.parse(candidate); } catch { return {}; }
 }
 
+// ── Month-by-month revenue breakdown ──
+export function getMonthlyRevenueTargets(budget: string, product: string): { month1: string; month2: string; month3: string } {
+  const isHighBudget = budget === 'Higher' || budget === '$200+';
+  const isMidBudget = budget === '$50–$200';
+
+  return {
+    month1: isHighBudget ? '$200–$500' : isMidBudget ? '$50–$200' : '$0–$100',
+    month2: isHighBudget ? '$1,000–$3,000' : isMidBudget ? '$200–$800' : '$100–$400',
+    month3: isHighBudget ? '$5,000+' : isMidBudget ? '$500–$2,000' : '$300–$1,000',
+  };
+}
+
+// ── Weekly content calendar for realistic planning ──
+export function getWeeklyContentCalendar(time: string, blocker: string): string {
+  const isVeryBusy = time === 'Under 5 hours';
+  const isBusy = time === '5–10 hours';
+
+  if (isVeryBusy) {
+    return `Week rotation (realistic for your time):\n• Monday: 1 Educational post\n• Wednesday: 1 Behind-the-Scenes post\n• Friday: 1 Sales/promotional post\n\nBatch create all 3 on Sunday, schedule them, and you're done for the week.`;
+  }
+
+  return `Week rotation (3 posts per week):\n• Mon/Wed/Fri: Rotate Education → BTS → Sales\n• Or: Tuesday/Thursday/Saturday for different audience segments\n\nIf ${blocker.toLowerCase().includes('scared')} → Add extra social proof posts (testimonials, before/afters)\nIf ${blocker.toLowerCase().includes('market')} → Add extra educational posts (how-tos, tips)`;
+}
+
+// ── Decision trees for month-by-month ──
+export function getMonthlyDecisionTree(month: number): string {
+  const trees: Record<number, string> = {
+    1: `Check-in at day 20:\n✓ Getting 3+ conversations? → Speed up outreach in month 2\n✗ Zero conversations? → Change your messaging or platform\n✓ 1-2 conversations? → You're on track, keep consistent`,
+    2: `Check-in at day 50:\n✓ Made your first sale? → Document it, use as social proof\n✗ Still zero sales? → Reassess your positioning, not your effort\n✓ Multiple inquiries but no sales? → Your pricing or objection handling needs work`,
+    3: `Check-in at day 70:\n✓ 10+ sales? → You have product-market fit, scale with confidence\n✓ 3-9 sales? → Tighten your messaging, invest in content\n✗ 0-2 sales? → This product isn't right, pivot to next idea`,
+  };
+  return trees[month] || '';
+}
+
+// ── Product recommendation explanation ──
+export function getProductExplanation(product: string, vibe: string, customer: string, budget: string, blocker: string): string {
+  const budgetNote = budget === 'Higher' ? 'premium positioning allows' : 'lean production keeps';
+  const vibeNote =
+    vibe === 'Service / Events' ? 'transformative impact' :
+    vibe === 'Digital products' ? 'instant access' :
+    vibe === 'Handmade / Physical' ? 'handmade authenticity' :
+    'curated exclusivity';
+
+  const blockerContext =
+    blocker === 'Not sure what to make or sell' ? "This removes the decision paralysis — it's the right first move." :
+    blocker === "Don't know how to market" ? 'This is easy to market because it has a clear story.' :
+    blocker === 'Scared nobody will buy' ? 'This has built-in social proof potential (people talk about it naturally).' :
+    'This is achievable in your timeframe.';
+
+  return `Why ${product}?\n\n${product} matches your situation because:\n• Your customer (${customer}) naturally buys this\n• Your budget (${budget}) ${budgetNote} it profitable\n• ${vibeNote} resonates with your audience\n• ${blockerContext}`;
+}
+
+// ── Platform context notes ──
+export function getPlatformContext(budget: string, urgency: string, experience: string): string {
+  const budgetNote = budget === 'Higher' ? 'Your budget allows for Shopify or custom solutions.' : 'Stick to free/low-cost platforms: Etsy, Instagram Shop, Gumroad.';
+  const urgencyNote = urgency === 'This week' ? 'Launch on the FASTEST platform (Instagram or Etsy), perfect it later.' : 'You have time to set up properly on your chosen platform.';
+  const expNote = experience === 'Never' ? 'Choose the simplest platform you can grow into.' : 'You can handle more complex setups, use what converts best.';
+
+  return `Platform selection context:\n${budgetNote}\n${urgencyNote}\n${expNote}`;
+}
+
+// ── Blocker-adapted content rotation ──
+export function getBlockerAdaptedRotation(blocker: string): { pillar: string; focus: string } {
+  const rotations: Record<string, { pillar: string; focus: string }> = {
+    'Scared nobody will buy': {
+      pillar: 'Social Proof Heavy',
+      focus: 'Replace Pillar #2 (Education) with Testimonials/Reviews. Show real customers using your product.',
+    },
+    "Don't know how to market": {
+      pillar: 'Education First',
+      focus: 'Keep education pillar strong. Help people understand the category, then position yourself.',
+    },
+    'Not sure what to make or sell': {
+      pillar: 'Story-Driven',
+      focus: 'Focus on origin story (why you made this). Origin story is the strongest differentiator.',
+    },
+    'I just need to start': {
+      pillar: 'Momentum-Focused',
+      focus: 'Lean into behind-the-scenes (shows progress). Builds hype faster than perfect content.',
+    },
+  };
+  return rotations[blocker] || { pillar: 'Balanced', focus: 'Mix all three pillars equally.' };
+}
+
+// ── Prioritized quick wins with time/impact ──
+export function getPrioritizedQuickWins(topPlatforms: string[], social: string[], budget: string): { task: string; time: string; impact: string; order: number }[] {
+  return [
+    { task: `DM 5 warm leads (past clients, friends who'd appreciate ${topPlatforms[0]})`, time: '15 min', impact: 'HIGH (warm contacts convert)', order: 1 },
+    { task: `Write your 30-second pitch for bio/DMs`, time: '10 min', impact: 'HIGH (basis for all outreach)', order: 2 },
+    { task: `Create launch post on ${social[0]}`, time: '20 min', impact: 'MEDIUM (announces to network)', order: 3 },
+    { task: `List on ${topPlatforms[0]}`, time: '45 min', impact: 'MEDIUM (opens for sales)', order: 4 },
+    { task: budget === 'Higher' ? `Set aside $100-300 for ads testing` : `Join 2 free communities relevant to your niche`, time: '30 min', impact: 'MEDIUM (multiplies reach)', order: 5 },
+  ];
+}
+
 // ── Derive platforms from answers ──
 export function derivePlatforms(vibe: string, sellType: string): string[] {
   const platforms: string[] = [];
@@ -99,6 +194,137 @@ export function derivePricing(budget: string) {
   const core = budget === 'Under $50' ? '$35–$55' : budget === '$50–$200' ? '$60–$90' : '$90–$140';
   const premium = budget === 'Under $50' ? '$75–$120' : budget === '$50–$200' ? '$150–$250' : '$250–$500+';
   return { hint, entry, core, premium };
+}
+
+// ── Smart Pricing Strategy Detection ──
+export interface PricingStrategy {
+  type: 'digital' | 'service' | 'lowcost-bundling' | 'midrange-tiered' | 'curated' | 'generic';
+  description: string;
+  strategy: string;
+  entry: string;
+  core: string;
+  premium: string;
+  teachingPoints: string[];
+}
+
+export function getPricingStrategy(vibe: string, budget: string, product: string, customer: string): PricingStrategy {
+  // Detect if product is inherently low-cost based on keywords
+  const lowCostKeywords = ['sticker', 'pin', 'button', 'bookmark', 'postcard', 'print', 'digital', 'template', 'ebook', 'guide', 'printable', 'badge', 'patch', 'download', 'small'];
+  const productLower = (product || '').toLowerCase();
+  const isLowCostProduct = lowCostKeywords.some(keyword => productLower.includes(keyword));
+
+  // DIGITAL PRODUCTS — Value-based, no production cost
+  if (vibe === 'Digital products') {
+    return {
+      type: 'digital',
+      description: 'Digital Product Pricing',
+      strategy: `Digital products have zero production cost, so pricing is based on perceived value and transformation. Price for the result, not the effort.`,
+      entry: '$9–$27 (low barrier entry)',
+      core: '$47–$97 (core offer)',
+      premium: '$197–$497+ (bundle or extended access)',
+      teachingPoints: [
+        'Digital products compete on value and transformation, not cost',
+        'Charge based on the problem you solve, not hours spent',
+        'Entry tier captures buyers who need proof before committing',
+        'Premium tier bundles multiple products or extended support',
+        'Your digital product can be resold infinitely without additional cost',
+      ],
+    };
+  }
+
+  // SERVICES / EVENTS — Package-based, time or value-based
+  if (vibe === 'Service / Events') {
+    return {
+      type: 'service',
+      description: 'Service Package Pricing',
+      strategy: `Services are priced by package, not by the hour. Each tier represents a different level of investment and transformation.`,
+      entry: '$250–$500 (starter session or basic package)',
+      core: '$500–$2,000 (signature package, most popular)',
+      premium: '$2,000–$5,000+ (white-glove, done-with-you, or intensive)',
+      teachingPoints: [
+        'Never price services by the hour — it trains clients to want less of you',
+        'Each package should feel like a complete solution, not a fraction',
+        'Starter package filters for serious buyers while capturing the price-sensitive',
+        'Signature package is where 70% of revenue comes from',
+        'Premium tier proves your expertise — make it exclusive (limited spots)',
+      ],
+    };
+  }
+
+  // LOW-COST PRODUCTS (stickers, pins, small items) — Bundling strategy
+  // Check FIRST if it's a low-cost product type, regardless of budget
+  if (isLowCostProduct && (vibe === 'Handmade / Physical' || vibe === 'Curated / Resale' || vibe === 'Digital products')) {
+    return {
+      type: 'lowcost-bundling',
+      description: 'Low-Cost Bundling Strategy',
+      strategy: `Low-cost items sell through bundling, not three price tiers. A single item price is too low to be profitable, but a bundle increases perceived value while protecting your margin.`,
+      entry: '$2–$5 (single item)',
+      core: '$15–$35 (bundle of 5–10)',
+      premium: '$45–$85 (deluxe bundle + extras)',
+      teachingPoints: [
+        'Never rely on individual single items for revenue — bundle them',
+        'Bundles increase order value by 3–5x without feeling pushy',
+        'Name your bundles strategically ("Starter Set", "The Essentials", "Complete Collection")',
+        'Bundles also reduce shipping per-unit and increase perceived value',
+        'Test bundle pricing: if 50+ people add a single item, you need bigger bundles',
+      ],
+    };
+  }
+
+  // MID-RANGE HANDMADE — Three-tier strategy
+  if (vibe === 'Handmade / Physical' && (budget === '$50–$200' || budget === 'Higher')) {
+    return {
+      type: 'midrange-tiered',
+      description: 'Three-Tier Handmade Pricing',
+      strategy: `Mid-range handmade uses the classic 3-tier system. Entry tier captures first-time buyers, core is your profit engine, premium anchors perceived value.`,
+      entry: budget === '$50–$200' ? '$28–$50' : '$45–$85',
+      core: budget === '$50–$200' ? '$65–$120' : '$120–$250',
+      premium: budget === '$50–$200' ? '$175–$350' : '$350–$750+',
+      teachingPoints: [
+        'Entry tier: smaller scale or simpler design, gets first-time buyers comfortable',
+        'Core tier: your best work, best margin, the hero photo on your homepage',
+        'Premium tier: limited, made-to-order, or luxury variation — always have one',
+        'The premium tier makes the core tier look like a bargain',
+        'Price each tier to reflect its actual production time and materials, not comparison',
+      ],
+    };
+  }
+
+  // CURATED / RESALE — Rarity-based pricing
+  if (vibe === 'Curated / Resale') {
+    return {
+      type: 'curated',
+      description: 'Curated Rarity Pricing',
+      strategy: `Curated items are priced by rarity and desirability, not cost. Buyers pay for the eye and the curation, not the item itself.`,
+      entry: '$15–$40 (everyday accessible pieces)',
+      core: '$60–$180 (your editorial picks, most profitable)',
+      premium: '$250–$800+ (rare, one-of-one, statement pieces)',
+      teachingPoints: [
+        'Price based on rarity and buyer desire, not your cost',
+        'Everyday pieces move fast and build trust in your eye',
+        'Editorial picks (core tier) should showcase your unique taste',
+        'Always stock one premium piece per drop to elevate perception of everything',
+        'Faster inventory turnover = more margin even at lower prices',
+      ],
+    };
+  }
+
+  // FALLBACK — Generic three-tier
+  return {
+    type: 'generic',
+    description: 'Standard Three-Tier Pricing',
+    strategy: `Use the classic three-tier model. Entry tier captures first-time buyers, core is your profit engine, premium anchors value perception.`,
+    entry: budget === 'Under $50' ? '$18–$25' : budget === '$50–$200' ? '$28–$40' : '$45–$65',
+    core: budget === 'Under $50' ? '$35–$55' : budget === '$50–$200' ? '$60–$90' : '$90–$140',
+    premium: budget === 'Under $50' ? '$75–$120' : budget === '$50–$200' ? '$150–$250' : '$250–$500+',
+    teachingPoints: [
+      'Three tiers give customers a clear choice without overwhelming them',
+      'Entry tier removes hesitation for first-time buyers',
+      'Core tier is where most customers buy and where your margin is best',
+      'Premium tier proves your premium tier exists — make it exclusive and high-quality',
+      'Never apologize for your prices — confidence sells',
+    ],
+  };
 }
 
 // ── Platform reasoning (static fallback) ──
