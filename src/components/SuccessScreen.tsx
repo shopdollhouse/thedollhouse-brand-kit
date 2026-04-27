@@ -4,6 +4,7 @@ import { playClick } from '@/lib/sounds';
 import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
 import html2canvas from 'html2canvas';
+import passwordBg from '@/assets/password-bg.png';
 
 interface SuccessScreenProps {
   onClose?: () => void;
@@ -107,18 +108,22 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
         {/* Certificate */}
         <div
           ref={certificateRef}
-          className="rounded-3xl overflow-hidden"
+          className="rounded-3xl overflow-hidden relative"
           style={{
-            background: 'linear-gradient(135deg, #faf3ea 0%, #f5ede2 100%)',
+            background: `url(${passwordBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             border: '3px solid var(--dh-accent)',
             boxShadow: '0 30px 80px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 0 1px rgba(0,0,0,0.05)'
           }}
         >
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(250, 243, 234, 0.92) 0%, rgba(245, 237, 226, 0.88) 100%)' }} />
           {/* Top decorative element */}
-          <div className="h-1" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
+          <div className="h-1 relative z-10" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
 
           {/* Main Content */}
-          <div className="px-10 py-10 text-center relative">
+          <div className="px-10 py-10 text-center relative z-10">
             {/* THE DOLLHOUSE Header */}
             <div className="mb-6">
               <div className="flex items-center justify-center gap-3 mb-2">
@@ -188,7 +193,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           </div>
 
           {/* Bottom decorative element */}
-          <div className="h-1" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
+          <div className="h-1 relative z-10" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
         </div>
 
         {/* Action Buttons */}
