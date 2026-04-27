@@ -8,23 +8,36 @@ export default function DollhouseMark({ size = 52, className = '' }: DollhouseMa
     <svg
       width={size}
       height={size}
-      viewBox="0 0 96 96"
+      viewBox="0 0 80 100"
       fill="none"
       aria-label="The Dollhouse"
       className={className}
       style={{ filter: 'drop-shadow(0 2px 8px rgba(156, 123, 110, 0.18))' }}
     >
-      <path
-        d="M22 78V34C22 19.6 33.6 8 48 8s26 11.6 26 26v44H60V34c0-6.6-5.4-12-12-12S36 27.4 36 34v44H22Z"
-        stroke="var(--dh-accent-dark)"
-        strokeWidth="3"
-        strokeLinejoin="round"
+      <rect
+        x="10"
+        y="15"
+        width="60"
+        height="70"
+        rx="8"
+        fill="var(--dh-accent)"
+        opacity="0.15"
       />
       <path
-        d="M22 34c8-12 18-18 30-18 9.7 0 17.1 4.5 22 13.5M36 34c6.2-11.2 14.2-17.2 24-18"
+        d="M25 65C25 45 35 30 40 30C45 30 55 45 55 65"
         stroke="var(--dh-accent-dark)"
         strokeWidth="2"
         strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <line
+        x1="25"
+        y1="65"
+        x2="55"
+        y2="65"
+        stroke="var(--dh-accent-dark)"
+        strokeWidth="2"
       />
     </svg>
   );
