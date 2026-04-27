@@ -387,18 +387,6 @@ export default function ResultsScreen() {
               <p className="font-body text-[12px] text-dh-text-mid font-light leading-[1.7] mb-3">
                 <strong className="font-medium" style={{ color: 'var(--dh-text)' }}>12 personalised rooms</strong> built from your answers — brand, platforms, pricing, marketing, and more.
               </p>
-              <div className="flex items-center gap-2">
-                <button onClick={() => setShowReadyPopup(false)}
-                  className="flex-1 py-2.5 rounded-xl font-ui text-[9px] tracking-[2px] uppercase font-medium cursor-pointer text-center transition-all hover:brightness-110"
-                  style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
-                  Explore →
-                </button>
-                <button onClick={() => setShowReadyPopup(false)}
-                  className="py-2.5 px-4 rounded-xl font-ui text-[9px] tracking-[2px] uppercase text-dh-text-light cursor-pointer transition-all hover:opacity-80"
-                  style={{ background: 'none', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-                  Dismiss
-                </button>
-              </div>
             </div>
           </div>
         </div>
