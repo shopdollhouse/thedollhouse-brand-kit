@@ -1078,7 +1078,8 @@ export default function ResultsScreen() {
       {/* Footer */}
       <footer className="w-full py-[60px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="max-w-[600px] mx-auto px-5">
-          <p className="font-display italic text-[14px] text-dh-text-light mb-12">Find us everywhere</p>
+          <p className="font-display italic text-[14px] text-dh-text-light mb-6">Find us everywhere</p>
+          <div className="animate-float-arch inline-block mb-12 block mx-auto"><DollhouseMark size={40} /></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {/* Official Website Card */}
             <div className="p-6 rounded-2xl" style={{ background: 'rgba(243, 220, 205, 0.12)', border: '1px solid rgba(243, 220, 205, 0.25)' }}>
@@ -1113,14 +1114,6 @@ export default function ResultsScreen() {
               <a href="https://stan.store/shopdollhouse" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark no-underline font-medium inline-flex items-center gap-1.5">Learn more <span>→</span></a>
             </div>
           </div>
-
-          <p className="font-display italic text-[14px] text-dh-text-light mb-[18px]">Find us everywhere</p>
-          <div className="flex items-center justify-center gap-5 flex-wrap mb-5">
-            <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">shopdollhouse.co</a>
-            <span className="text-[10px]" style={{ color: 'rgba(var(--dh-accent-rgb), 0.25)' }}>◆</span>
-            <a href="mailto:hello@shopdollhouse.co" className="font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark no-underline font-medium">hello@shopdollhouse.co</a>
-          </div>
-          <p className="font-display italic text-xs text-dh-text-light opacity-45 mb-8">@shopdollhouse</p>
 
           <div className="p-[22px_26px] rounded-2xl text-left max-w-[560px] mx-auto mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
             <div className="flex items-center gap-2.5 mb-3">
