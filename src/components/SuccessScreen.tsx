@@ -31,20 +31,39 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
     if (certificateRef.current) {
       try {
         toast('Generating certificate...');
-        const element = certificateRef.current;
-        const canvas = await html2canvas(element, {
+        const canvas = await html2canvas(certificateRef.current, {
           scale: 1,
           logging: false,
           useCORS: true,
           allowTaint: true,
         });
 
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = image;
-        link.download = `${brand}-blueprint-certificate.png`;
-        link.click();
-        toast('Certificate downloaded! ✨');
+        canvas.toBlob(
+          (blob: Blob | null) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `${brand}-blueprint-certificate.png`;
+              link.style.display = 'none';
+              document.body.appendChild(link);
+
+              setTimeout(() => {
+                link.click();
+              }, 50);
+
+              setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                toast('Certificate downloaded! ✨');
+              }, 150);
+            } else {
+              toast('Right-click certificate → Save image as');
+            }
+          },
+          'image/png',
+          1
+        );
       } catch (err) {
         console.error('Error:', err);
         toast('Right-click certificate → Save image as');
