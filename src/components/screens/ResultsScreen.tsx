@@ -363,19 +363,6 @@ export default function ResultsScreen() {
     <div className="w-full">
       {/* Gold confetti celebration */}
       <GoldConfetti active={showConfetti} />
-      {/* Reset Confirmation Dialog */}
-      {showResetConfirm && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-5 animate-fade-in" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)' }} onClick={() => setShowResetConfirm(false)}>
-          <div className="rounded-2xl p-8 w-full max-w-[380px] shadow-[0_8px_48px_rgba(0,0,0,0.2)] animate-glass-slide text-center" style={{ background: 'hsl(var(--background))', border: '1px solid var(--dh-glass-border)' }} onClick={e => e.stopPropagation()}>
-            <p className="font-display italic text-[20px] mb-2" style={{ color: 'var(--dh-text)' }}>Start Over?</p>
-            <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.7] mb-5">This will erase your answers and blueprint. You'll need to enter the password again.</p>
-            <div className="flex gap-2.5">
-              <button onClick={() => setShowResetConfirm(false)} className="flex-1 py-3 rounded-xl font-ui text-[10px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'none', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', color: 'var(--dh-text-light)' }}>Cancel</button>
-              <button onClick={confirmReset} className="flex-1 py-3 rounded-xl font-ui text-[10px] tracking-[2px] uppercase font-medium cursor-pointer" style={{ background: '#c4604a', color: '#fff', border: 'none' }}>Yes, Reset</button>
-            </div>
-          </div>
-        </div>
-      )}
       {showReadyPopup && (
         <div className="fixed bottom-6 right-6 z-[900] w-[360px] max-w-[calc(100vw-48px)] animate-glass-slide" style={{ animationDuration: '0.35s' }}>
           <div className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.25)]" style={{ border: '1px solid var(--dh-glass-border)' }}>
