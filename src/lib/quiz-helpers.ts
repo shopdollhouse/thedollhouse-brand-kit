@@ -1,4 +1,5 @@
 import { getBrandIdentity } from './brand-identity';
+import { getExecutionContent, ExecutionContent } from './execution-helpers';
 
 // ── Sanitize user input ──
 export function sanitize(str: string): string {
@@ -171,6 +172,8 @@ export interface DerivedData {
   monthPlans: { foundation: string; traction: string; scale: string };
   executiveSummary: string;
   missionLine: string;
+  /* EXECUTION POWERHOUSE — New actionable content */
+  executionContent: ExecutionContent;
 }
 
 // ── Aesthetic-driven theme preset (subtle accent shifts only) ──
@@ -469,6 +472,9 @@ export function derive(a: Record<string, string>): DerivedData {
     ? `${mission} Today is the start line.`
     : mission;
 
+  // ── EXECUTION POWERHOUSE: Get actionable content ──
+  const executionContent = getExecutionContent(vibe, aesthetic, 'r01'); // r01 is default start
+
   return {
     topPlatforms, social, priceHint: pricing.hint, priceEntry: pricing.entry,
     priceCore: pricing.core, pricePrem: pricing.premium, mission, brandId,
@@ -477,6 +483,6 @@ export function derive(a: Record<string, string>): DerivedData {
     staticScript, todayAction, promise, name, brand, aesthetic, customer, product,
     audience, urgency, blocker, vibe, budget, salesScript, threePostStrategy,
     themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans,
-    executiveSummary, missionLine,
+    executiveSummary, missionLine, executionContent,
   };
 }
