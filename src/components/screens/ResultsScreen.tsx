@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
+import { saveLead } from '@/lib/supabase';
 import RoomCard from '../results/RoomCard';
 import SummaryCard from '../results/SummaryCard';
 import FirstSaleRoom from '../results/FirstSaleRoom';
@@ -336,34 +337,19 @@ export default function ResultsScreen() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggleTheme, soundTrack]);
 
-  // Email capture — save to localStorage leads array + show success
+  // Email capture — save to Supabase
   const handleEmailSubmit = async () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { setEmailFb('Please enter a valid email address.'); return; }
     playClick('success');
-    try {
-      const leads = JSON.parse(localStorage.getItem('dh_leads') || '[]');
-      leads.push({ email: emailVal, name: name, brand: brand || '', product: product || '', date: new Date().toISOString() });
-      localStorage.setItem('dh_leads', JSON.stringify(leads));
-    } catch {}
-    setEmailFb('joined');
+    const result = await saveLead(emailVal, name, brand || '', product || '');
+    if (result.success) {
+      setEmailFb('joined');
+      setEmailVal('');
+    } else {
+      setEmailFb('Error saving email. Please try again.');
+    }
   };
 
-  // Download leads as CSV
-  const downloadLeadsCSV = () => {
-    try {
-      const leads = JSON.parse(localStorage.getItem('dh_leads') || '[]');
-      if (!leads.length) { toast('No leads collected yet.', { duration: 2000 }); return; }
-      const header = 'Email,Name,Brand,Product,Date';
-      const rows = leads.map((l: any) => `"${l.email || ''}","${l.name || ''}","${l.brand || ''}","${l.product || ''}","${l.date || ''}"`);
-      const csv = [header, ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'dollhouse_leads.csv'; a.click();
-      URL.revokeObjectURL(url);
-      playClick('success');
-    } catch { toast('Error downloading leads.', { duration: 2000 }); }
-  };
 
   const faqItems = [
     ['Can I retake the quiz?', 'Yes — hit Start Over at the top of this page to reset everything and begin again.'],
