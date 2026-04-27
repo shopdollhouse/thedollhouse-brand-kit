@@ -54,7 +54,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
   const handleShare = async () => {
     playClick('soft');
-    const text = `I just built my brand blueprint with @thedollhouse_studio. ${brand} is ready to launch. ✨`;
+    const text = `🎉 I just completed my brand blueprint with @thedollhouse_studio! ${brand} is officially ready to launch. Get yours → shopdollhouse.co ✨`;
 
     if (navigator.share) {
       try {
@@ -98,72 +98,87 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           <div className="h-1 relative z-10" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
 
           {/* Main Content */}
-          <div className="px-10 py-10 text-center relative z-10">
+          <div className="px-10 py-8 text-center relative z-10">
+            {/* Celebration Icon */}
+            <div className="mb-4 text-4xl">🎖️</div>
+
             {/* THE DOLLHOUSE Header */}
-            <div className="mb-6">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent))' }} />
-                <span className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-semibold">
-                  THE DOLLHOUSE
-                </span>
-                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, var(--dh-accent), transparent)' }} />
+            <div className="mb-4">
+              <div className="inline-block mb-2">
+                <DollhouseMark size={32} />
               </div>
+              <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark font-semibold">
+                The Dollhouse Brand Kit
+              </p>
             </div>
 
-            {/* Your Brand Blueprint Subtitle */}
-            <p className="font-body italic text-[13px] text-dh-text-light mb-4">
-              Your Brand Blueprint
+            {/* Achievement Title */}
+            <p className="font-display italic text-[14px] text-dh-accent-dark mb-3 uppercase tracking-widest">
+              Blueprint Complete! 🎉
             </p>
 
             {/* Brand Name - Main Focus */}
-            <h1 className="font-display italic text-[48px] leading-[1.1] mb-4" style={{ color: 'var(--dh-accent-dark)' }}>
+            <h1 className="font-display italic text-[44px] leading-[1.1] mb-3" style={{ color: 'var(--dh-accent-dark)' }}>
               {brand}
             </h1>
 
-            {/* Descriptive Tagline */}
-            <p className="font-body text-[12px] text-dh-text-mid leading-[1.6] mb-8 max-w-[420px] mx-auto italic">
-              A personalised strategy built entirely around {name}'s vision, aesthetic, and goals.
+            {/* Founder Name */}
+            <p className="font-body text-[13px] text-dh-text-mid mb-4">
+              Built by {name}
             </p>
 
             {/* Decorative Divider */}
-            <div className="flex items-center justify-center gap-2 mb-7">
+            <div className="flex items-center justify-center gap-2 mb-6">
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
-              <span className="text-[12px]" style={{ color: 'var(--dh-accent)' }}>♥</span>
+              <span className="text-[12px]" style={{ color: 'var(--dh-accent)' }}>✨</span>
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
             </div>
 
             {/* Badge Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
               {/* Aesthetic Badge */}
-              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
-                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
+              <div className="px-3 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
+                <p className="font-ui text-[7px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
                   {aesthetic}
                 </p>
               </div>
 
               {/* Date Badge */}
-              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
-                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
+              <div className="px-3 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
+                <p className="font-ui text-[7px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
                   {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
               </div>
 
               {/* Rooms Badge */}
-              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
-                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
+              <div className="px-3 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
+                <p className="font-ui text-[7px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
                   12 Rooms
                 </p>
               </div>
             </div>
 
-            {/* Heart Badge */}
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 mb-6" style={{ background: 'transparent', borderColor: 'var(--dh-accent)' }}>
-              <span className="text-lg" style={{ color: 'var(--dh-accent)' }}>♥</span>
+            {/* Divider */}
+            <div className="h-px mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
+
+            {/* The Dollhouse Info Section */}
+            <div className="mb-3">
+              <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-text-light mb-2 font-semibold">
+                Built with The Dollhouse
+              </p>
+              <div className="space-y-1">
+                <p className="font-body text-[10px] text-dh-text-mid">
+                  🌐 <span style={{ color: 'var(--dh-accent-dark)' }}>shopdollhouse.co</span>
+                </p>
+                <p className="font-body text-[10px] text-dh-text-mid">
+                  📱 <span style={{ color: 'var(--dh-accent-dark)' }}>@thedollhouse_studio</span>
+                </p>
+              </div>
             </div>
 
             {/* Footer Text */}
             <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-text-light font-semibold">
-              Personal Use Only
+              Personal Use • Share Your Success
             </p>
           </div>
 
@@ -186,7 +201,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.25)')}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)')}
           >
-            ✨ Share on Threads / TikTok
+            🎉 Share My Achievement
           </button>
 
           <button
@@ -202,7 +217,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(var(--dh-accent-rgb), 0.05)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
           >
-            📸 Save Certificate Image
+            📸 Save Certificate
           </button>
 
           <button
@@ -230,10 +245,10 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
         {/* Celebration Message */}
         <div className="mt-4 text-center">
           <p className="font-display italic text-[13px] text-dh-accent-dark mb-1">
-            You're officially ready.
+            Your blueprint is complete.
           </p>
           <p className="font-body text-[11px] text-dh-text-light leading-[1.5]">
-            Now go make that first sale. ✨
+            Go make that first sale. Then share your success. 🚀
           </p>
         </div>
       </div>
