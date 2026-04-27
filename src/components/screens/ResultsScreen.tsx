@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
 import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
 import DollhouseMark from '@/components/DollhouseMark';
+import CreatorNote from '../CreatorNote';
+import ResetConfirmDialog from '../ResetConfirmDialog';
 
 const ROOMS = [
   ['r01', '01 Name'], ['r02', '02 Platforms'], ['r03', '03 Product'],
@@ -1050,28 +1052,8 @@ export default function ResultsScreen() {
         </div>
         </div>{/* end dh-upsell */}
 
-        {/* ══ FOUNDER'S SIGN-OFF ══ */}
-        <div className="rounded-3xl p-[52px_44px] mb-7 text-center relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e0f09, #2d1810, #1a0e08)', border: '1px solid rgba(196,168,154,0.12)' }}>
-          <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.5), transparent)' }} />
-          <div className="animate-float-arch inline-block mb-5"><DollhouseMark size={36} /></div>
-          <p className="font-display italic text-[24px] leading-[1.75] max-w-[520px] mx-auto mb-5" style={{ color: 'rgba(255,255,255,0.92)' }}>
-            Your vision is ready for the world. Now, go build it.
-          </p>
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="flex-1 h-px max-w-[60px]" style={{ background: 'rgba(196,168,154,0.2)' }} />
-            <span className="text-[10px]" style={{ color: 'rgba(196,168,154,0.3)' }}>♥</span>
-            <div className="flex-1 h-px max-w-[60px]" style={{ background: 'rgba(196,168,154,0.2)' }} />
-          </div>
-          <p className="font-display italic text-[28px] tracking-[3px] mb-3" style={{ color: 'rgba(196,168,154,0.6)' }}>The Dollhouse</p>
-          <div className="mb-4">
-            <div className="inline-block py-2 px-6 rounded-full" style={{ border: '1px solid rgba(196,168,154,0.15)', background: 'rgba(196,168,154,0.04)' }}>
-              <p className="font-ui text-[7px] tracking-[4px] uppercase font-medium" style={{ color: 'rgba(196,168,154,0.4)' }}>✦ Digitally Signed & Verified ✦</p>
-            </div>
-          </div>
-          <p className="font-ui text-[8px] tracking-[4px] uppercase font-medium" style={{ color: 'rgba(196,168,154,0.3)' }}>
-            Licensed to {name} · <strong style={{ fontWeight: 600 }}>No Resale</strong> · © 2026 The Dollhouse
-          </p>
-        </div>
+        {/* ══ CREATOR'S NOTE ══ */}
+        <CreatorNote />
 
       </div>
 
@@ -1144,6 +1126,13 @@ export default function ResultsScreen() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="18 15 12 9 6 15"/></svg>
         </button>
       )}
+
+      {/* Reset Confirmation Dialog */}
+      <ResetConfirmDialog
+        isOpen={showResetConfirm}
+        onConfirm={confirmReset}
+        onCancel={() => setShowResetConfirm(false)}
+      />
       {/* ShortcutBar removed */}
     </div>
   );

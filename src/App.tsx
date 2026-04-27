@@ -7,6 +7,7 @@ import WelcomeScreen from './components/screens/WelcomeScreen';
 import QuizScreen from './components/screens/QuizScreen';
 import LoadingScreen from './components/screens/LoadingScreen';
 import ResultsScreen from './components/screens/ResultsScreen';
+import SuccessScreen from './components/SuccessScreen';
 import { Toaster } from 'sonner';
 import { playClick, toggleAmbientTrack, setAmbientVolume, pauseAmbient, isAmbientPaused } from '@/lib/sounds';
 import { useState, useRef } from 'react';
@@ -214,6 +215,7 @@ function AppContent() {
         {currentScreen === 'questions' && <QuizScreen />}
         {currentScreen === 'loading' && <LoadingScreen />}
         {currentScreen === 'results' && <ResultsScreen />}
+        {currentScreen === 'success' && <SuccessScreen />}
       </div>
     </div>
   );

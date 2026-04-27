@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 // ── Types ──
-export type ScreenId = 'gate' | 'welcome' | 'questions' | 'loading' | 'results';
+export type ScreenId = 'gate' | 'welcome' | 'questions' | 'loading' | 'results' | 'success';
 export type ThemeMode = 'blush' | 'dark';
 
 export interface Question {
