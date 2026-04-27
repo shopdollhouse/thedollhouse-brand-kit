@@ -13,6 +13,7 @@ interface PDFData {
   colours: { name: string; hex: string; use?: string }[];
   aiResults: any;
   answers: Record<string, string>;
+  d?: any;
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -41,8 +42,8 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   const gold: [number, number, number] = [184, 144, 92];      // chip + ornament gold
   const goldSoft: [number, number, number] = [200, 170, 130];
 
-  // Derive all quiz data
-  const d = derive(data.answers);
+  // Use passed-in derived data or derive fresh
+  const d = data.d || derive(data.answers);
 
   // ─── HELPERS ───
   const addPage = (roomNum: string, roomName: string) => {
@@ -263,42 +264,69 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   // ═══ ROOM 04: PRICING ═══
   addPage('04', 'The Money Room');
   writeText(`Three tiers gives ${d.customer} a choice without confusion.`, 10, 'italic', accent);
-  y += 2;
-  writeLabel('Entry Tier');
+  y += 3;
+
+  const tierLabels = d.tierLabels || { entry: 'Entry', core: 'Core', premium: 'Premium', entryDesc: '', coreDesc: '', premiumDesc: '' };
+  writeLabel(tierLabels.entry);
   writeText(d.priceEntry, 10, 'bold');
-  writeText('Lowest barrier. Gets them through the door.', 9);
-  writeLabel('Core Tier (Start Here)');
+  writeText(tierLabels.entryDesc || 'Lowest barrier. Gets them through the door.', 9);
+  y += 2;
+
+  writeLabel(tierLabels.core);
   writeText(d.priceCore, 10, 'bold');
-  writeText('Your flagship. Best margin, best value.', 9);
-  writeLabel('Premium Tier');
+  writeText(tierLabels.coreDesc || 'Your flagship. Best margin, best value.', 9);
+  y += 2;
+
+  writeLabel(tierLabels.premium);
   writeText(d.pricePrem, 10, 'bold');
-  writeText('For buyers who want the best. Always have one.', 9);
+  writeText(tierLabels.premiumDesc || 'For buyers who want the best. Always have one.', 9);
+  y += 3;
 
   // Sales Script
   writeLabel('Your High-Conversion Script');
   writeText(`Hook: ${d.salesScript.hook}`, 9, 'italic');
+  y += 1;
   writeText(`Value: ${d.salesScript.value}`, 9);
+  y += 1;
   writeText(`CTA: ${d.salesScript.cta}`, 9, 'bold');
+  y += 2;
+
+  writeLabel('Pricing Psychology');
+  writeText('Always show all three tiers. The premium tier makes the core tier look like a bargain. The entry tier captures price-sensitive buyers. Never apologize for your prices.', 9);
 
   // ═══ ROOM 05: SOCIAL ═══
   addPage('05', 'The Social Room');
-  const social = d.social;
+  const social = data.aiResults?.socialMedia?.recommended || data.social || d.social || [];
   writeLabel('Primary Platform');
-  writeText(social[0] || '—', 10, 'bold');
+  writeText(social[0] || d.social[0] || '—', 10, 'bold');
   writeLabel('Secondary Platform');
-  writeText(social[1] || '—', 10, 'bold');
+  writeText(social[1] || d.social[1] || '—', 10, 'bold');
   y += 2;
 
   // Posting strategy
   writeLabel('Posting Frequency');
   const timeFreq = data.answers.time === 'Under 5 hours' ? '3 posts per week — quality over quantity.' : data.answers.time === '5–10 hours' ? '5 posts per week — mix static posts with short-form video.' : 'Post daily with stories. Consistency is your competitive advantage.';
   writeText(timeFreq, 9);
+  y += 2;
 
   // 3-Post Starter
   writeLabel('3-Post Starter Strategy');
   writeText(`Education: ${d.threePostStrategy.education}`, 9);
+  y += 1;
   writeText(`Behind-the-Scenes: ${d.threePostStrategy.bts}`, 9);
+  y += 1;
   writeText(`Sales: ${d.threePostStrategy.sales}`, 9);
+  y += 2;
+
+  // Content calendar starter
+  writeLabel('Content Calendar (Week 1)');
+  writeText('Day 1: Introduction — Who you are and what you sell', 9);
+  writeText('Day 2: Behind-the-scenes of your process', 9);
+  writeText('Day 3: Education content — Show your expertise', 9);
+  writeText('Day 4: Customer testimonial or social proof', 9);
+  writeText('Day 5: Product showcase with clear CTA', 9);
+  writeText('Day 6: Story or relatability post', 9);
+  writeText('Day 7: Recap and week ahead teaser', 9);
 
   // ═══ ROOM 06: PLATFORM SETUP ═══
   addPage('06', 'The Foundation Room');
@@ -316,87 +344,178 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   const fs = data.aiResults?.firstSale;
   writeLabel('The Promise');
   writeText(fs?.promise || d.promise, 10, 'italic');
+  y += 2;
   writeLabel("Today's Action");
   writeText(fs?.todayAction || d.todayAction, 9);
-  if (fs?.weekOnePlan) { writeLabel('Week One'); writeText(fs.weekOnePlan, 9); }
-  if (fs?.weekTwoPlan) { writeLabel('Week Two'); writeText(fs.weekTwoPlan, 9); }
-  if (fs?.firstClientScript) { writeLabel('First Client Script'); writeText(fs.firstClientScript, 9); }
-  if (fs?.mindsetNote) { writeLabel('Mindset Note'); writeText(fs.mindsetNote, 9, 'italic'); }
+  y += 2;
+  if (fs?.weekOnePlan || d.w1Static) {
+    writeLabel('Week One Plan');
+    writeText(fs?.weekOnePlan || d.w1Static, 9);
+    y += 2;
+  }
+  if (fs?.weekTwoPlan || d.w2Static) {
+    writeLabel('Week Two Plan');
+    writeText(fs?.weekTwoPlan || d.w2Static, 9);
+    y += 2;
+  }
+  if (fs?.firstClientScript || d.staticScript) {
+    writeLabel('First Client Script');
+    writeText(fs?.firstClientScript || d.staticScript, 9, 'italic');
+    y += 2;
+  }
+  if (fs?.mindsetNote || d.blockerNote) {
+    writeLabel('Mindset Note');
+    writeText(fs?.mindsetNote || d.blockerNote, 9, 'italic');
+  }
 
   // ═══ ROOM 08: CONTENT STUDIO ═══
   addPage('08', 'The Content Studio');
   const mk = data.aiResults?.marketing;
   writeText('Content is how customers find you before they\'re ready to buy.', 10, 'italic', accent);
-  y += 2;
+  y += 3;
+
+  writeLabel('Content Pillars');
   if (mk?.contentPillars?.length) {
-    writeLabel('Content Pillars');
     mk.contentPillars.forEach((cp: any) => {
       writeText(cp.pillar, 9, 'bold');
       writeText(cp.description, 9);
       if (cp.examplePosts?.length) {
-        cp.examplePosts.forEach((ep: string) => writeText(`→ "${ep}"`, 9, 'italic'));
+        cp.examplePosts.forEach((ep: string) => writeText(`Example: "${ep}"`, 8, 'italic'));
       }
       y += 2;
     });
   } else {
-    writeLabel('Content Pillars');
-    writeText('Pillar 1 — Show the work: Behind-the-scenes, process, making-of.', 9);
-    writeText(`Pillar 2 — Educate your buyer: ${d.pillar2}`, 9);
-    writeText(`Pillar 3 — Sell with story: Results, testimonials, before/after.`, 9);
+    writeText('Pillar 1: Show the work', 9, 'bold');
+    writeText('Behind-the-scenes, process, making-of. This builds connection.', 9);
+    y += 2;
+    writeText('Pillar 2: Educate your buyer', 9, 'bold');
+    writeText(d.pillar2, 9);
+    y += 2;
+    writeText('Pillar 3: Sell with story', 9, 'bold');
+    writeText('Results, testimonials, before/after. This proves value.', 9);
+    y += 2;
   }
-  if (mk?.coreMessage || d.brandId.voice) {
-    writeLabel('Your Brand Voice');
-    writeText(mk?.coreMessage || d.brandId.voice, 10, 'italic');
+
+  writeLabel('Your Brand Voice');
+  if (mk?.coreMessage) {
+    writeText(mk.coreMessage, 10, 'italic');
+  } else {
+    writeText(d.salesScript.hook, 10, 'italic');
   }
+  y += 2;
+
+  writeLabel('Content Batching System');
+  writeText('Set one day per week to batch-create content for the next 2 weeks. Spend 3-4 hours filming/writing, then schedule it across your platforms.', 9);
+  y += 2;
+
+  writeLabel('What NOT to Post');
+  writeText('Unfinished work, depressing news cycles, or complaints about your customers. Your feed is your portfolio — curate it like one.', 9);
 
   // ═══ ROOM 09: MARKETING ═══
   addPage('09', 'The Marketing Room');
   writeLabel('3-Week Launch Plan');
   writeText(`Week 1: ${d.launchPlan.w1}`, 9);
-  y += 1;
+  y += 2;
   writeText(`Week 2: ${d.launchPlan.w2}`, 9);
-  y += 1;
+  y += 2;
   writeText(`Week 3: ${d.launchPlan.w3}`, 9);
+  y += 3;
+
+  writeLabel('Daily Action System');
+  writeText(`Batch content on your chosen day, schedule across ${(social[0] || 'your platform')} and email. Consistency beats perfection.`, 9);
   y += 2;
 
-  if (mk?.weeklyRoutine) { writeLabel('Weekly Routine'); writeText(mk.weeklyRoutine, 9); }
-  if (mk?.emailStrategy) { writeLabel('Email Strategy'); writeText(mk.emailStrategy, 9); }
-  if (mk?.sellingWithoutBegging) { writeLabel('Selling Without Begging'); writeText(mk.sellingWithoutBegging, 9); }
+  if (mk?.weeklyRoutine) { writeLabel('Weekly Routine'); writeText(mk.weeklyRoutine, 9); y += 2; }
+  if (mk?.emailStrategy) { writeLabel('Email Strategy'); writeText(mk.emailStrategy, 9); y += 2; }
+  if (mk?.sellingWithoutBegging) { writeLabel('Selling Without Begging'); writeText(mk.sellingWithoutBegging, 9); y += 2; }
+
+  writeLabel('Free Promotion Ideas');
   if (mk?.freePromotion?.length) {
-    writeLabel('Free Promotion Ideas');
     mk.freePromotion.forEach((fp: string) => writeBullet(fp));
+  } else {
+    writeBullet('Email list signup offer');
+    writeBullet('Free sample, trial, or consultation');
+    writeBullet('Behind-the-scenes content series');
+    writeBullet('Educational guides or templates');
+    writeBullet('Live Q&A or workshop');
   }
+  y += 2;
+
+  writeLabel('Quick Wins');
   if (mk?.quickWins?.length) {
-    writeLabel('Quick Wins');
     mk.quickWins.forEach((qw: string) => writeBullet(qw));
+  } else {
+    writeBullet('Repost customer testimonials and reviews');
+    writeBullet('Share relevant industry news with your take');
+    writeBullet('Behind-the-scenes updates from your day');
+    writeBullet('Seasonal promotions and limited-time offers');
+    writeBullet('Partner with complementary creators for shoutouts');
   }
 
   // ═══ ROOM 10: 90-DAY PLAN ═══
   const bp = data.aiResults?.businessPlan;
   addPage('10', '90-Day Plan');
-  if (bp?.ninetyDayGoal) { writeLabel('90-Day Goal'); writeText(bp.ninetyDayGoal, 10, 'italic'); }
-  if (bp?.revenueTarget) { writeLabel('Revenue Target'); writeText(bp.revenueTarget, 9); }
-  if (bp?.focusOn?.length) { writeLabel('Focus On'); bp.focusOn.forEach((f: string) => writeBullet(f)); }
-  if (bp?.ignoreForNow?.length) { writeLabel('Ignore For Now'); bp.ignoreForNow.forEach((f: string) => writeBullet(f)); }
-  if (bp?.personalNote) { writeLabel('Personal Note'); writeText(bp.personalNote, 9, 'italic'); }
+  if (bp?.ninetyDayGoal) {
+    writeLabel('90-Day Goal');
+    writeText(bp.ninetyDayGoal, 10, 'italic');
+    y += 2;
+  }
+  if (bp?.revenueTarget) {
+    writeLabel('Revenue Target');
+    writeText(bp.revenueTarget, 9);
+    y += 2;
+  }
 
-  // Static 90-day roadmap
+  if (bp?.focusOn?.length) {
+    writeLabel('Focus On');
+    bp.focusOn.forEach((f: string) => writeBullet(f));
+    y += 1;
+  }
+  if (bp?.ignoreForNow?.length) {
+    writeLabel('Ignore For Now');
+    bp.ignoreForNow.forEach((f: string) => writeBullet(f));
+    y += 1;
+  }
+
+  // Month-by-Month Roadmap using derived data
   writeLabel('Month-by-Month Roadmap');
-  writeText(`Month 1 — Foundation: Set up ${platforms.join(' and ')}. List your first product. Post on ${social[0]} at least 3x/week. Get your first sale or enquiry.`, 9);
-  writeText(`Month 2 — Growth: Double down on what got traction. Add a second product or variation. Collect testimonials. Start email list.`, 9);
-  writeText(`Month 3 — Scale: Raise prices on your best seller. Launch premium tier. Explore paid promotion. Build repeatable systems.`, 9);
+  writeText(`Month 1 — Foundation`, 9, 'bold');
+  writeText(d.monthPlans.foundation, 9);
+  y += 2;
+
+  writeText(`Month 2 — Growth`, 9, 'bold');
+  writeText(d.monthPlans.traction, 9);
+  y += 2;
+
+  writeText(`Month 3 — Scale`, 9, 'bold');
+  writeText(d.monthPlans.scale, 9);
+  y += 2;
+
+  if (bp?.personalNote) {
+    writeLabel('Personal Note');
+    writeText(bp.personalNote, 9, 'italic');
+  }
 
   // ═══ ROOM 11: MISSION ═══
   addPage('11', 'The Mission Room');
   writeLabel('Your Mission Statement');
-  writeText(bp?.mission || d.mission, 11, 'italic');
+  writeText(bp?.mission || d.missionLine || d.mission, 11, 'italic');
   y += 4;
-  writeLabel('Your Blocker');
+
+  writeLabel('Your Starting Point');
   writeText(d.blockerNote, 9);
+  y += 2;
+
   writeLabel('Your Experience Level');
   writeText(d.expNote, 9);
+  y += 2;
+
   writeLabel('Your Timeline');
   writeText(d.urgencyNote, 9);
+  y += 2;
+
+  writeLabel('Why This Matters');
+  writeText('Your mission is not for Instagram — it\'s for the 3am moment when you doubt yourself. Refer back to this room. It\'s why you started.', 9, 'italic');
 
   // ═══ ROOM 12: DESIGN STUDIO ═══
   addPage('12', 'The Design Studio');

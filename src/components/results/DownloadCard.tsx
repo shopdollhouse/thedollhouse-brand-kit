@@ -3,6 +3,7 @@ import { playClick, playChime } from '@/lib/sounds';
 import { toast } from 'sonner';
 import { generateBlueprintPDF } from '@/lib/pdf-generator';
 import { getBrandIdentity } from '@/lib/brand-identity';
+import { derive } from '@/lib/quiz-helpers';
 import GoldConfetti from '../GoldConfetti';
 import DollhouseMark from '@/components/DollhouseMark';
 
@@ -20,6 +21,8 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
     setGenerating(true);
 
     try {
+      const d = derive(answers);
+
       const brandId = getBrandIdentity(answers.aesthetic || '', answers.vibe || '', answers.budget || '', answers.customer || '', answers.product || '');
       const br = aiResults?.branding || {};
       const colours = br.colours?.length ? br.colours : brandId.colours.map((c: any) => ({ name: c.n, hex: c.c, use: c.use }));
@@ -29,13 +32,69 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
         brand: brand || name,
         product: answers.product || '',
         aesthetic: answers.aesthetic || '',
-        mission: aiResults?.businessPlan?.mission || brandId.voice || '',
-        platforms: aiResults?.recommendedPlatforms || [],
-        social: [],
-        priceHint: aiResults?.startingPrice || '',
+        mission: aiResults?.businessPlan?.mission || d.mission || brandId.voice || '',
+        platforms: aiResults?.recommendedPlatforms || d.topPlatforms || [],
+        social: d.social || [],
+        priceHint: aiResults?.startingPrice || d.priceHint || '',
         colours,
-        aiResults,
+        aiResults: {
+          ...aiResults,
+          businessPlan: aiResults?.businessPlan || {
+            mission: d.mission,
+            ninetyDayGoal: d.monthPlans.scale,
+            revenueTarget: 'Track monthly revenue growth from first sale',
+            focusOn: ['Get first sale', 'Build email list', 'Create content system'],
+            ignoreForNow: ['Advanced analytics', 'Paid advertising', 'Hiring team members'],
+            personalNote: d.missionLine,
+          },
+          firstSale: aiResults?.firstSale || {
+            promise: d.promise,
+            todayAction: d.todayAction,
+            weekOnePlan: d.w1Static,
+            weekTwoPlan: d.w2Static,
+            firstClientScript: d.staticScript,
+            mindsetNote: d.blockerNote,
+          },
+          marketing: aiResults?.marketing || {
+            coreMessage: d.salesScript.value,
+            contentPillars: [
+              { pillar: 'Show the work', description: 'Behind-the-scenes, process, making-of', examplePosts: [] },
+              { pillar: 'Educate', description: d.pillar2, examplePosts: [] },
+              { pillar: 'Sell with story', description: 'Results, testimonials, before/after', examplePosts: [] },
+            ],
+            weeklyRoutine: `Batch content in blocks: ${d.monthPlans.foundation}`,
+            emailStrategy: 'Start with a welcome email and send weekly updates when you have news to share',
+            freePromotion: ['Email list signup', 'Free sample or trial', 'Behind-the-scenes content', 'Educational guides'],
+            quickWins: ['Repost customer testimonials', 'Share relevant industry news', 'Behind-the-scenes updates', 'Seasonal promotions'],
+          },
+          branding: aiResults?.branding || {
+            brandVibe: d.salesScript.hook,
+            logoConcepts: [
+              { name: 'Concept A', description: brandId.logo },
+              { name: 'Concept B', description: brandId.logo2 },
+            ],
+            fonts: [
+              { role: 'Display', name: 'Cormorant Garamond', why: 'Elegant and memorable for brand identity' },
+              { role: 'Body', name: 'Inter', why: 'Clean, readable, modern and accessible' },
+            ],
+            colours: colours,
+            designDo: brandId.designDo || ['Keep it simple', 'Be consistent', 'Prioritize readability'],
+            designDont: brandId.designDont || ['Don\'t copy competitors', 'Don\'t use too many fonts', 'Don\'t sacrifice clarity for trends'],
+          },
+          recommendedPlatforms: d.topPlatforms || [],
+          platformReasons: {
+            [d.topPlatforms[0]]: `Recommended for your ${answers.vibe} business selling to ${answers.customer}`,
+            [d.topPlatforms[1]]: `Secondary platform to expand reach beyond your primary audience`,
+          },
+          platformSetup: {
+            [d.topPlatforms[0]]: '1. Create your account\n2. Complete all profile fields\n3. Upload your first listing\n4. Set up payment method\n5. Share your link',
+            [d.topPlatforms[1]]: '1. Create your account\n2. Complete all profile fields\n3. Link to your primary platform\n4. Start building audience',
+          },
+          productRecommendation: `Focus on selling ${answers.product} to ${answers.customer}`,
+          startingPrice: d.priceHint || 'Starting at $' + (answers.budget === 'Under $50' ? '18-35' : answers.budget === '$50-$200' ? '28-65' : '45-120'),
+        },
         answers,
+        d,
       };
 
       const blob = await generateBlueprintPDF(pdfData);
