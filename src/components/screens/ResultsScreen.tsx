@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
-import { derive, generateNames } from '@/lib/quiz-helpers';
+import { derive, generateNames, applyThemePreset } from '@/lib/quiz-helpers';
 import RoomCard from '../results/RoomCard';
 import SummaryCard from '../results/SummaryCard';
 import FirstSaleRoom from '../results/FirstSaleRoom';
@@ -182,7 +182,13 @@ function LeftSidebar({ activeRoom, onDownload }: { activeRoom: string; onDownloa
 export default function ResultsScreen() {
   const { answers, aiResults, resetAll, setScreen, toggleTheme } = useQuiz();
   const d = derive(answers);
-  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, audience, urgency, vibe } = d;
+  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, audience, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine } = d;
+
+  // Apply aesthetic-driven CSS-variable shifts (subtle, only on Results screen)
+  useEffect(() => {
+    applyThemePreset(themePreset);
+    return () => applyThemePreset(null);
+  }, [themePreset]);
 
   const [glanceOpen, setGlanceOpen] = useState(true);
   const [faqOpen, setFaqOpen] = useState(true);
