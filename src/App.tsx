@@ -81,9 +81,8 @@ function Sidebar() {
       {soundOpen && (
         <div className="fixed right-5 bottom-[90px] z-[600] rounded-[20px] p-5 w-[220px] shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
           style={{ background: 'var(--dh-sidebar-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--dh-glass-border)' }}>
-          <div className="flex items-center justify-between mb-3.5">
+          <div className="mb-3.5">
             <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark font-medium">Ambience</p>
-            <button onClick={() => setSoundOpen(false)} className="w-5 h-5 rounded-full flex items-center justify-center text-dh-text-light cursor-pointer transition-all hover:text-dh-accent-dark" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }} aria-label="Close sound panel"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           {tracks.map((t, i) => (
             <button key={i} onClick={() => { handleTrack(i); setPaused(false); }}
