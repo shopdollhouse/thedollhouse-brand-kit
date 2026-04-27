@@ -650,11 +650,17 @@ export default function ResultsScreen() {
               <p className="font-display italic text-[13px] leading-[1.85] text-dh-text-light mb-2">
                 Expert Note: These platforms were selected because {customer} already shop there. We matched your selling style ({answers.sellType || 'Online'}), your budget ({answers.budget || 'flexible'}), and your product type to find where you'll get the fastest traction with the least friction.
               </p>
-              <p className="font-body text-[12px] leading-[1.6] text-dh-text-light font-light" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.2)', paddingTop: '8px' }}>
-                {urgency === 'This week' ? `⏰ Your urgent timeline means you need the FASTEST platform to launch — prioritize ${topPlatforms[0]}.` : ''}
-                {answers.experience === 'Never' ? ` You're completely new, so we picked the simplest platforms to master first.` : ''}
-                {answers.budget === 'Higher' ? ` Your budget allows for paid tools — consider Shopify if you want advanced features.` : ''}
-              </p>
+              {(() => {
+                const contextNotes: string[] = [];
+                if (urgency === 'This week') contextNotes.push(`⏰ Your urgent timeline means you need the FASTEST platform to launch — prioritize ${topPlatforms[0] || 'your chosen platform'}.`);
+                if (answers.experience === 'Never') contextNotes.push(`You're completely new, so we picked the simplest platforms to master first.`);
+                if (answers.budget === 'Higher') contextNotes.push(`Your budget allows for paid tools — consider Shopify if you want advanced features.`);
+                return contextNotes.length > 0 && (
+                  <p className="font-body text-[12px] leading-[1.6] text-dh-text-light font-light" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.2)', paddingTop: '8px' }}>
+                    {contextNotes.join(' ')}
+                  </p>
+                );
+              })()}
             </div>
           </div>
         </div>
