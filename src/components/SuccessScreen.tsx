@@ -1,5 +1,4 @@
 import { useQuiz } from '@/context/QuizContext';
-import { useRef, useEffect } from 'react';
 import { playClick } from '@/lib/sounds';
 import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
@@ -12,70 +11,10 @@ interface SuccessScreenProps {
 
 export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
   const { answers, resetAll, setScreen } = useQuiz();
-  const certificateRef = useRef<HTMLDivElement>(null);
   const name = (answers.firstName || '').split(' ')[0] || 'Founder';
   const brand = answers.brandName || 'Your Brand';
   const aesthetic = answers.aesthetic || 'Soft & feminine';
   const product = answers.product || '';
-
-  const aestheticEmojis: Record<string, string> = {
-    'Soft & feminine': '✨',
-    'Bold & editorial': '⚡',
-    'Clean & minimal': '◆',
-    'Warm & earthy': '🌿',
-    'Playful & colourful': '🎨',
-  };
-
-  const handleScreenshot = () => {
-    playClick('soft');
-    const printWindow = window.open('', '', 'height=900,width=1000');
-    if (printWindow && certificateRef.current) {
-      const certificateHTML = certificateRef.current.innerHTML;
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>${brand} - Blueprint Certificate</title>
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-              padding: 20px;
-              font-family: 'Cormorant Garamond', 'Georgia', serif;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              min-height: 100vh;
-              background: #faf3ea;
-            }
-            .certificate-container {
-              width: 100%;
-              max-width: 540px;
-            }
-            svg { max-width: 100%; height: auto; }
-            @media print {
-              body { padding: 0; background: white; }
-              .certificate-container { width: 100%; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="certificate-container">
-            ${certificateHTML}
-          </div>
-          <script>
-            setTimeout(() => {
-              window.print();
-              setTimeout(() => window.close(), 500);
-            }, 500);
-          </script>
-        </body>
-        </html>
-      `;
-      printWindow.document.write(html);
-      printWindow.document.close();
-    }
-  };
 
   const handleShare = async () => {
     playClick('soft');
@@ -107,7 +46,6 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
       <div className="w-full max-w-[540px]">
         {/* Certificate */}
         <div
-          ref={certificateRef}
           className="rounded-3xl overflow-hidden relative"
           style={{
             background: `url(${passwordBg})`,
@@ -222,22 +160,6 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)')}
           >
             Share My Achievement
-          </button>
-
-          <button
-            onClick={handleScreenshot}
-            className="w-full py-3 rounded-xl font-ui text-[9px] tracking-[2px] uppercase font-semibold transition-all"
-            style={{
-              background: 'white',
-              color: 'var(--dh-accent-dark)',
-              border: '2px solid var(--dh-accent)',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(var(--dh-accent-rgb), 0.05)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
-          >
-            Save Certificate
           </button>
 
           <button
