@@ -101,14 +101,19 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.setLineWidth(0.3);
   doc.roundedRect(10, 10, W - 20, H - 20, 6, 6, 'S');
 
-  // Heart icon at top center — brand signature
+  // Heart ornament at top center — brand signature
   const heartCx = W / 2;
   const heartTop = 28;
   doc.setFillColor(...gold);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(16);
-  doc.setTextColor(...gold);
-  doc.text('♥', heartCx, heartTop, { align: 'center' });
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(...gold);
+  // Draw simple heart shape using circles and lines
+  doc.circle(heartCx - 1.5, heartTop - 0.5, 1, 'F');
+  doc.circle(heartCx + 1.5, heartTop - 0.5, 1, 'F');
+  // Bottom point
+  doc.setLineWidth(0.3);
+  doc.line(heartCx - 2.5, heartTop, heartCx, heartTop + 2);
+  doc.line(heartCx, heartTop + 2, heartCx + 2.5, heartTop);
 
   // "— THE DOLLHOUSE —" header (spaced caps with side rules)
   y = heartTop + 24;
