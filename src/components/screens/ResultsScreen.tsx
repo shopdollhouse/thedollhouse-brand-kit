@@ -605,7 +605,7 @@ export default function ResultsScreen() {
           )}
           <div className="p-5 rounded-xl mt-1" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
             <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-medium flex items-center gap-3">Your Mission<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-            <p className="font-display italic text-[16px] leading-[1.9]" style={{ color: 'var(--dh-text)' }}>{mission}</p>
+            <p className="font-display italic text-[16px] leading-[1.9]" style={{ color: 'var(--dh-text)' }}>{missionLine}</p>
           </div>
           {/* Expert Strategy Note */}
           <div className="p-4 rounded-xl mt-3 flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
@@ -619,7 +619,7 @@ export default function ResultsScreen() {
         {/* Room 02 - Marketplace */}
         <div data-room-id="r02" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">02 — The Marketplace Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Based on what you sell, your budget, and how you want to work — these are your two platforms. Start here and only here.</p>
+          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">{marketplaceIntro}</p>
           <div className="flex flex-wrap gap-2 mb-5">
             {(aiResults?.recommendedPlatforms || topPlatforms).map((p, i) => (
               <span key={i} className="inline-flex items-center gap-2 py-2 px-[18px] rounded-full font-body text-[13px]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', color: 'var(--dh-text)' }}>◆ {p}</span>
@@ -646,6 +646,10 @@ export default function ResultsScreen() {
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {aiResults?.productRecommendation || `Your product is ${product}. Based on your answers — your budget, your audience, your time — this is the right thing to build first.`}
           </p>
+          <div className="p-4 rounded-xl mb-3" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Strategy for your niche</p>
+            <p className="font-body text-[13px] leading-[1.85] text-dh-text-mid font-light">{productStrategy}</p>
+          </div>
           {aiResults?.startingPrice && (
             <div className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
               <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Starting Price</p>
@@ -660,9 +664,9 @@ export default function ResultsScreen() {
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Three tiers gives {customer} a choice without confusion. Most first-time buyers pick the middle tier — so price it to be your most profitable.</p>
           <div className="grid gap-3.5 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
             {[
-              { label: 'Entry', price: priceEntry, desc: 'Lowest barrier. Gets them through the door.', hi: false },
-              { label: 'Core', price: priceCore, desc: 'Your flagship. Best margin, best value.', hi: true },
-              { label: 'Premium', price: pricePrem, desc: 'For buyers who want the best. Always have one.', hi: false },
+              { label: tierLabels.entry, price: priceEntry, desc: tierLabels.entryDesc, hi: false },
+              { label: tierLabels.core, price: priceCore, desc: tierLabels.coreDesc, hi: true },
+              { label: tierLabels.premium, price: pricePrem, desc: tierLabels.premiumDesc, hi: false },
             ].map(tier => (
               <div key={tier.label} className="p-6 rounded-[18px] text-center relative" style={{ background: tier.hi ? 'rgba(var(--dh-accent-rgb), 0.1)' : 'rgba(var(--dh-accent-rgb), 0.04)', border: tier.hi ? '1.5px solid var(--dh-accent-dark)' : '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
                 {tier.hi && <p className="absolute -top-[11px] left-1/2 -translate-x-1/2 font-ui text-[8px] tracking-[3px] uppercase py-1 px-3 rounded-full whitespace-nowrap font-medium" style={{ background: 'var(--dh-accent-dark)', color: 'var(--dh-btn-text)' }}>Start Here ✦</p>}
@@ -810,9 +814,9 @@ export default function ResultsScreen() {
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">10 — The 90-Day Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Three months. That's all it takes to go from zero to a real, running business — if you focus on the right things at the right time.</p>
           {[
-            ['MONTH 1 — Foundation', `Set up ${topPlatforms.join(' and ')}. List your first product. Post on ${social[0]} at least 3 times per week. Send your first message to 5 people. Get your first sale or enquiry.`],
-            ['MONTH 2 — Traction', `Double your posting frequency. Add a second product or variation. Collect and post your first 3 reviews. Start building an email list, even with 10 people.`],
-            ['MONTH 3 — Scale', `Introduce your premium tier. Create a simple content system you can repeat weekly. Launch one promotion or limited offer. Set a revenue target for month 4 and work backwards.`],
+            ['MONTH 1 — Foundation', monthPlans.foundation],
+            ['MONTH 2 — Traction', monthPlans.traction],
+            ['MONTH 3 — Scale', monthPlans.scale],
           ].map(([phase, text], i) => (
             <div key={i} className="flex gap-3.5 items-start p-[18px_20px] rounded-xl mb-2.5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
               <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2.5 flex-shrink-0 mt-[3px] rounded font-medium whitespace-nowrap" style={{ color: 'var(--dh-accent)', background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>{phase}</span>
@@ -847,9 +851,7 @@ export default function ResultsScreen() {
               {brand || product}
             </h2>
             <p className="font-display italic text-[16px] mb-8 max-w-[560px] mx-auto leading-[1.8]" style={{ color: 'rgba(196,168,154,0.68)' }}>
-              {brand
-                ? `${brand} is built for ${customer.toLowerCase()} who want ${product.toLowerCase()} that feels intentional, elevated, and easy to trust from the very first look.`
-                : `Your business is built for ${customer.toLowerCase()} who want ${product.toLowerCase()} that feels intentional, elevated, and easy to trust from the very first look.`}
+              {executiveSummary}
             </p>
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="flex-1 h-px max-w-[50px]" style={{ background: 'rgba(196,168,154,0.2)' }} />
