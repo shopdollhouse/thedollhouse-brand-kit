@@ -197,7 +197,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
 export default function ResultsScreen() {
   const { answers, aiResults, resetAll, setScreen, toggleTheme } = useQuiz();
   const d = derive(answers);
-  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, audience, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine } = d;
+  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, audience, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine, blocker, budget } = d;
 
   // Apply aesthetic-driven CSS-variable shifts (subtle, only on Results screen)
   useEffect(() => {
