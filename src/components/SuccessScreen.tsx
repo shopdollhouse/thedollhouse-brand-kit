@@ -27,7 +27,29 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
   const handleScreenshot = () => {
     playClick('soft');
-    toast('Right-click certificate → Save image as');
+    // Use browser's native print functionality
+    const printWindow = window.open('', '', 'height=800,width=800');
+    if (printWindow && certificateRef.current) {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${brand} - Blueprint Certificate</title>
+          <style>
+            body { margin: 0; padding: 20px; font-family: Arial; }
+            @media print { body { padding: 0; } }
+            .certificate { max-width: 100%; }
+            img { max-width: 100%; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${certificateRef.current.outerHTML}
+        </body>
+        </html>
+      `;
+      printWindow.document.write(html);
+      printWindow.document.close();
+    }
   };
 
   const handleShare = async () => {
