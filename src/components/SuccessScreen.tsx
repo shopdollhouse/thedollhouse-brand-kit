@@ -3,8 +3,7 @@ import { useRef, useEffect } from 'react';
 import { playClick } from '@/lib/sounds';
 import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
-import AchievementMedal from './AchievementMedal';
-import SparkleIcon from './SparkleIcon';
+import HeartIcon from './HeartIcon';
 import passwordBg from '@/assets/password-bg.png';
 
 interface SuccessScreenProps {
@@ -101,10 +100,6 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
           {/* Main Content */}
           <div className="px-10 py-8 text-center relative z-10">
-            {/* Celebration Icon */}
-            <div className="mb-4 flex justify-center">
-              <AchievementMedal size={48} />
-            </div>
 
             {/* THE DOLLHOUSE Header */}
             <div className="mb-4">
@@ -135,7 +130,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             <div className="flex items-center justify-center gap-2 mb-6">
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
               <div style={{ color: 'var(--dh-accent)' }}>
-                <SparkleIcon size={12} />
+                <HeartIcon size={12} />
               </div>
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
             </div>
@@ -172,14 +167,9 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
               <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-text-light mb-2 font-semibold">
                 Built with The Dollhouse
               </p>
-              <div className="space-y-1">
-                <p className="font-body text-[10px] text-dh-text-mid">
-                  🌐 <span style={{ color: 'var(--dh-accent-dark)' }}>shopdollhouse.co</span>
-                </p>
-                <p className="font-body text-[10px] text-dh-text-mid">
-                  📱 <span style={{ color: 'var(--dh-accent-dark)' }}>@thedollhouse_studio</span>
-                </p>
-              </div>
+              <p className="font-body text-[10px] text-dh-text-mid">
+                🌐 <span style={{ color: 'var(--dh-accent-dark)' }}>shopdollhouse.co</span>
+              </p>
             </div>
 
             {/* Footer Text */}
