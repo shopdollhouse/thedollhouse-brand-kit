@@ -10,7 +10,7 @@ import ResultsScreen from './components/screens/ResultsScreen';
 import { Toaster } from 'sonner';
 import { playClick, toggleAmbientTrack, setAmbientVolume, pauseAmbient, isAmbientPaused } from '@/lib/sounds';
 import { useState, useRef } from 'react';
-import gateBg from '@/assets/gate-bg.jpg';
+import passwordBg from '@/assets/password-bg.png';
 
 function Sidebar() {
   const { theme, toggleTheme, showStats, setShowStats } = useQuiz();
@@ -139,7 +139,7 @@ function AppContent() {
       style={
         currentScreen === 'gate'
           ? {
-              backgroundImage: `url(${gateBg})`,
+              backgroundImage: `url(${passwordBg})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
