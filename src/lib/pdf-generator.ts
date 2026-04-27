@@ -101,23 +101,17 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   doc.setLineWidth(0.3);
   doc.roundedRect(10, 10, W - 20, H - 20, 6, 6, 'S');
 
-  // Tiny doorway/arch mark at top center
-  const archCx = W / 2;
-  const archTop = 30;
-  doc.setDrawColor(...gold);
-  doc.setLineWidth(0.5);
-  // arch body
-  doc.line(archCx - 5, archTop + 14, archCx - 5, archTop + 4);
-  doc.line(archCx + 5, archTop + 14, archCx + 5, archTop + 4);
-  // arch curve (approx with two short lines)
-  doc.line(archCx - 5, archTop + 4, archCx, archTop);
-  doc.line(archCx, archTop, archCx + 5, archTop + 4);
-  // little finial dot
+  // Heart icon at top center — brand signature
+  const heartCx = W / 2;
+  const heartTop = 28;
   doc.setFillColor(...gold);
-  doc.circle(archCx, archTop - 2, 0.7, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(16);
+  doc.setTextColor(...gold);
+  doc.text('♥', heartCx, heartTop, { align: 'center' });
 
   // "— THE DOLLHOUSE —" header (spaced caps with side rules)
-  y = archTop + 24;
+  y = heartTop + 24;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...gold);
