@@ -3,6 +3,8 @@ import { useRef, useEffect } from 'react';
 import { playClick } from '@/lib/sounds';
 import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
+import AchievementMedal from './AchievementMedal';
+import SparkleIcon from './SparkleIcon';
 import passwordBg from '@/assets/password-bg.png';
 
 interface SuccessScreenProps {
@@ -100,7 +102,9 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           {/* Main Content */}
           <div className="px-10 py-8 text-center relative z-10">
             {/* Celebration Icon */}
-            <div className="mb-4 text-4xl">🎖️</div>
+            <div className="mb-4 flex justify-center">
+              <AchievementMedal size={48} />
+            </div>
 
             {/* THE DOLLHOUSE Header */}
             <div className="mb-4">
@@ -114,7 +118,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
             {/* Achievement Title */}
             <p className="font-display italic text-[14px] text-dh-accent-dark mb-3 uppercase tracking-widest">
-              Blueprint Complete! 🎉
+              Blueprint Complete
             </p>
 
             {/* Brand Name - Main Focus */}
@@ -130,7 +134,9 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             {/* Decorative Divider */}
             <div className="flex items-center justify-center gap-2 mb-6">
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
-              <span className="text-[12px]" style={{ color: 'var(--dh-accent)' }}>✨</span>
+              <div style={{ color: 'var(--dh-accent)' }}>
+                <SparkleIcon size={12} />
+              </div>
               <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
             </div>
 
@@ -201,7 +207,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.25)')}
             onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)')}
           >
-            🎉 Share My Achievement
+            Share My Achievement
           </button>
 
           <button
@@ -217,7 +223,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(var(--dh-accent-rgb), 0.05)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
           >
-            📸 Save Certificate
+            Save Certificate
           </button>
 
           <button
@@ -248,7 +254,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             Your blueprint is complete.
           </p>
           <p className="font-body text-[11px] text-dh-text-light leading-[1.5]">
-            Go make that first sale. Then share your success. 🚀
+            Go make that first sale. Then share your success.
           </p>
         </div>
       </div>
