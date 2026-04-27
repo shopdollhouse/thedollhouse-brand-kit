@@ -118,7 +118,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           }}
         >
           {/* Overlay for readability */}
-          <div className="absolute inset-0 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(250, 243, 234, 0.92) 0%, rgba(245, 237, 226, 0.88) 100%)' }} />
+          <div className="absolute inset-0 rounded-3xl" style={{ background: 'linear-gradient(135deg, rgba(250, 243, 234, 0.70) 0%, rgba(245, 237, 226, 0.65) 100%)' }} />
           {/* Top decorative element */}
           <div className="h-1 relative z-10" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
 
