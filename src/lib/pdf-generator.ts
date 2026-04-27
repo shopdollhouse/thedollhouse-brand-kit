@@ -231,29 +231,59 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   // ═══ ROOM 01: THE FRONT DOOR ═══
   addPage('01', 'The Front Door');
   writeText(brand, 24, 'bold');
-  y += 4;
+  y += 6;
   writeLabel('Your Mission');
   writeText(data.aiResults?.businessPlan?.mission || d.mission, 11, 'italic');
+  y += 4;
+
+  writeLabel('What This Means');
+  writeText(d.executiveSummary, 10, 'italic');
+  y += 3;
+
+  writeLabel('Your First Action');
+  writeText(d.todayAction, 9, 'bold');
+  y += 3;
+
+  writeLabel('Remember');
+  writeText('This blueprint is built on your answers. Every recommendation matches your niche, your budget, your time, and your audience. The specificity is your advantage.', 9, 'italic');
 
   // ═══ ROOM 02: MARKETPLACE ═══
   addPage('02', 'The Marketplace Room');
-  writeText('Based on what you sell, your budget, and how you want to work — these are your platforms.', 10, 'italic', accent);
-  y += 2;
-  const platforms = data.aiResults?.recommendedPlatforms || d.topPlatforms;
-  platforms.forEach((p: string) => {
+  writeText(d.marketplaceIntro, 10, 'italic', accent);
+  y += 3;
+  const platforms = data.aiResults?.recommendedPlatforms || d.topPlatforms || [];
+  if (platforms.length === 0) platforms.push(...d.topPlatforms);
+  platforms.slice(0, 2).forEach((p: string) => {
     writeLabel(p);
     const reason = data.aiResults?.platformReasons?.[p] || `${p} is the strongest match for your business type.`;
     writeText(reason, 9);
     y += 2;
   });
 
+  writeLabel('Why These Two Platforms?');
+  writeText('You\'re starting with these two because they match your niche, time commitment, and budget. Focus here first. Expand later when you have revenue and data.', 9);
+
   // ═══ ROOM 03: PRODUCT ═══
   addPage('03', 'The Product Room');
   writeText(data.aiResults?.productRecommendation || `Your product is ${data.product}.`, 10, 'italic');
+  y += 2;
+
+  writeLabel('Product Strategy');
+  writeText(d.productStrategy, 9);
+  y += 2;
+
   if (data.aiResults?.startingPrice) {
     writeLabel('Starting Price');
     writeText(data.aiResults.startingPrice, 10);
+    y += 2;
   }
+
+  writeLabel('First Run Plan');
+  writeText('For your first batch: quality over quantity. 6–12 pieces allows you to test, iterate, and gather feedback without overcommitting resources.', 9);
+  y += 2;
+
+  writeLabel('Expert Note');
+  writeText('Your first product should feel intentional. Every detail matters — from packaging to the first message a customer sees. This is your statement piece.', 9, 'italic', accent);
 
   // ═══ ROOM 04: PRICING ═══
   addPage('04', 'The Money Room');
@@ -324,14 +354,22 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
 
   // ═══ ROOM 06: PLATFORM SETUP ═══
   addPage('06', 'The Foundation Room');
-  writeText(`These are the exact steps to get ${d.name} live on ${platforms.join(' and ')}.`, 10, 'italic', accent);
+  writeText(`These are the exact steps to get ${d.name} live and ready to sell on ${platforms.slice(0, 2).join(' and ')}.`, 10, 'italic', accent);
+  y += 3;
+
+  writeLabel('Critical: Do This First');
+  writeText('Profile completeness matters. Buyers judge you in seconds. Every field you leave blank is a barrier to trust.', 9, 'bold');
   y += 2;
-  platforms.forEach((p: string) => {
-    writeLabel(`${p} — Setup Steps`);
-    const setup = data.aiResults?.platformSetup?.[p] || `1. Create your account on ${p}.\n2. Complete every profile field.\n3. Add your first listing.\n4. Set up payments.\n5. Share your link everywhere.`;
-    writeText(setup, 9);
-    y += 2;
+
+  platforms.slice(0, 2).forEach((p: string) => {
+    writeLabel(`On ${p}:`);
+    const setup = data.aiResults?.platformSetup?.[p] || `1. Create your account\n2. Complete all profile fields — bio, photo, links, everything\n3. Add your first product/service listing with photos\n4. Set up payment processing (connect your bank)\n5. Write a clear description of what you sell and who it's for\n6. Make your link shareable and test it works`;
+    writeText(setup, 8);
+    y += 3;
   });
+
+  writeLabel('After Setup');
+  writeText('Once both are live, test purchasing from each platform. Buy your own product. Review the whole experience. This catches problems before customers do.', 9, 'italic');
 
   // ═══ ROOM 07: FIRST SALE ═══
   addPage('07', 'First Sale Plan');
