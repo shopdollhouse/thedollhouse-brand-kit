@@ -31,23 +31,47 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
       try {
         const canvas = await html2canvas(certificateRef.current, {
           backgroundColor: '#faf3ea',
-          scale: 2,
+          scale: 1.5,
           useCORS: true,
           allowTaint: true,
           logging: false,
-          imageTimeout: 0,
+          imageTimeout: 5000,
+          windowWidth: 540,
+          windowHeight: 800,
         });
-        const image = canvas.toDataURL('image/png');
+        const image = canvas.toDataURL('image/png', 0.95);
         const link = document.createElement('a');
         link.href = image;
         link.download = `${brand}-blueprint-certificate.png`;
+        link.style.display = 'none';
         document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast('Certificate downloaded! Ready to share 📸');
+        setTimeout(() => {
+          link.click();
+          document.body.removeChild(link);
+          toast('Certificate downloaded! Ready to share 📸');
+        }, 100);
       } catch (err) {
-        console.error('Screenshot failed:', err);
-        toast('Error downloading. Try copying the image instead.');
+        console.error('Screenshot error:', err);
+        // Fallback: try to copy image data URL to clipboard
+        try {
+          const canvas = await html2canvas(certificateRef.current, {
+            backgroundColor: '#faf3ea',
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+          });
+          const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+          if (blob) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            toast('Certificate copied! Paste to share 📸');
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback failed:', fallbackErr);
+          toast('Try right-clicking the certificate to save as image');
+        }
       }
     }
   };
