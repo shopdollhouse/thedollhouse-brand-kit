@@ -83,7 +83,7 @@ function Sidebar() {
           style={{ background: 'var(--dh-sidebar-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--dh-glass-border)' }}>
           <div className="flex items-center justify-between mb-3.5">
             <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark font-medium">Ambience</p>
-            <button onClick={() => setSoundOpen(false)} className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] text-dh-text-light cursor-pointer transition-all hover:text-dh-accent-dark" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>✕</button>
+            <button onClick={() => setSoundOpen(false)} className="w-5 h-5 rounded-full flex items-center justify-center text-dh-text-light cursor-pointer transition-all hover:text-dh-accent-dark" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }} aria-label="Close sound panel"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           {tracks.map((t, i) => (
             <button key={i} onClick={() => { handleTrack(i); setPaused(false); }}
@@ -168,8 +168,8 @@ function AppContent() {
             pointerEvents: 'all',
           }}>
             <div className="flex items-baseline gap-[6px] cursor-default select-none">
-              <span className="dh-wordmark-kicker uppercase opacity-90" style={{ fontSize: '9px', letterSpacing: '0.35em' }}>The</span>
-              <span className="dh-wordmark-nav uppercase" style={{ fontSize: '17px', letterSpacing: '0.04em' }}>DOLLHOUSE</span>
+              <span className="dh-wordmark-kicker opacity-90" style={{ fontSize: '11px', letterSpacing: '0.35em' }}>the</span>
+              <span className="dh-wordmark" style={{ fontSize: '20px', letterSpacing: '0.04em' }}>DOLLHOUSE</span>
             </div>
             <nav className="absolute left-1/2 -translate-x-1/2 flex gap-0.5">
               {[['welcome', 'Welcome'], ['questions', 'Quiz'], ['results', 'Results']].map(([s, l]) => (
