@@ -229,8 +229,16 @@ export default function ResultsScreen() {
           : 'clamp(46px, 6vw, 80px)';
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const handleReset = () => { setShowResetConfirm(true); };
   const confirmReset = () => { resetAll(); setScreen('gate'); };
+  const scrollToTop = () => {
+    const scrollEl = document.getElementById('dh-scroll-container');
+    if (scrollEl) {
+      scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+      playClick('soft');
+    }
+  };
 
   // Track active room + scroll progress
   useEffect(() => {
@@ -272,6 +280,7 @@ export default function ResultsScreen() {
       const scrollTop = scrollEl.scrollTop;
       const docHeight = scrollEl.scrollHeight - scrollEl.clientHeight;
       setScrollProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+      setShowBackToTop(scrollTop > 300);
     };
     scrollEl.addEventListener('scroll', handler, { passive: true });
     return () => scrollEl.removeEventListener('scroll', handler);
@@ -1093,6 +1102,24 @@ export default function ResultsScreen() {
           <p className="font-body text-[11px] text-dh-text-light font-light opacity-45 cursor-default select-none" onDoubleClick={downloadLeadsCSV}>© 2026 The Dollhouse · <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="text-dh-accent-dark no-underline">shopdollhouse.co</a></p>
         </div>
       </footer>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="dh-no-print fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center z-[400] transition-all hover:brightness-110"
+          style={{
+            background: 'var(--dh-btn-bg)',
+            color: 'var(--dh-btn-text)',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: 'var(--dh-shadow-lift)',
+            animation: 'fadeIn 0.3s ease both',
+          }}
+          aria-label="Back to top">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+      )}
       {/* ShortcutBar removed */}
     </div>
   );
