@@ -1079,7 +1079,18 @@ export default function ResultsScreen() {
       <footer className="w-full py-[60px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="max-w-[600px] mx-auto px-5">
           <p className="font-display text-[28px] text-dh-text mb-12">The Dollhouse Ecosystem</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-[600px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Official Website Card */}
+            <div className="p-6 rounded-2xl" style={{ background: 'rgba(243, 220, 205, 0.12)', border: '1px solid rgba(243, 220, 205, 0.25)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(243, 220, 205, 0.3)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(243, 220, 205)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <h3 className="font-display text-[16px] text-dh-text mb-1">Official Website</h3>
+              <p className="font-body text-[12px] text-dh-text-light mb-4">Explore the full brand</p>
+              <p className="font-body text-[12px] text-dh-text-mid leading-[1.6] mb-4">Discover all Dollhouse products & digital tools</p>
+              <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark no-underline font-medium inline-flex items-center gap-1.5">Learn more <span>→</span></a>
+            </div>
+
             {/* Etsy Shop Card */}
             <div className="p-6 rounded-2xl" style={{ background: 'rgba(200, 168, 119, 0.12)', border: '1px solid rgba(200, 168, 119, 0.25)' }}>
               <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(200, 168, 119, 0.3)' }}>
