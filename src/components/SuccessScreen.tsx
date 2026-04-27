@@ -3,7 +3,6 @@ import { useRef, useEffect } from 'react';
 import { playClick } from '@/lib/sounds';
 import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
-import html2canvas from 'html2canvas';
 import passwordBg from '@/assets/password-bg.png';
 
 interface SuccessScreenProps {
@@ -26,44 +25,9 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
     'Playful & colourful': '🎨',
   };
 
-  const handleScreenshot = async () => {
+  const handleScreenshot = () => {
     playClick('soft');
-    if (certificateRef.current) {
-      try {
-        toast('Downloading certificate...');
-
-        // Temporarily remove background for cleaner screenshot
-        const originalBg = certificateRef.current.style.backgroundImage;
-        certificateRef.current.style.backgroundImage = 'none';
-
-        const canvas = await html2canvas(certificateRef.current, {
-          scale: 1,
-          logging: false,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#faf3ea',
-        });
-
-        // Restore background
-        certificateRef.current.style.backgroundImage = originalBg;
-
-        // Create blob and download
-        const blob = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = blob;
-        link.download = `${brand}-blueprint-certificate.png`;
-        link.click();
-
-        toast('Certificate downloaded! ✨');
-      } catch (err) {
-        console.error('Download error:', err);
-        // Restore background on error
-        if (certificateRef.current) {
-          certificateRef.current.style.backgroundImage = '';
-        }
-        toast('Right-click certificate → Save image as');
-      }
-    }
+    toast('Right-click certificate → Save image as');
   };
 
   const handleShare = async () => {
@@ -216,7 +180,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(var(--dh-accent-rgb), 0.05)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
           >
-            📸 Download Certificate
+            📸 Save Certificate Image
           </button>
 
           <button
