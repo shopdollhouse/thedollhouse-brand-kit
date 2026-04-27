@@ -473,7 +473,9 @@ export function derive(a: Record<string, string>): DerivedData {
     : mission;
 
   // ── EXECUTION POWERHOUSE: Get actionable content ──
-  const executionContent = getExecutionContent(vibe, aesthetic, 'r01'); // r01 is default start
+  // Note: Pass currentRoom from the Room component context when rendering
+  // For now, use 'r01' as default for results page context
+  const executionContent = getExecutionContent(vibe, aesthetic, 'r01');
 
   return {
     topPlatforms, social, priceHint: pricing.hint, priceEntry: pricing.entry,

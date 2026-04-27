@@ -317,124 +317,180 @@ export const SALES_PAGE_OUTLINES: Record<string, string> = {
 };
 
 // ── REALITY CHECKS (Niche-Specific Traps) ──
-export const REALITY_CHECKS: Record<string, string> = {
-  'Handmade / Physical': `
-⚠️ YOUR HANDMADE REALITY CHECK
+export interface RealityCheck {
+  trapName: string;
+  trapEmoji: string;
+  content: string;
+}
 
-The Trap You'll Face:
-You'll get excited about making more products than you can actually handle. You'll see demand and think "I need to make 50 of these!"
+export const REALITY_CHECKS: Record<string, RealityCheck> = {
+  'Handmade / Physical': {
+    trapName: 'The Hobbyist Trap',
+    trapEmoji: '🪡',
+    content: `
+High Labor, Low Margin. You'll love making products more than selling them.
 
-The Reality:
-- Each product takes time. If it takes 2 hours to make one, and you want to work 8 hours/day, you make 4 per day MAX.
-- You'll think: "I'll just stay up late!" (You won't. Your quality drops, you burn out.)
-- After fulfilling orders, you have 0 time to market, make content, or find more customers.
+The Trap:
+You're excited, making 50 units, staying up late, burning out. Meanwhile, your profit margin is $2 per item because you underpriced.
 
-What Actually Works:
-1. Start with ONE product. Perfect it. Sell 5. Then scale.
-2. Your profit margin matters more than volume. A $50 product is better than ten $5 products.
-3. Before you make 50 units, pre-sell 10. Get paid BEFORE you make them.
-4. Delegate or batching: Make all of one thing on Monday, another product on Tuesday. Stops context switching.
-
-Your First 30 Days Goal:
-Sell 5 units. That proves demand. Then scale production.
-`,
-  'Digital products': {
-    trap: `
-⚠️ YOUR DIGITAL PRODUCT REALITY CHECK
-
-The Trap You'll Face:
-You'll spend 4 weeks perfecting something, launch it, and sell 0 copies. Why? Nobody knew it existed.
-
-The Reality:
-- Building a product is 20% of the work. Marketing it is 80%.
-- You cannot "if you build it, they will come." They won't.
-- Most digital product businesses fail because the creator hates marketing and does it last (or not at all).
+Reality Check:
+• Handmade only wins at premium prices. A $50 item is better than 10 × $5 items.
+• You can't scale by working harder — only by raising prices and automating production.
+• Your first 30 days: Sell 5 units at FULL price, not discounted. Prove demand exists before scaling.
 
 What Actually Works:
-1. Start marketing BEFORE you finish the product. Sell the future version.
-2. Build in public. Share your process on TikTok/Instagram as you build.
-3. Your email list or warm audience buys first. Strangers come later.
-4. You need SYSTEMS, not just a product: landing page → email list → launch sequence.
+1. Start with ONE product. Make 10. Sell 5 at full price.
+2. Price based on your hourly rate + materials, not "what feels reasonable."
+3. Before scaling production, pre-sell. Get paid before making.
+4. Batch your work: Make all of Product A on Monday, Product B on Tuesday. No context switching.
 
-Your First 30 Days Goal:
-Get 50 emails interested BEFORE launch. Then launch to them. 1-2 sales proves demand.
-    `
+Your Mantra:
+"Profit margin matters more than volume."
+    `,
   },
-  'Service / Events': `
-⚠️ YOUR SERVICE REALITY CHECK
+  'Digital products': {
+    trapName: 'The Ghost Town Trap',
+    trapEmoji: '👻',
+    content: `
+High Competition, Low Touch. You'll build a great product in silence and wonder why nobody buys.
 
-The Trap You'll Face:
-You'll say "yes" to every client who asks, working 60-hour weeks, barely making $15/hour. You'll be exhausted and broke.
+The Trap:
+You spend 4 weeks perfecting your digital product. Launch it. Zero sales. Why? Nobody knows it exists.
 
-The Reality:
-- Not all clients are worth your time. A difficult $500 client is worse than an easy $300 client.
-- You'll want to "discount for the first client to build trust." Don't. You'll attract discounters forever.
-- You can't scale a service business by working more hours. At some point, there's a ceiling.
+Reality Check:
+• Building is 20% of the work. Marketing is 80%.
+• Digital products are commoditized. Your edge is YOUR story, not the product itself.
+• If you hate marketing, this model is not for you. Period.
+• Your first 30 days: Get 50 warm leads BEFORE launch. Then launch to them.
+
+What Actually Works:
+1. Start marketing BEFORE the product is done. Build in public.
+2. Post your progress on TikTok/Instagram as you build. People buy YOU, not the thing.
+3. Email list > everything. Collect 50 emails before launch.
+4. First sales come from warm audience (past customers, followers). Strangers come later.
+
+Your Mantra:
+"If nobody's watching you build it, nobody will buy it."
+    `,
+  },
+  'Service / Events': {
+    trapName: 'The Burnout Trap',
+    trapEmoji: '🔥',
+    content: `
+Trading Time for Dollars. You'll say "yes" to everyone and work 60-hour weeks making $15/hour.
+
+The Trap:
+You're eager to please. First client asks you to discount? Sure. Next client asks for extras? Sure. Before month one ends: exhausted and underpaid.
+
+Reality Check:
+• Not all clients are worth your time. A "difficult $500 client" is worse than an "easy $300 client."
+• If you discount for the first client, you'll attract discounters forever.
+• You can't scale a service business by working more hours. Ceiling hits at ~$5-10K/month unless you delegate.
+• Your first 30 days: Book 3 clients at FULL price, not discounted. This proves you have a business.
 
 What Actually Works:
 1. Set your rate FIRST. Stick to it. Don't negotiate down.
-2. Only take clients who are a good fit (use a screener call).
-3. Build a waitlist and raise prices. If you have no waitlist, your price is too low.
-4. After 10 clients, create a group program or digital product to scale beyond 1-on-1.
+2. Use a screening call to filter clients. Some aren't worth the effort.
+3. Build a waitlist. If you have no waitlist, your price is too low.
+4. After 10 clients, productize (group program) or delegate. 1-on-1 only works so far.
 
-Your First 30 Days Goal:
-Book 3 clients at your target rate. Not "whatever they offer," YOUR rate. Proves you have a business, not a hobby.
-  `,
+Your Mantra:
+"Your time is your only asset. Protect it like your life depends on it."
+    `,
+  },
 };
 
 // ── ROOM SEQUENCE LOGIC (For Navigation) ──
-export const ROOM_SEQUENCE: Record<string, { nextRoom: string; nextStepCopy: string }> = {
+// Action-oriented CTAs keep users focused on execution, not room numbers
+export const ROOM_SEQUENCE: Record<string, {
+  nextRoom: string;
+  nextStepCopy: string;
+  roomTitle: string;
+  action: string;
+}> = {
+  'r00': {
+    nextRoom: 'r01',
+    nextStepCopy: 'Go to Name Room: Pick Your Brand',
+    roomTitle: 'The Reality Check',
+    action: 'Understand your niche trap',
+  },
   'r01': {
     nextRoom: 'r02',
-    nextStepCopy: 'Your name is set. Now let\'s pick where you\'ll actually sell.'
+    nextStepCopy: 'Go to Platforms Room: Choose Where to Sell',
+    roomTitle: 'Name Your Business',
+    action: 'Lock in your brand name',
   },
   'r02': {
     nextRoom: 'r03',
-    nextStepCopy: 'Platform chosen. Now let\'s nail your product positioning.'
+    nextStepCopy: 'Go to Product Room: Define Your Offer',
+    roomTitle: 'Pick Your Platforms',
+    action: 'Choose 2 sales channels',
   },
   'r03': {
     nextRoom: 'r04',
-    nextStepCopy: 'Product clear. Time to price it right.'
+    nextStepCopy: 'Go to Pricing Room: Set Your Tiers',
+    roomTitle: 'Position Your Product',
+    action: 'Lock your positioning',
   },
   'r04': {
     nextRoom: 'r05',
-    nextStepCopy: 'Price locked. Now let\'s make people want it.'
+    nextStepCopy: 'Go to Social Room: Create Your Voice',
+    roomTitle: 'Price It Right',
+    action: 'Lock your pricing tiers',
   },
   'r05': {
     nextRoom: 'r05b',
-    nextStepCopy: 'Your voice is clear. Time to set up to sell.'
+    nextStepCopy: 'Go to Setup Room: Build Your Storefront',
+    roomTitle: 'Your Social Voice',
+    action: 'Find your authentic voice',
   },
   'r05b': {
     nextRoom: 'r06',
-    nextStepCopy: 'Setup complete. Now for your first paying customer.'
+    nextStepCopy: 'Go to First Sale Room: Land Your First Customer',
+    roomTitle: 'Technical Setup',
+    action: 'Go live and take payment',
   },
   'r06': {
     nextRoom: 'r07',
-    nextStepCopy: 'First sale unlocked. Time to multiply it.'
+    nextStepCopy: 'Go to Content Room: Build Your System',
+    roomTitle: 'Your First Sale',
+    action: 'Get your first paying customer',
   },
   'r07': {
     nextRoom: 'r08',
-    nextStepCopy: 'Content system built. Now scale what\'s working.'
+    nextStepCopy: 'Go to Marketing Room: Scale What Works',
+    roomTitle: 'Content Strategy',
+    action: 'Build your repeatable system',
   },
   'r08': {
     nextRoom: 'r09',
-    nextStepCopy: 'Growth strategy set. Time to market harder.'
+    nextStepCopy: 'Go to Growth Room: Multiply Your Audience',
+    roomTitle: 'Marketing Multiplication',
+    action: 'Scale your best content',
   },
   'r09': {
     nextRoom: 'r10',
-    nextStepCopy: 'Marketing rhythm built. Now 90-day sprint.'
+    nextStepCopy: 'Go to 90-Day Room: Your Launch Sprint',
+    roomTitle: 'Growth Acceleration',
+    action: 'Go from 0 to 10 sales',
   },
   'r10': {
     nextRoom: 'r11',
-    nextStepCopy: '90 days planned. Now what\'s your bigger mission?'
+    nextStepCopy: 'Go to Mission Room: Define Your Why',
+    roomTitle: 'Your 90-Day Launch',
+    action: 'Execute your launch plan',
   },
   'r11': {
     nextRoom: 'r12',
-    nextStepCopy: 'Mission defined. Seal it with your brand.'
+    nextStepCopy: 'Go to Design Room: Lock Your Brand',
+    roomTitle: 'Your Bigger Mission',
+    action: 'Define why you do this',
   },
   'r12': {
     nextRoom: '',
-    nextStepCopy: 'Your blueprint is complete. Now execute. 🏛️'
+    nextStepCopy: 'Download Your Complete Blueprint',
+    roomTitle: 'Design & Brand Identity',
+    action: 'Complete your visual identity',
   },
 };
 
@@ -445,9 +501,11 @@ export interface ExecutionContent {
   firstSaleContext: string;
   hooks: string[];
   salesPageOutline: string;
-  realityCheck: string;
+  realityCheck: RealityCheck;
   nextRoom: string;
   nextStepCopy: string;
+  roomTitle: string;
+  action: string;
 }
 
 export function getExecutionContent(
@@ -459,12 +517,15 @@ export function getExecutionContent(
                    niche === 'Digital products' ? 'Digital products' : 'Service / Events';
 
   const vibeHooks = HOOKS_BY_VIBE[vibe] || HOOKS_BY_VIBE['Warm & earthy'];
-  const roomSeq = ROOM_SEQUENCE[currentRoom] || { nextRoom: '', nextStepCopy: '' };
+  const roomSeq = ROOM_SEQUENCE[currentRoom] || {
+    nextRoom: '',
+    nextStepCopy: 'Continue Your Journey',
+    roomTitle: 'Blueprint Room',
+    action: 'Take the next step',
+  };
 
   const script = FIRST_SALE_SCRIPTS[nicheKey] || FIRST_SALE_SCRIPTS['Service / Events'];
-  const realityCheck = typeof REALITY_CHECKS[nicheKey] === 'string'
-    ? REALITY_CHECKS[nicheKey]
-    : REALITY_CHECKS[nicheKey].trap || '';
+  const realityCheck = REALITY_CHECKS[nicheKey] || REALITY_CHECKS['Service / Events'];
 
   return {
     first48Hours: FIRST_48_HOURS[nicheKey] || FIRST_48_HOURS['Service / Events'],
@@ -475,5 +536,7 @@ export function getExecutionContent(
     realityCheck,
     nextRoom: roomSeq.nextRoom,
     nextStepCopy: roomSeq.nextStepCopy,
+    roomTitle: roomSeq.roomTitle,
+    action: roomSeq.action,
   };
 }
