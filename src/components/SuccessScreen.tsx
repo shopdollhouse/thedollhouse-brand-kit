@@ -30,42 +30,37 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
     playClick('soft');
     if (certificateRef.current) {
       try {
-        toast('Generating certificate...');
+        toast('Downloading certificate...');
+
+        // Temporarily remove background for cleaner screenshot
+        const originalBg = certificateRef.current.style.backgroundImage;
+        certificateRef.current.style.backgroundImage = 'none';
+
         const canvas = await html2canvas(certificateRef.current, {
           scale: 1,
           logging: false,
           useCORS: true,
           allowTaint: true,
+          backgroundColor: '#faf3ea',
         });
 
-        canvas.toBlob(
-          (blob: Blob | null) => {
-            if (blob) {
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `${brand}-blueprint-certificate.png`;
-              link.style.display = 'none';
-              document.body.appendChild(link);
+        // Restore background
+        certificateRef.current.style.backgroundImage = originalBg;
 
-              setTimeout(() => {
-                link.click();
-              }, 50);
+        // Create blob and download
+        const blob = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = blob;
+        link.download = `${brand}-blueprint-certificate.png`;
+        link.click();
 
-              setTimeout(() => {
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                toast('Certificate downloaded! ✨');
-              }, 150);
-            } else {
-              toast('Right-click certificate → Save image as');
-            }
-          },
-          'image/png',
-          1
-        );
+        toast('Certificate downloaded! ✨');
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Download error:', err);
+        // Restore background on error
+        if (certificateRef.current) {
+          certificateRef.current.style.backgroundImage = '';
+        }
         toast('Right-click certificate → Save image as');
       }
     }
