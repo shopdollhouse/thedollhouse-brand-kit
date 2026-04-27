@@ -15,6 +15,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
   const name = (answers.firstName || '').split(' ')[0] || 'Founder';
   const brand = answers.brandName || 'Your Brand';
   const aesthetic = answers.aesthetic || 'Soft & feminine';
+  const product = answers.product || '';
 
   const aestheticEmojis: Record<string, string> = {
     'Soft & feminine': '✨',
@@ -89,108 +90,80 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
             boxShadow: '0 30px 80px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6), 0 0 0 1px rgba(0,0,0,0.05)'
           }}
         >
-          {/* Decorative Top Border */}
+          {/* Top decorative element */}
           <div className="h-1" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
 
-          {/* Header with Rich Gradient */}
-          <div className="px-10 pt-6 pb-4 text-center relative"
-               style={{ background: 'linear-gradient(135deg, var(--dh-accent) 0%, var(--dh-accent-dark) 100%)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2)' }}>
-            {/* Decorative corner elements */}
-            <div className="absolute top-3 left-3 w-8 h-8 border-l-2 border-t-2 border-white opacity-30" style={{ borderRadius: '2px' }} />
-            <div className="absolute top-3 right-3 w-8 h-8 border-r-2 border-t-2 border-white opacity-30" style={{ borderRadius: '2px' }} />
-
-            <p className="font-ui text-[7px] tracking-[3px] uppercase text-white opacity-85 mb-2 font-semibold">
-              ✦ BRAND BLUEPRINT CERTIFICATE ✦
-            </p>
-            <div className="inline-block mb-2 relative">
-              <div className="absolute -inset-3 rounded-full opacity-30" style={{ background: 'rgba(255,255,255,0.1)', filter: 'blur(8px)' }} />
-              <DollhouseMark size={40} />
-            </div>
-            <p className="font-display italic text-[9px] tracking-[2px] text-white opacity-80">
-              Authentically Designed & Personalized
-            </p>
-          </div>
-
           {/* Main Content */}
-          <div className="px-10 py-8 text-center relative">
-            {/* Subtle background pattern */}
-            <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, var(--dh-accent) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-            <div className="relative">
-              {/* Preamble */}
-              <p className="font-body text-[10px] tracking-[2px] uppercase text-dh-text-light mb-3" style={{ letterSpacing: '2px' }}>
-                This Certifies That
-              </p>
-
-              {/* Brand Name - Premium Treatment */}
-              <h1 className="font-display italic text-[42px] leading-[1.1] mb-2" style={{ color: 'var(--dh-accent-dark)', textShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                {brand}
-              </h1>
-
-              {/* Decorative Line */}
-              <div className="flex items-center gap-3 justify-center mb-4">
-                <div className="flex-1 h-px max-w-[30px]" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent))' }} />
-                <span className="text-[14px]" style={{ color: 'var(--dh-accent)' }}>✦</span>
-                <div className="flex-1 h-px max-w-[30px]" style={{ background: 'linear-gradient(90deg, var(--dh-accent), transparent)' }} />
+          <div className="px-10 py-10 text-center relative">
+            {/* THE DOLLHOUSE Header */}
+            <div className="mb-6">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent))' }} />
+                <span className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-semibold">
+                  THE DOLLHOUSE
+                </span>
+                <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, var(--dh-accent), transparent)' }} />
               </div>
+            </div>
 
-              {/* Person Name */}
-              <p className="font-body text-[11px] text-dh-text-mid mb-1">
-                in recognition of
-              </p>
-              <p className="font-display italic text-[26px] text-dh-text mb-5" style={{ color: 'var(--dh-accent-dark)' }}>
-                {name}
-              </p>
+            {/* Your Brand Blueprint Subtitle */}
+            <p className="font-body italic text-[13px] text-dh-text-light mb-4">
+              Your Brand Blueprint
+            </p>
 
-              {/* Aesthetic Badge - Premium Style */}
-              <div className="inline-block mb-5 px-4 py-2 rounded-full border-2"
-                   style={{
-                     background: 'rgba(var(--dh-accent-rgb), 0.08)',
-                     border: '2px solid var(--dh-accent)',
-                     boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.4)'
-                   }}>
+            {/* Brand Name - Main Focus */}
+            <h1 className="font-display italic text-[48px] leading-[1.1] mb-4" style={{ color: 'var(--dh-accent-dark)' }}>
+              {brand}
+            </h1>
+
+            {/* Descriptive Tagline */}
+            <p className="font-body text-[12px] text-dh-text-mid leading-[1.6] mb-8 max-w-[420px] mx-auto italic">
+              A personalised strategy built entirely around {name}'s vision, aesthetic, and goals.
+            </p>
+
+            {/* Decorative Divider */}
+            <div className="flex items-center justify-center gap-2 mb-7">
+              <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
+              <span className="text-[12px]" style={{ color: 'var(--dh-accent)' }}>♥</span>
+              <div className="flex-1 h-px max-w-[30px]" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
+            </div>
+
+            {/* Badge Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7">
+              {/* Aesthetic Badge */}
+              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
                 <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
-                  {aestheticEmojis[aesthetic]} {aesthetic}
+                  {aesthetic}
                 </p>
               </div>
 
-              {/* Certificate Text */}
-              <div className="mb-6 max-w-[400px] mx-auto">
-                <p className="font-body text-[11px] text-dh-text-mid leading-[1.6] font-light">
-                  has completed their personalized brand blueprint and is ready to launch with intention, clarity, and lasting impact.
+              {/* Date Badge */}
+              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
+                  {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
               </div>
 
-              {/* Fancy Divider */}
-              <div className="flex items-center gap-2 justify-center mb-5">
-                <div className="w-6 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
-                <span className="text-[11px]" style={{ color: 'var(--dh-accent)' }}>♥</span>
-                <div className="w-6 h-px" style={{ background: 'var(--dh-accent)', opacity: 0.3 }} />
-              </div>
-
-              {/* Date & Signature Section */}
-              <div className="border-t border-dashed" style={{ borderColor: 'rgba(var(--dh-accent-rgb), 0.25)', paddingTop: '12px' }}>
-                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-text-light mb-2 font-medium">
-                  {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </p>
-                <div className="mb-2">
-                  <DollhouseMark size={24} />
-                </div>
-                <p className="font-display italic text-[14px] text-dh-accent-dark">
-                  The Dollhouse Studio
+              {/* Rooms Badge */}
+              <div className="px-3.5 py-1.5 rounded-full border" style={{ background: 'transparent', border: '1.5px solid var(--dh-accent)' }}>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase font-semibold text-dh-accent-dark">
+                  12 Rooms
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Footer Banner */}
-          <div className="px-10 py-3 text-center"
-               style={{ background: 'linear-gradient(135deg, rgba(var(--dh-accent-rgb), 0.12) 0%, rgba(var(--dh-accent-rgb), 0.08) 100%)', borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
-            <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark opacity-70 font-semibold">
-              ✧ Blueprint is Private · Success is Public ✧
+            {/* Heart Badge */}
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 mb-6" style={{ background: 'transparent', borderColor: 'var(--dh-accent)' }}>
+              <span className="text-lg" style={{ color: 'var(--dh-accent)' }}>♥</span>
+            </div>
+
+            {/* Footer Text */}
+            <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-text-light font-semibold">
+              Personal Use Only
             </p>
           </div>
 
-          {/* Decorative Bottom Border */}
+          {/* Bottom decorative element */}
           <div className="h-1" style={{ background: 'linear-gradient(90deg, transparent, var(--dh-accent), transparent)' }} />
         </div>
 
