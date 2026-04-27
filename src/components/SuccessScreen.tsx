@@ -28,23 +28,47 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
 
   const handleScreenshot = () => {
     playClick('soft');
-    // Use browser's native print functionality
-    const printWindow = window.open('', '', 'height=800,width=800');
+    const printWindow = window.open('', '', 'height=900,width=1000');
     if (printWindow && certificateRef.current) {
+      const certificateHTML = certificateRef.current.innerHTML;
       const html = `
         <!DOCTYPE html>
         <html>
         <head>
+          <meta charset="UTF-8">
           <title>${brand} - Blueprint Certificate</title>
           <style>
-            body { margin: 0; padding: 20px; font-family: Arial; }
-            @media print { body { padding: 0; } }
-            .certificate { max-width: 100%; }
-            img { max-width: 100%; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              padding: 20px;
+              font-family: 'Cormorant Garamond', 'Georgia', serif;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 100vh;
+              background: #faf3ea;
+            }
+            .certificate-container {
+              width: 100%;
+              max-width: 540px;
+            }
+            svg { max-width: 100%; height: auto; }
+            @media print {
+              body { padding: 0; background: white; }
+              .certificate-container { width: 100%; }
+            }
           </style>
         </head>
-        <body onload="window.print(); window.close();">
-          ${certificateRef.current.outerHTML}
+        <body>
+          <div class="certificate-container">
+            ${certificateHTML}
+          </div>
+          <script>
+            setTimeout(() => {
+              window.print();
+              setTimeout(() => window.close(), 500);
+            }, 500);
+          </script>
         </body>
         </html>
       `;
