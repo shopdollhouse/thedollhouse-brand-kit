@@ -164,6 +164,84 @@ export interface DerivedData {
   budget: string;
   salesScript: { hook: string; value: string; cta: string };
   threePostStrategy: { education: string; bts: string; sales: string };
+  themePreset: ThemePreset;
+  tierLabels: { entry: string; core: string; premium: string; entryDesc: string; coreDesc: string; premiumDesc: string };
+  marketplaceIntro: string;
+  productStrategy: string;
+  monthPlans: { foundation: string; traction: string; scale: string };
+  executiveSummary: string;
+  missionLine: string;
+}
+
+// ── Aesthetic-driven theme preset (subtle accent shifts only) ──
+export interface ThemePreset {
+  key: string;
+  accent: string;
+  accentDark: string;
+  accentRgb: string; // "r, g, b"
+  rose: string;       // for kicker / wordmark color
+  fontDisplay?: string;
+}
+
+const THEME_PRESETS: Record<string, ThemePreset> = {
+  // Default — current Soft Editorial / Champagne Gold. Untouched.
+  'Soft & feminine': {
+    key: 'soft',
+    accent: '#c8a877',
+    accentDark: '#a3854e',
+    accentRgb: '200, 168, 119',
+    rose: '#d6a89a',
+  },
+  // Bold & Editorial — deeper bronze, near-black ink, tighter display.
+  'Bold & editorial': {
+    key: 'editorial',
+    accent: '#b8884a',
+    accentDark: '#7a5524',
+    accentRgb: '184, 136, 74',
+    rose: '#8a5a28',
+  },
+  // Clean & minimal — restrained warm taupe.
+  'Clean & minimal': {
+    key: 'minimal',
+    accent: '#a89880',
+    accentDark: '#766651',
+    accentRgb: '168, 152, 128',
+    rose: '#c8baa8',
+  },
+  // Warm & earthy — clay/amber.
+  'Warm & earthy': {
+    key: 'earthy',
+    accent: '#b88654',
+    accentDark: '#7a4f28',
+    accentRgb: '184, 134, 84',
+    rose: '#c4a87a',
+  },
+  // Playful & colourful — warm coral lift on the gold.
+  'Playful & colourful': {
+    key: 'playful',
+    accent: '#e09a6a',
+    accentDark: '#b8704a',
+    accentRgb: '224, 154, 106',
+    rose: '#ffb8a0',
+  },
+};
+
+export function getThemePreset(aesthetic: string): ThemePreset {
+  return THEME_PRESETS[aesthetic] || THEME_PRESETS['Soft & feminine'];
+}
+
+/** Apply preset CSS variables to <html>. Pass null to clear. */
+export function applyThemePreset(p: ThemePreset | null) {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (!p) {
+    ['--dh-accent', '--dh-accent-dark', '--dh-accent-rgb', '--dh-rose-gold'].forEach(k => root.style.removeProperty(k));
+    return;
+  }
+  root.style.setProperty('--dh-accent', p.accent);
+  root.style.setProperty('--dh-accent-dark', p.accentDark);
+  root.style.setProperty('--dh-accent-rgb', p.accentRgb);
+  root.style.setProperty('--dh-rose-gold', p.rose);
 }
 
 export function derive(a: Record<string, string>): DerivedData {
@@ -292,6 +370,105 @@ export function derive(a: Record<string, string>): DerivedData {
       : `Sales Post (${primarySocial}): "This ${product} is now available. Here's why I made it..." — tell the story, show the product clearly, include the price, and make it easy to buy. ${customer} respect directness.`,
   };
 
+  // ── Theme preset (subtle, default leaves Champagne Gold untouched) ──
+  const themePreset = getThemePreset(aesthetic);
+
+  // ── Vibe-aware tier labels & descriptions ──
+  const tierLabels = vibe === 'Service / Events'
+    ? {
+        entry: 'Starter Session', core: 'Signature Package', premium: 'White-Glove',
+        entryDesc: `Lowest commitment. Lets ${customer} test the relationship before booking the full thing.`,
+        coreDesc: `Your flagship offer — best margin, complete experience. Most ${customer} pick this.`,
+        premiumDesc: `Done-with-you or done-for-you premium. For ${customer} who want the result, not the lesson.`,
+      }
+    : vibe === 'Digital products'
+    ? {
+        entry: 'Tripwire', core: 'Core Product', premium: 'Bundle',
+        entryDesc: `Tiny price, instant value. The ${customer} you'd never reach otherwise become buyers here.`,
+        coreDesc: `The product you want most ${customer} to buy. Price it for the long-term, not the launch.`,
+        premiumDesc: `Bundle the core with templates, calls, or extras. Anchors the value of the core tier.`,
+      }
+    : vibe === 'Curated / Resale'
+    ? {
+        entry: 'Everyday Pieces', core: 'The Edit', premium: 'One-of-One',
+        entryDesc: `Accessible price points that move quickly and bring ${customer} back regularly.`,
+        coreDesc: `Your curated highlights — the pieces that define your eye. Your most profitable bracket.`,
+        premiumDesc: `Rare, statement-only pieces. One per drop is enough to lift the perception of the whole shop.`,
+      }
+    : {
+        entry: 'Entry', core: 'Signature', premium: 'Heirloom',
+        entryDesc: `Lowest barrier. Smaller-scale ${product} that still feels handmade and considered.`,
+        coreDesc: `Your flagship piece. Best margin, best storytelling, the photo that ends up on the homepage.`,
+        premiumDesc: `Limited or made-to-order ${product}. Always have one — it lifts the perceived value of the others.`,
+      };
+
+  // ── Vibe-aware marketplace intro ──
+  const marketplaceIntro = vibe === 'Service / Events'
+    ? `Service brands win on trust signals, not catalog size. These two platforms put ${name}'s ${product} in front of ${customer} who are already actively looking — not just browsing.`
+    : vibe === 'Digital products'
+    ? `Digital products live or die on the buying experience — instant delivery, zero friction. These two platforms handle that for you so you can focus on building, not plumbing.`
+    : vibe === 'Curated / Resale'
+    ? `Curated and resale wins on speed and visual storytelling. These platforms reward fast listings, strong photos, and the kind of "had to share this find" energy your ${customer} respond to.`
+    : `Handmade is bought on story and craft. These two platforms put ${product} in front of ${customer} who already value the maker behind the work — start here, ignore the rest.`;
+
+  // ── Niche + audience + budget aware product strategy ──
+  const isStartingZero = audience === 'Starting from zero';
+  const productStrategy = vibe === 'Service / Events'
+    ? `Lead with one signature offer — ${product} — and resist the urge to launch a menu on day one. ${isStartingZero ? `Without an audience, ${customer} need clarity more than choice.` : `Your existing audience already trusts you; one focused offer converts faster than three competing ones.`}`
+    : vibe === 'Digital products'
+    ? `Build one core ${product} and one tiny entry-priced version. ${budget === 'Under $50' ? 'Both can launch on free tools — no design budget required.' : 'Reinvest the early sales into better cover art and a short video walkthrough.'}`
+    : vibe === 'Curated / Resale'
+    ? `Source small batches of ${product} that all share one through-line — colour, era, or story. ${customer} buy a curator's eye, not random inventory.`
+    : `Make a small first run of ${product} — six to twelve pieces is plenty. ${budget === 'Under $50' ? 'Materials should be sourced locally and photographed against your real workspace, not a backdrop.' : 'Put a third of your budget into materials and packaging — first impressions on unboxing drive repeat orders.'}`;
+
+  // ── Audience + urgency-shaped 90-day phases ──
+  const monthPlans = (() => {
+    const fast = urgency === 'This week' || urgency === 'This month';
+    const hasAudience = !isStartingZero;
+    return {
+      foundation: hasAudience
+        ? `Tell your existing audience what you're building before it's perfect. Set up ${topPlatforms.join(' and ')}. List your first ${vibe === 'Service / Events' ? 'service' : 'product'}. Send 5 personal messages — not a broadcast — to people who already know you.${fast ? ' Aim for first sale or enquiry within 7 days.' : ''}`
+        : `Build the door before you knock on it. Open ${topPlatforms.join(' and ')}, list your first ${vibe === 'Service / Events' ? 'service' : 'product'}, and post on ${social[0]} 3x this week. ${fast ? 'You need momentum — message 5 people you know personally before week one ends.' : 'Your first sale almost always comes from your own network.'}`,
+      traction: vibe === 'Service / Events'
+        ? `Deliver your first booking like it's a portfolio piece. Ask the client for a written testimonial and one piece of social content you can repost. Add a second package tier and start collecting an email list — even 10 people counts.`
+        : vibe === 'Digital products'
+        ? `Double posting frequency on ${social[0]}. Add one bonus or expansion to your ${product}. Collect 3 customer screenshots / reviews and pin them. Set up a one-email welcome flow — that's the whole funnel for now.`
+        : vibe === 'Curated / Resale'
+        ? `Drop your second curated batch. Repost every customer photo. Introduce a "first dibs" list for your most engaged followers. Test one paid promo on ${social[0]} only after organic posts have already converted.`
+        : `List a second variation or smaller-priced version of ${product}. Photograph in golden hour for cohesion. Collect 3 reviews and turn them into static posts. Start an email list for restock notifications.`,
+      scale: `Introduce your premium tier (${tierLabels.premium === 'Bundle' ? 'bundled' : tierLabels.premium.toLowerCase()}). Build a weekly content system you can repeat without thinking. Run one focused promotion — not a permanent discount. Set a revenue target for month 4 and reverse-engineer the actions that get you there.${fast ? ` Because you're moving fast, plan month 4 in week 11, not week 13.` : ''}`,
+    };
+  })();
+
+  // ── Executive summary line — aesthetic + vibe + customer aware ──
+  const aestheticAdj: Record<string, string> = {
+    'Soft & feminine': 'intentional, soft, and easy to trust',
+    'Bold & editorial': 'sharp, confident, and unmistakably its own thing',
+    'Clean & minimal': 'precise, calm, and effortlessly considered',
+    'Warm & earthy': 'rooted, slow-made, and quietly premium',
+    'Playful & colourful': 'joyful, bright, and impossible to scroll past',
+  };
+  const vibeFrame: Record<string, string> = {
+    'Service / Events': 'a service that handles the whole thing',
+    'Digital products': 'a digital product they can use the moment they buy',
+    'Curated / Resale': 'a curated edit they couldn\'t find anywhere else',
+    'Handmade / Physical': 'something handmade with real care',
+  };
+  const adj = aestheticAdj[aesthetic] || aestheticAdj['Soft & feminine'];
+  const frame = vibeFrame[vibe] || `${product}`;
+  const executiveSummary = brand
+    ? `${brand} is built for ${customer.toLowerCase()} who want ${frame} — and want it to feel ${adj} from the very first look.`
+    : `Your business is built for ${customer.toLowerCase()} who want ${frame} — and want it to feel ${adj} from the very first look.`;
+
+  // ── Mission line nudged by blocker ──
+  const missionLine = blocker === 'Scared nobody will buy'
+    ? `${mission} The proof you need will come from your first real customer — not from research.`
+    : blocker === 'Not sure what to make or sell'
+    ? `${mission} Stop collecting ideas. ${product} is the one to ship.`
+    : blocker === 'I just need to start'
+    ? `${mission} Today is the start line.`
+    : mission;
+
   return {
     topPlatforms, social, priceHint: pricing.hint, priceEntry: pricing.entry,
     priceCore: pricing.core, pricePrem: pricing.premium, mission, brandId,
@@ -299,5 +476,7 @@ export function derive(a: Record<string, string>): DerivedData {
     expNote, urgencyNote, pillar2, launchPlan, w1Static, w2Static,
     staticScript, todayAction, promise, name, brand, aesthetic, customer, product,
     audience, urgency, blocker, vibe, budget, salesScript, threePostStrategy,
+    themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans,
+    executiveSummary, missionLine,
   };
 }
