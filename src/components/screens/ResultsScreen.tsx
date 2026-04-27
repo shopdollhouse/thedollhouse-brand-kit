@@ -1078,7 +1078,7 @@ export default function ResultsScreen() {
       {/* Footer */}
       <footer className="w-full py-[60px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="max-w-[600px] mx-auto px-5">
-          <p className="font-display text-[28px] text-dh-text mb-12">The Dollhouse Ecosystem</p>
+          <p className="font-display italic text-[14px] text-dh-text-light mb-12">Find us everywhere</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {/* Official Website Card */}
             <div className="p-6 rounded-2xl" style={{ background: 'rgba(243, 220, 205, 0.12)', border: '1px solid rgba(243, 220, 205, 0.25)' }}>
