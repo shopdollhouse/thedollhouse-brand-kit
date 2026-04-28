@@ -12,7 +12,7 @@ import { playClick, playRoomUnlock, toggleAmbientTrack, setAmbientVolume } from 
 import { BadgeCheck, CheckCircle2, Clock3, Copy, AlertCircle, Download, FileText, ListChecks, Search, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
-import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
+import dollhouseCoverBg from '@/assets/password-bg.jpg';
 import DollhouseMark from '@/components/DollhouseMark';
 import CreatorNote from '../CreatorNote';
 import ResetConfirmDialog from '../ResetConfirmDialog';
@@ -473,7 +473,7 @@ export default function ResultsScreen() {
   return (
     <div className="w-full">
       {/* Gold confetti celebration */}
-      <GoldConfetti active={showConfetti} />
+      <GoldConfetti active={showConfetti && scrollProgress > 0.18} />
       {/* Brand Progress Line */}
       <div className="fixed top-0 left-0 right-0 h-[2px] z-[200]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.1)' }}>
         <div className="h-full transition-all duration-150" style={{ width: `${scrollProgress * 100}%`, background: 'linear-gradient(90deg, var(--dh-accent), var(--dh-accent-dark))' }} />
@@ -488,15 +488,15 @@ export default function ResultsScreen() {
           style={{
             backgroundColor: '#f8e3dc',
             backgroundImage: `url(${dollhouseCoverBg})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'left bottom',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            minHeight: '780px',
             borderRadius: '34px',
             border: '1px solid rgba(196, 151, 91, 0.28)',
             boxShadow: '0 34px 110px rgba(83,48,35,0.18), 0 0 0 1px rgba(255,255,255,0.62) inset',
           }}
         >
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(255,248,244,0.10)' }} />
           {/* Outer subtle frame line */}
           <div
             className="absolute inset-6 rounded-[28px] pointer-events-none"
@@ -508,39 +508,40 @@ export default function ResultsScreen() {
           />
 
           {/* Right-side content column */}
-          <div className="relative z-[2] grid grid-cols-1 md:grid-cols-[1.08fr_0.92fr] min-h-[780px]">
+          <div className="relative z-[2] grid h-full grid-cols-1 md:grid-cols-[46%_54%]">
             <div className="hidden md:block" />
 
-            <div className="flex flex-col items-center justify-center text-center px-6 md:px-9 py-14 min-w-0 overflow-hidden">
-              {/* Tiny gold arch glyph */}
-              <div className="mb-3" style={{ color: '#b8956a' }}>
-                <svg width="34" height="44" viewBox="0 -4 56 80" fill="none">
-                  <path d="M10 74 L10 28 Q10 5 28 5 Q46 5 46 28 L46 74" stroke="currentColor" strokeWidth="1.4" fill="none" />
-                  <path d="M17 74 L17 31 Q17 16 28 16 Q39 16 39 31 L39 74" stroke="currentColor" strokeWidth="0.7" fill="none" opacity="0.55" />
-                  <circle cx="28" cy="3" r="1.6" fill="currentColor" />
-                </svg>
+            <div
+              className="flex flex-col items-center justify-center text-center px-6 py-10 md:px-10 min-w-0 overflow-hidden"
+              style={{
+                paddingTop: 'clamp(36px, 5vw, 58px)',
+                background: 'radial-gradient(ellipse at center, rgba(255,250,246,0.86) 0%, rgba(255,250,246,0.62) 48%, rgba(255,250,246,0) 76%)',
+              }}
+            >
+              <div className="mb-4" style={{ color: '#b8956a' }}>
+                <DollhouseMark size={34} />
               </div>
 
-              <div className="dh-premium-chip mb-8" style={{ background: 'rgba(255,255,255,0.22)', borderColor: 'rgba(201,165,119,0.45)', color: '#a07a4f' }}>
+              <div className="dh-premium-chip mb-6" style={{ background: 'rgba(255,255,255,0.62)', borderColor: 'rgba(184,138,82,0.66)', color: '#8f623d', padding: '9px 22px', fontSize: '8px' }}>
                 Private Strategy File
               </div>
 
               {/* THE DOLLHOUSE wordmark with gold rules */}
-              <div className="flex items-center gap-3 mb-8">
-                <div className="h-px w-10" style={{ background: 'linear-gradient(to right, transparent, #c9a577)' }} />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-px w-8" style={{ background: 'linear-gradient(to right, transparent, #c9a577)' }} />
                 <p
                   className="font-ui font-medium uppercase"
-                  style={{ fontSize: '10px', letterSpacing: '6px', color: '#a07a4f' }}
+                  style={{ fontSize: '9px', letterSpacing: '5px', color: '#91633e' }}
                 >
                   The Dollhouse
                 </p>
-                <div className="h-px w-10" style={{ background: 'linear-gradient(to left, transparent, #c9a577)' }} />
+                <div className="h-px w-8" style={{ background: 'linear-gradient(to left, transparent, #c9a577)' }} />
               </div>
 
               {/* Italic eyebrow */}
               <p
                 className="font-display italic mb-3"
-                style={{ fontSize: '20px', color: '#c08a82', letterSpacing: '1px' }}
+                style={{ fontSize: 'clamp(20px, 2.2vw, 26px)', color: '#ad6f69', letterSpacing: '1px' }}
               >
                 Your Brand Blueprint
               </p>
@@ -549,10 +550,10 @@ export default function ResultsScreen() {
                 className="font-display italic leading-[0.94] mb-6 mx-auto text-center text-balance"
                 style={{
                   fontSize: coverTitleFont,
-                  color: '#b8716a',
+                  color: '#9f5b57',
                   fontWeight: 600,
                   letterSpacing: '-0.02em',
-                  maxWidth: 'min(100%, 500px)',
+                  maxWidth: 'min(100%, 380px)',
                   overflowWrap: 'normal',
                   wordBreak: 'normal',
                   hyphens: 'none',
@@ -565,24 +566,24 @@ export default function ResultsScreen() {
               <p
                 className="font-display italic mx-auto mb-7"
                 style={{
-                  fontSize: '17px',
-                  lineHeight: 1.7,
-                  color: '#b08580',
-                  maxWidth: '420px',
+                  fontSize: 'clamp(15px, 1.8vw, 19px)',
+                  lineHeight: 1.6,
+                  color: '#94615d',
+                  maxWidth: '340px',
                 }}
               >
                 A personalised strategy built entirely around {name}'s vision, aesthetic, and goals.
               </p>
 
               {/* Gold dot divider with heart */}
-              <div className="flex items-center gap-3 mb-8">
-                <div className="h-px w-14" style={{ background: '#c9a577', opacity: 0.6 }} />
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-px w-12" style={{ background: '#c9a577', opacity: 0.6 }} />
                 <span style={{ color: '#b8956a', fontSize: '12px' }}>♥</span>
-                <div className="h-px w-14" style={{ background: '#c9a577', opacity: 0.6 }} />
+                <div className="h-px w-12" style={{ background: '#c9a577', opacity: 0.6 }} />
               </div>
 
               {/* Pill tags */}
-              <div className="flex items-center gap-3 mb-8 flex-wrap justify-center">
+              <div className="flex items-center gap-2.5 mb-6 flex-wrap justify-center">
                 {[
                   aesthetic,
                   new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
@@ -595,11 +596,11 @@ export default function ResultsScreen() {
                     style={{
                       fontSize: '8px',
                       letterSpacing: '3px',
-                      color: '#a07a4f',
-                      border: '1px solid #c9a577',
+                      color: '#9a7048',
+                      border: '1.5px solid rgba(184,138,82,0.78)',
                       borderRadius: '9999px',
-                      padding: '8px 16px',
-                      background: 'transparent',
+                      padding: '7px 14px',
+                      background: 'rgba(255,250,246,0.32)',
                     }}
                   >
                     {tag}
@@ -610,7 +611,7 @@ export default function ResultsScreen() {
               {/* Gold seal */}
               <div className="flex flex-col items-center">
                 <div
-                  className="w-[64px] h-[64px] rounded-full flex items-center justify-center mb-3 relative"
+                  className="w-[56px] h-[56px] rounded-full flex items-center justify-center mb-3 relative"
                   style={{ border: '1px solid #c9a577' }}
                 >
                   <div
