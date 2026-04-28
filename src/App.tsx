@@ -62,6 +62,9 @@ function Sidebar() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
             {theme === 'blush' ? 'Dark' : 'Light'}
+            <span className="font-ui text-[6px] tracking-[1.4px] uppercase opacity-60 leading-none">
+              {theme === 'blush' ? 'Blush mode' : 'Dark mode'}
+            </span>
           </button>
           <button onClick={() => { playClick('soft'); setSoundOpen(o => !o); }} className={bb} style={{ background: 'none', border: 'none', color: track >= 0 ? 'var(--dh-accent-dark)' : undefined }}>
             <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
@@ -207,13 +210,6 @@ function AppContent() {
 
       {/* Sidebar */}
       {currentScreen !== 'gate' && <Sidebar />}
-
-      {/* Mode label */}
-      {currentScreen !== 'gate' && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[490] font-ui text-[9px] tracking-[4px] uppercase font-medium text-dh-text-light opacity-55 pointer-events-none">
-          {theme === 'blush' ? 'Blush' : 'Dark'} Mode
-        </div>
-      )}
 
       {/* Stats panel */}
       {showStats && <StatsPanel onClose={() => setShowStats(false)} />}

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
 import { saveLead } from '@/lib/lead-storage';
@@ -17,8 +17,6 @@ import DollhouseMark from '@/components/DollhouseMark';
 import CreatorNote from '../CreatorNote';
 import ResetConfirmDialog from '../ResetConfirmDialog';
 import SuccessScreen from '../SuccessScreen';
-
-const DownloadCard = lazy(() => import('../results/DownloadCard'));
 
 const ROOMS = [
   ['r01', '01 Name'], ['r02', '02 Platforms'], ['r03', '03 Product'],
@@ -65,10 +63,10 @@ function StickyNav({ onReset, onDownload, onCelebrate }: { onReset: () => void; 
             style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
             ✨ Celebrate
           </button>
-          <button onClick={onDownload}
+          <button onClick={onDownload} title="PDF download is coming soon"
             className="font-ui text-[9px] tracking-[2px] uppercase rounded-full py-1 px-3 cursor-pointer transition-all hover:opacity-80"
             style={{ background: 'none', color: 'var(--dh-text-light)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-            ⬇ Download
+            ⬇ Soon
           </button>
           <button onClick={() => { playClick('back'); onReset(); }}
             className="font-ui text-[9px] tracking-[2px] uppercase text-dh-text-light rounded-full py-1 px-3 cursor-pointer"
@@ -193,7 +191,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
         <span className="text-[11px] leading-none">✨</span>
         Celebrate
       </button>
-      <button onClick={onDownload}
+      <button onClick={onDownload} title="PDF download is coming soon"
         className={bb}
         style={{ padding: '7px 9px', background: 'none', color: 'var(--dh-text-light)', border: '1px solid transparent' }}>
         <span className="text-[11px] leading-none">⬇</span>
@@ -222,7 +220,6 @@ export default function ResultsScreen() {
   const [activeRoom, setActiveRoom] = useState('r01');
   const [soundTrack, setSoundTrack] = useState(-1);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const downloadRef = useRef<(() => void) | null>(null);
   const [showConfetti, setShowConfetti] = useState(true);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [checkedLaunchSteps, setCheckedLaunchSteps] = useState<Record<string, boolean>>({});
@@ -351,20 +348,15 @@ export default function ResultsScreen() {
       playClick('soft');
     }
   };
-  const triggerDownload = () => {
+  const showDownloadComingSoon = () => {
     playClick('soft');
-    if (downloadRef.current) {
-      downloadRef.current();
-      return;
-    }
-
-    const trigger = document.querySelector('.dh-download-trigger');
-    if (trigger) {
-      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      return;
-    }
-
-    document.getElementById('dh-download-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast('PDF download is coming soon.', {
+      description: 'We are refining this export so your saved blueprint looks as polished as the app.',
+      duration: 4200,
+    });
+  };
+  const triggerDownload = () => {
+    showDownloadComingSoon();
   };
 
   // Track active room + scroll progress
@@ -441,7 +433,7 @@ export default function ResultsScreen() {
         const newTrack = toggleAmbientTrack(0, soundTrack, 0.45);
         setSoundTrack(newTrack);
       }
-      if (key === 'd') { downloadRef.current?.(); }
+      if (key === 'd') { showDownloadComingSoon(); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -466,7 +458,7 @@ export default function ResultsScreen() {
     ['Is this actually personalised to me?', 'Yes. The blueprint uses your 19 answers, including custom offer details, current stage, success goal, customer, budget, time, and selling style. The launch kit then adapts those details into actions, scripts, pricing, and troubleshooting.'],
     ['What changed in this version?', 'The blueprint now includes 17 rooms: core strategy rooms plus a first-48-hours plan, sales page builder, launch asset pack, beginner tracker, and no-sales troubleshooter.'],
     ['Does this need a server or login?', 'No. The app is designed as a zero-server brand studio: password access, quiz answers, blueprint state, saved email leads, and the PDF flow all run in the browser.'],
-    ['How do I save my blueprint?', 'Use the Save Your Blueprint section below to download the full results page as a PDF, including the launch kit. You can also copy scripts and notes directly from each room.'],
+    ['How do I save my blueprint?', 'The polished PDF export is temporarily paused while we refine the design. For now, you can copy scripts and notes directly from each room, and the save feature will return soon.'],
     ['I have a question — who do I contact?', 'Head to shopdollhouse.co and reach out from there. We read everything.'],
   ];
 
@@ -697,9 +689,9 @@ export default function ResultsScreen() {
             <div className="absolute top-0 left-[12%] right-[12%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.45), transparent)' }} />
             <Download size={22} className="mx-auto mb-4" style={{ color: 'rgba(196,168,154,0.75)' }} />
             <p className="font-ui text-[8px] tracking-[4px] uppercase mb-2 font-medium" style={{ color: 'rgba(196,168,154,0.48)' }}>Keep Your File</p>
-            <p className="font-display italic text-[21px] leading-[1.35] mb-4" style={{ color: 'rgba(255,255,255,0.92)' }}>Save this blueprint before you start.</p>
-            <button onClick={triggerDownload} className="dh-snappy rounded-full py-3 px-6 font-ui text-[9px] tracking-[3px] uppercase cursor-pointer" style={{ background: 'rgba(255,255,255,0.9)', color: '#1e0f09', border: 'none' }}>
-              Download PDF
+            <p className="font-display italic text-[21px] leading-[1.35] mb-4" style={{ color: 'rgba(255,255,255,0.92)' }}>Your polished PDF export is almost ready.</p>
+            <button onClick={triggerDownload} title="PDF download is coming soon" className="dh-snappy rounded-full py-3 px-6 font-ui text-[9px] tracking-[3px] uppercase cursor-pointer" style={{ background: 'rgba(255,255,255,0.9)', color: '#1e0f09', border: 'none' }}>
+              Coming Soon
             </button>
           </div>
         </div>
@@ -1544,9 +1536,15 @@ export default function ResultsScreen() {
 
         {/* Download */}
         <div id="dh-download-section">
-          <Suspense fallback={<div className="dh-no-print rounded-3xl p-10 text-center mb-7 glass">Preparing your download...</div>}>
-            <DownloadCard answers={answers} aiResults={aiResults} onDownloadRef={(fn: () => void) => { downloadRef.current = fn; }} />
-          </Suspense>
+          <div className="dh-no-print rounded-3xl p-9 text-center mb-7 glass relative overflow-hidden">
+            <div className="absolute top-0 left-[14%] right-[14%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(var(--dh-accent-rgb),0.42), transparent)' }} />
+            <Download size={22} className="mx-auto mb-4 text-dh-accent-dark" />
+            <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-semibold">PDF Download</p>
+            <p className="font-display italic text-[22px] text-dh mb-3">Available soon</p>
+            <p className="font-body text-[13px] leading-[1.8] text-dh-text-light max-w-[520px] mx-auto">
+              We are refining the export experience so your saved blueprint is complete, beautiful, and share-ready. This feature will be available soon.
+            </p>
+          </div>
         </div>
 
         {/* Email Capture — "Join the House" */}
