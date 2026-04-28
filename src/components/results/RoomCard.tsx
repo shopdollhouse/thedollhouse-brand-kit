@@ -11,7 +11,7 @@ interface RoomCardProps {
 
 export default function RoomCard({ num, name, tagline, icon, children, className = '' }: RoomCardProps) {
   return (
-    <div className={`glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)] animate-room-reveal ${className}`}
+    <div className={`glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7 animate-room-reveal ${className}`}
       style={{ animationDelay: `${parseInt(num) * 0.05}s` }}>
       <div className="flex items-start gap-[18px] mb-9 pb-7" style={{ borderBottom: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 mt-0.5"

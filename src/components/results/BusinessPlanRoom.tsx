@@ -22,6 +22,12 @@ export default function BusinessPlanRoom({ aiResults, displayName, mission, answ
   };
 
   const finalBp = bp || fallbackBp;
+  const weeklyOperatingPlan = [
+    ['Build', `Improve or create one piece of ${answers.product || 'your offer'} every week.`],
+    ['Sell', 'Send 5 personal messages, follow up with every warm lead, and make one clear public offer.'],
+    ['Show', 'Publish your weekly content rotation and collect proof from every buyer or interested person.'],
+    ['Review', 'Every Sunday, write down: what got attention, what got replies, what got money.'],
+  ];
 
   return (
     <RoomCard num="11" name="The Expansion Room" tagline="Your 90-day plan — mission, goals, revenue"
@@ -52,6 +58,16 @@ export default function BusinessPlanRoom({ aiResults, displayName, mission, answ
           <p className="font-display italic text-[19px] leading-8" style={{ color: 'var(--dh-text)' }}>{finalBp.personalNote}</p>
         </div>
       )}
+
+      <div className="mt-6">
+        <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Your Weekly Operating System</p>
+        {weeklyOperatingPlan.map(([label, text]) => (
+          <div key={label} className="flex gap-3 items-start p-4 rounded-xl mb-2.5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <span className="font-ui text-[8px] tracking-[2px] uppercase py-1 px-2 rounded flex-shrink-0" style={{ color: 'var(--dh-accent-dark)', background: 'rgba(var(--dh-accent-rgb), 0.08)' }}>{label}</span>
+            <p className="font-body text-[13px] leading-[1.8] text-dh-text-mid font-light">{text}</p>
+          </div>
+        ))}
+      </div>
     </RoomCard>
   );
 }

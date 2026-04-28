@@ -1,101 +1,124 @@
 import { AIResults } from '@/context/QuizContext';
-import { safeJSON } from './quiz-helpers';
+import { derive, generateNames, platformReason } from './quiz-helpers';
 
-async function callAI(prompt: string, retries = 3): Promise<string> {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1500,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
-      if (!resp.ok) {
-        const t = await resp.text();
-        throw new Error(`API ${resp.status}: ${t}`);
-      }
-      const data = await resp.json();
-      return (data.content || []).filter((b: any) => b.type === 'text').map((b: any) => b.text).join('');
-    } catch (err) {
-      if (attempt === retries) throw err;
-      await new Promise(r => setTimeout(r, 800));
-    }
-  }
-  return '';
+function splitPlan(plan: string) {
+  return plan
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join(' ');
 }
 
 export async function generateBlueprint(
   answers: Record<string, string>,
   onPartialResults: (results: AIResults) => void,
 ): Promise<AIResults> {
-  const a = answers;
-  const hasBrand = a.brandName && a.brandName !== '__skip__';
-  const firstName = (a.firstName || '').split(' ')[0] || 'her';
+  const d = derive(answers);
+  const name = d.name;
+  const brand = d.brand || generateNames(d.product, d.aesthetic, d.customer, name)[0];
+  const platforms = d.topPlatforms.slice(0, 2);
+  const social = d.social.slice(0, 2);
+  const [displayFont = 'Cormorant Garamond', bodyFont = 'DM Sans'] = d.brandId.typo.split('+').map(font => font.trim());
 
-  const ctx = `Name: ${a.firstName || 'unknown'}. Product/offer: ${a.product || 'unknown'}. Business type: ${a.vibe || 'unknown'}. Aesthetic: ${a.aesthetic || 'unknown'}. Sells: ${a.sellType || 'unknown'}. Time/week: ${a.time || 'unknown'}. Budget: ${a.budget || 'unknown'}. Urgency: ${a.urgency || 'unknown'}. Experience: ${a.experience || 'unknown'}. Shipping: ${a.shipping || 'unknown'}. Face-to-face: ${a.faceToFace || 'unknown'}. Inventory: ${a.inventory || 'unknown'}. Customer: ${a.customer || 'unknown'}. Audience: ${a.audience || 'Starting from zero'}. Blocker: ${a.blocker || 'unknown'}.`;
+  const productDetails = d.productDetails ? ` Specifically: ${d.productDetails}.` : '';
+  const stage = d.currentStatus || 'Just an idea';
+  const goal = d.successGoal || 'get clear enough to start';
 
-  const namesSchema = hasBrand ? `"businessNames":["${a.brandName}"]` : `"businessNames":["Name1","Name2","Name3","Name4","Name5"]`;
+  const localResults: AIResults = {
+    businessNames: d.brand ? [d.brand] : generateNames(d.product, d.aesthetic, d.customer, name),
+    recommendedPlatforms: platforms,
+    platformReasons: platforms.reduce<Record<string, string>>((acc, platform) => {
+      acc[platform] = `${platformReason(platform, d.product)} This matches your current stage: ${stage}.`;
+      return acc;
+    }, {}),
+    productRecommendation: `${name}, start with one clear version of ${d.product} for ${d.customer}.${productDetails} Package it around this win: ${goal}.`,
+    startingPrice: `${d.priceHint} — use this as your first-test range, then move buyers toward ${d.priceCore} once you have proof.`,
+    firstSale: {
+      promise: d.promise,
+      todayAction: d.todayAction,
+      weekOnePlan: splitPlan(d.w1Static),
+      weekTwoPlan: splitPlan(d.w2Static),
+      firstClientScript: d.staticScript,
+      mindsetNote: `${d.setupStageNote} ${d.successGoalNote}`,
+    },
+    businessPlan: {
+      mission: d.mission,
+      ninetyDayGoal: `In 90 days, validate ${d.product} with a simple offer, a repeatable weekly content rhythm, and a first revenue target tied to "${goal}".`,
+      revenueTarget: `First target: ${d.priceEntry} from 1-3 buyers. Next target: ${d.priceCore} from repeatable weekly sales. Premium target: ${d.pricePrem}.`,
+      focusOn: [
+        `Turn ${d.product} into one sellable starter offer.`,
+        `Use ${platforms[0] || 'your main platform'} as the primary checkout path.`,
+        `Post proof, process, and sales content on ${social[0] || 'your main social channel'} every week.`,
+      ],
+      ignoreForNow: [
+        'A huge product catalog before the first buyer responds.',
+        'A perfect logo before the offer is listed.',
+        'Paid ads before the message and photos convert organically.',
+      ],
+      personalNote: `${name}, the premium move is focus. Build one offer, send real invitations, then improve from buyer feedback.`,
+    },
+    platformSetup: platforms.reduce<Record<string, string>>((acc, platform) => {
+      acc[platform] = `1. Create or audit your ${platform} profile today.\n2. Use a clear headline: ${d.product} for ${d.customer}.\n3. Add the starter offer, price, delivery details, and one direct CTA.\n4. Include 3-5 photos, screenshots, examples, or proof points.\n5. Put this link in every bio and message you use this week.\n6. Track views, clicks, saves, DMs, and buyer questions.`;
+      return acc;
+    }, {}),
+    firstSaleRoadmap: platforms.reduce<Record<string, string>>((acc, platform) => {
+      acc[platform] = `Day 1: publish or improve your ${platform} listing. Day 2: send 5 personal invites. Day 3: post the problem your offer solves. Day 4: share proof or process. Day 5: answer objections publicly. Day 6: follow up. Day 7: make one clear sale post.`;
+      return acc;
+    }, {}),
+    socialMedia: {
+      recommended: social,
+      platforms: social.reduce<Record<string, { setup: string; strategy: string; contentIdeas: string }>>((acc, channel) => {
+        acc[channel] = {
+          setup: `Bio says who you help, what you sell, and where to buy ${d.product}. Pin one intro, one proof/process post, and one offer post.`,
+          strategy: `Use a weekly rhythm: 1 education post, 1 behind-the-scenes post, 1 proof post, and 1 direct sales post.`,
+          contentIdeas: `1. Why ${d.customer} need ${d.product}. 2. How your offer works. 3. What changes after someone buys.`,
+        };
+        return acc;
+      }, {}),
+    },
+    branding: {
+      brandVibe: d.brandId.voice,
+      logoConcepts: [
+        { name: `${brand} Wordmark`, description: d.brandId.logo },
+        { name: `${brand} House Mark`, description: d.brandId.logo2 },
+      ],
+      fonts: [
+        { role: 'Display', name: displayFont, why: 'Sets the first impression and makes the brand feel intentional.' },
+        { role: 'Body', name: bodyFont, why: 'Keeps product pages, captions, and emails easy to read.' },
+      ],
+      colours: d.brandId.colours.map(c => ({
+        name: c.n,
+        hex: c.c,
+        use: c.use,
+      })),
+      designDo: d.brandId.designDo,
+      designDont: d.brandId.designDont,
+    },
+    marketing: {
+      coreMessage: `${brand} helps ${d.customer} get ${d.product} with a ${d.aesthetic.toLowerCase()} experience that feels clear, useful, and worth buying.`,
+      contentPillars: [
+        { pillar: 'Proof', description: `Show why ${d.product} works for ${d.customer}.`, examplePosts: ['Before/after or result', 'Review or reaction', 'Common objection answered'] },
+        { pillar: 'Process', description: 'Show the making, delivery, setup, or thinking behind the offer.', examplePosts: ['Behind the scenes', 'Tools you use', 'How an order works'] },
+        { pillar: 'Education', description: d.pillar2, examplePosts: ['Quick tip', 'Mistake to avoid', 'Mini tutorial'] },
+        { pillar: 'Offer', description: 'Invite people to buy with clarity and confidence.', examplePosts: ['What is included', 'Who it is for', 'Limited first-buyer bonus'] },
+      ],
+      emailStrategy: `Send one short weekly note: useful tip, product story, direct CTA to buy ${d.product}.`,
+      weeklyRoutine: d.threePostStrategy.education + ' ' + d.threePostStrategy.bts + ' ' + d.threePostStrategy.sales,
+      freePromotion: [
+        `Post on ${social[0] || 'your main social channel'} three times this week.`,
+        'Message 5 warm contacts with a personal note.',
+        'Share one useful tip in a relevant community.',
+        'Ask one early buyer or friend for honest feedback.',
+      ],
+      sellingWithoutBegging: `Selling is service when the offer is specific. Tell ${d.customer} what ${d.product} helps them do, who it is for, and exactly how to buy.`,
+      quickWins: [
+        'Add the shop link to every bio.',
+        'Write one pinned intro post.',
+        'Make one clear sale post today.',
+      ],
+    },
+  };
 
-  const isService = a.vibe === 'Service / Events';
-  const isDigital = a.vibe === 'Digital products';
-  const isCurated = a.vibe === 'Curated / Resale';
-  const isHandmade = a.vibe === 'Handmade / Physical';
-
-  const nicheExtra = isService
-    ? `,"servicesBusiness":{"intro":"1 sentence why profitable.","packages":[{"name":"Starter","description":"Included.","price":"$X","duration":"X hrs"},{"name":"Standard","description":"Included.","price":"$X","duration":"X hrs"},{"name":"Premium","description":"Included.","price":"$X","duration":"X hrs"}],"bookingProcess":"4 steps.","equipmentList":["Item 1","Item 2","Item 3"],"contractTips":"Key essentials.","upsells":["Upsell 1","Upsell 2"],"localMarketing":"3 moves."}`
-    : isDigital
-    ? `,"digitalProducts":{"intro":"1 sentence why digital suits ${firstName}.","productIdeas":[{"type":"Type","description":"What it is.","exampleTitles":["T1","T2"],"startingPrice":"$X-$Y"},{"type":"Type","description":"What it is.","exampleTitles":["T1","T2"],"startingPrice":"$X-$Y"}],"funnelStrategy":"Freebie to paid funnel.","launchPlan":"30-day plan.","pricingTiers":"3 tiers."}`
-    : isCurated
-    ? `,"curatedBusiness":{"intro":"1 sentence.","sourcingGuide":"Where to source.","marginAdvice":"Pricing strategy.","standoutTips":["Tip 1","Tip 2"],"platformFit":"Best platforms."}`
-    : isHandmade
-    ? `,"handmadeBusiness":{"intro":"1 sentence.","productionTips":"Batch tips.","pricingFormula":"Formula.","photographyTips":"Photo tips.","scalingPath":"Scale path."}`
-    : '';
-
-  // Call A: Core business
-  const pA = `Dollhouse Business Advisor. Sharp, warm, specific. Real numbers only. No generic advice.\nPROFILE: ${ctx}\nOUTPUT: ONLY raw JSON.\n{${namesSchema},"recommendedPlatforms":["P1","P2"],"platformReasons":{"P1":"2 sentences why","P2":"2 sentences why"},"productRecommendation":"specific product + 1 sentence why","startingPrice":"$XX — brief margin logic"}`;
-
-  // Call B: First sale plan
-  const pB = `Dollhouse Business Advisor. Specific daily actions. Use ${firstName}'s name.\nPROFILE: ${ctx}\nOUTPUT: ONLY raw JSON.\n{"firstSale":{"promise":"Bold promise using ${firstName}'s name.","todayAction":"1 action under 60 mins, exact tool.","weekOnePlan":"Day 1: action — Xm. Day 2: action — Xm. Day 3: action. Day 4: action. Day 5: action. Day 6: action. Day 7: action.","weekTwoPlan":"Day 8: action. Day 9: action. Day 10: action. Day 11: action. Day 12: action. Day 13: action. Day 14: action.","firstClientScript":"Exact warm copy-paste message.","mindsetNote":"2 warm sentences."},"businessPlan":{"mission":"1 powerful sentence.","ninetyDayGoal":"Specific goal with numbers.","revenueTarget":"Month 1: $X. 90 days: $Y.","focusOn":["3 actions"],"ignoreForNow":["3 distractions"],"personalNote":"3 warm sentences for ${firstName}."}${nicheExtra}}`;
-
-  // Call D: Branding + marketing
-  const pD = `Dollhouse Business Advisor. Specific branding for ${firstName}'s ${a.product || 'product'}. Real Google Fonts. Real hex codes.\nPROFILE: ${ctx}\nOUTPUT: ONLY raw JSON.\n{"branding":{"brandVibe":"2 vivid sensory sentences.","logoConcepts":[{"name":"Name","description":"Designer brief."},{"name":"Name","description":"Different approach."}],"fonts":[{"role":"Display","name":"Google Font","why":"Why it fits."},{"role":"Body","name":"Google Font","why":"Why it pairs."}],"colours":[{"name":"Name","hex":"#XXXXXX","use":"Use"},{"name":"Name","hex":"#XXXXXX","use":"Use"},{"name":"Name","hex":"#XXXXXX","use":"Use"},{"name":"Name","hex":"#XXXXXX","use":"Use"}],"designDo":["Rule 1","Rule 2","Rule 3"],"designDont":["Avoid 1","Avoid 2","Avoid 3"]},"marketing":{"coreMessage":"1-2 sentence tagline/bio.","contentPillars":[{"pillar":"Name","description":"What this covers.","examplePosts":["Post 1","Post 2","Post 3"]},{"pillar":"Name","description":"Desc.","examplePosts":["Post 1","Post 2","Post 3"]},{"pillar":"Name","description":"Desc.","examplePosts":["Post 1","Post 2","Post 3"]},{"pillar":"Name","description":"Desc.","examplePosts":["Post 1","Post 2","Post 3"]}],"emailStrategy":"Tool + frequency + first email.","weeklyRoutine":"Mon-Sun schedule.","freePromotion":["Tactic 1","Tactic 2","Tactic 3","Tactic 4"],"sellingWithoutBegging":"3-4 sentences.","quickWins":["Action 1","Action 2","Action 3"]}}`;
-
-  // Step 1: Get core data fast
-  const textA = await callAI(pA);
-  const dA = safeJSON(textA);
-  
-  // Show partial results
-  onPartialResults(dA);
-
-  // Fill in platform names for Call C
-  const p1 = dA.recommendedPlatforms?.[0] || 'P1';
-  const p2 = dA.recommendedPlatforms?.[1] || 'P2';
-
-  const pC = `Dollhouse Business Advisor. Specific setup steps. Button names. Real platforms.\nPROFILE: ${ctx}\nOUTPUT: ONLY raw JSON.\n{"platformSetup":{"${p1}":"Step 1. Step 2. Step 3. Step 4. Step 5.","${p2}":"Step 1. Step 2. Step 3. Step 4. Step 5."},"firstSaleRoadmap":{"${p1}":"Day 1: action — Xm. Day 2-7: daily actions.","${p2}":"Day 1: action — Xm. Day 2-7: daily actions."},"socialMedia":{"recommended":["S1","S2"],"platforms":{"S1":{"setup":"4 steps.","strategy":"4 weekly tasks.","contentIdeas":"3 post ideas."},"S2":{"setup":"3 steps.","strategy":"4 weekly tasks.","contentIdeas":"3 post ideas."}}}}`;
-
-  // Step 2: Fire B, C, D in parallel
-  const [textB, textC, textD] = await Promise.all([
-    callAI(pB),
-    callAI(pC),
-    callAI(pD),
-  ]);
-
-  const dB = safeJSON(textB);
-  const dC = safeJSON(textC);
-  const dD = safeJSON(textD);
-
-  const merged = { ...dA, ...dB, ...dC, ...dD } as AIResults;
-  
-  if (JSON.stringify(merged).length < 400) {
-    throw new Error('Merged results too short');
-  }
-
-  return merged;
+  onPartialResults(localResults);
+  return localResults;
 }

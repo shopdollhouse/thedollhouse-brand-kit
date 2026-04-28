@@ -1,14 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function GateUnlockOverlay({ active, onDone }: { active: boolean; onDone: () => void }) {
   const [phase, setPhase] = useState(0); // 0=idle, 1=closed (doors visible), 2=opening, 3=fade
+  const particles = useMemo(() => Array.from({ length: 26 }).map((_, i) => ({
+    id: i,
+    side: i % 2 === 0 ? -1 : 1,
+    size: 2 + ((i * 7) % 4),
+    x: 6 + ((i * 13) % 42),
+    y: 16 + ((i * 11) % 66),
+    drift: 44 + ((i * 17) % 88),
+    rise: 18 + ((i * 19) % 62),
+    delay: (i % 7) * 0.06,
+    alpha: 0.48 + ((i % 5) * 0.08),
+  })), []);
 
   useEffect(() => {
     if (!active) return;
     setPhase(1);
-    const t1 = setTimeout(() => setPhase(2), 350);
-    const t2 = setTimeout(() => setPhase(3), 1700);
-    const t3 = setTimeout(() => { setPhase(0); onDone(); }, 2200);
+    const t1 = setTimeout(() => setPhase(2), 220);
+    const t2 = setTimeout(() => setPhase(3), 1680);
+    const t3 = setTimeout(() => { setPhase(0); onDone(); }, 2180);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [active, onDone]);
 
@@ -21,11 +32,19 @@ export default function GateUnlockOverlay({ active, onDone }: { active: boolean;
     >
       {/* Warm glow behind the doors that brightens as they open */}
       <div
-        className="absolute inset-0 transition-opacity duration-[1200ms] ease-out"
+        className="absolute inset-0 transition-opacity"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 50%, rgba(255,236,210,0.95) 0%, rgba(244,210,178,0.6) 28%, rgba(196,168,154,0.25) 55%, transparent 78%)',
-          opacity: phase === 1 ? 0 : phase === 2 ? 1 : 0,
+            'radial-gradient(ellipse at 50% 50%, rgba(255,248,231,1) 0%, rgba(244,210,178,0.74) 26%, rgba(200,168,119,0.34) 54%, rgba(30,15,9,0.08) 100%)',
+          opacity: phase === 1 ? 0.15 : phase === 2 ? 1 : 0,
+          transition: 'opacity 1300ms cubic-bezier(0.19,1,0.22,1)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: phase === 1 ? 'rgba(17,8,4,0.98)' : 'rgba(17,8,4,0)',
+          transition: 'background 1300ms cubic-bezier(0.19,1,0.22,1)',
         }}
       />
 
@@ -33,17 +52,17 @@ export default function GateUnlockOverlay({ active, onDone }: { active: boolean;
       <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
         {/* LEFT DOOR */}
         <div
-          className="absolute left-0 top-0 h-full ease-[cubic-bezier(0.6,0,0.2,1)]"
+          className="absolute left-0 top-0 h-full"
           style={{
             width: '50%',
             transformOrigin: 'left center',
             transform:
               phase === 1
-                ? 'rotateY(0deg) translateX(0)'
+                ? 'rotateY(0deg) translateX(0) scaleX(1)'
                 : phase === 2
-                  ? 'rotateY(-78deg) translateX(-4%)'
-                  : 'rotateY(-92deg) translateX(-12%)',
-            transition: 'transform 1500ms cubic-bezier(0.55, 0.05, 0.25, 1), opacity 500ms ease-out',
+                  ? 'rotateY(-84deg) translateX(-4%) scaleX(0.98)'
+                  : 'rotateY(-98deg) translateX(-13%) scaleX(0.96)',
+            transition: 'transform 1550ms cubic-bezier(0.19, 1, 0.22, 1), opacity 520ms ease-out',
             opacity: phase === 3 ? 0 : 1,
             background:
               'linear-gradient(90deg, #1a0d07 0%, #2d1810 35%, #3d2418 70%, #1e0f09 100%)',
@@ -86,17 +105,17 @@ export default function GateUnlockOverlay({ active, onDone }: { active: boolean;
 
         {/* RIGHT DOOR */}
         <div
-          className="absolute right-0 top-0 h-full ease-[cubic-bezier(0.6,0,0.2,1)]"
+          className="absolute right-0 top-0 h-full"
           style={{
             width: '50%',
             transformOrigin: 'right center',
             transform:
               phase === 1
-                ? 'rotateY(0deg) translateX(0)'
+                ? 'rotateY(0deg) translateX(0) scaleX(1)'
                 : phase === 2
-                  ? 'rotateY(78deg) translateX(4%)'
-                  : 'rotateY(92deg) translateX(12%)',
-            transition: 'transform 1500ms cubic-bezier(0.55, 0.05, 0.25, 1), opacity 500ms ease-out',
+                  ? 'rotateY(84deg) translateX(4%) scaleX(0.98)'
+                  : 'rotateY(98deg) translateX(13%) scaleX(0.96)',
+            transition: 'transform 1550ms cubic-bezier(0.19, 1, 0.22, 1), opacity 520ms ease-out',
             opacity: phase === 3 ? 0 : 1,
             background:
               'linear-gradient(270deg, #1a0d07 0%, #2d1810 35%, #3d2418 70%, #1e0f09 100%)',
@@ -137,37 +156,37 @@ export default function GateUnlockOverlay({ active, onDone }: { active: boolean;
 
       {/* Bright golden seam that flares as the doors part */}
       <div
-        className="absolute left-1/2 top-0 h-full -translate-x-1/2 transition-all duration-[1100ms] ease-out"
+        className="absolute left-1/2 top-0 h-full -translate-x-1/2 transition-all ease-out"
         style={{
-          width: phase === 1 ? 2 : phase === 2 ? 80 : 200,
+          width: phase === 1 ? 2 : phase === 2 ? 110 : 240,
           background:
             'linear-gradient(90deg, transparent, rgba(255,236,210,0.95), #fff5e0, rgba(255,236,210,0.95), transparent)',
           filter: 'blur(2px)',
           opacity: phase === 3 ? 0 : 1,
           boxShadow: '0 0 60px rgba(255,236,210,0.8)',
+          transition: 'width 1200ms cubic-bezier(0.19,1,0.22,1), opacity 500ms ease-out',
         }}
       />
 
       {/* Golden dust drifting outward from the seam */}
       {phase >= 1 && (
         <div className="absolute inset-0 overflow-hidden">
-          {Array.from({ length: 20 }).map((_, i) => {
-            const side = i % 2 === 0 ? -1 : 1;
+          {particles.map((p) => {
             return (
               <div
-                key={i}
+                key={p.id}
                 className="absolute rounded-full"
                 style={{
-                  width: 2 + Math.random() * 3,
-                  height: 2 + Math.random() * 3,
-                  left: `calc(50% + ${side * (5 + Math.random() * 40)}%)`,
-                  top: `${20 + Math.random() * 60}%`,
-                  background: `rgba(255,${220 + Math.random() * 30},${180 + Math.random() * 40},${0.5 + Math.random() * 0.4})`,
-                  boxShadow: `0 0 ${6 + Math.random() * 10}px rgba(255,220,170,0.6)`,
-                  transition: `all ${1.2 + Math.random() * 0.8}s ease-out`,
-                  transform: phase >= 2 ? `translate(${side * (40 + Math.random() * 80)}px, ${-20 - Math.random() * 60}px)` : 'translate(0,0)',
+                  width: p.size,
+                  height: p.size,
+                  left: `calc(50% + ${p.side * p.x}%)`,
+                  top: `${p.y}%`,
+                  background: `rgba(255,232,190,${p.alpha})`,
+                  boxShadow: '0 0 12px rgba(255,220,170,0.62)',
+                  transition: 'transform 1500ms cubic-bezier(0.19,1,0.22,1), opacity 700ms ease-out',
+                  transform: phase >= 2 ? `translate3d(${p.side * p.drift}px, ${-p.rise}px, 0)` : 'translate3d(0,0,0)',
                   opacity: phase === 3 ? 0 : phase === 2 ? 0.9 : 0,
-                  transitionDelay: `${Math.random() * 0.4}s`,
+                  transitionDelay: `${p.delay}s`,
                 }}
               />
             );

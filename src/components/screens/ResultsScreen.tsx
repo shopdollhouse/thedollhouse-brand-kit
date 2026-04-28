@@ -1,16 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
-import { saveLead } from '@/lib/supabase';
+import { saveLead } from '@/lib/lead-storage';
 import RoomCard from '../results/RoomCard';
 import SummaryCard from '../results/SummaryCard';
 import FirstSaleRoom from '../results/FirstSaleRoom';
 import BrandingRoom from '../results/BrandingRoom';
 import MarketingRoom from '../results/MarketingRoom';
-import DownloadCard from '../results/DownloadCard';
 import BusinessPlanRoom from '../results/BusinessPlanRoom';
 import { playClick, playRoomUnlock, toggleAmbientTrack, setAmbientVolume } from '@/lib/sounds';
-import { Copy, AlertCircle } from 'lucide-react';
+import { BadgeCheck, CheckCircle2, Clock3, Copy, AlertCircle, Download, FileText, ListChecks, Search, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
 import dollhouseCoverBg from '@/assets/dollhouse-cover-bg.jpg';
@@ -19,11 +18,15 @@ import CreatorNote from '../CreatorNote';
 import ResetConfirmDialog from '../ResetConfirmDialog';
 import SuccessScreen from '../SuccessScreen';
 
+const DownloadCard = lazy(() => import('../results/DownloadCard'));
+
 const ROOMS = [
   ['r01', '01 Name'], ['r02', '02 Platforms'], ['r03', '03 Product'],
   ['r04', '04 Pricing'], ['r05', '05 Social'], ['r05b', '06 Setup'],
-  ['r06', '07 First Sale'], ['r07', '08 Content'], ['r09', '09 Marketing'],
+  ['r06', '07 Sale'], ['r07', '08 Content'], ['r09', '09 Marketing'],
   ['r10', '10 90-Day'], ['r11', '11 Mission'], ['r12', '12 Design'],
+  ['r13', '13 Sprint'], ['r14', '14 Page'], ['r15', '15 Assets'],
+  ['r16', '16 Tracker'], ['r17', '17 Fixes'],
 ];
 
 function StickyNav({ onReset, onDownload, onCelebrate }: { onReset: () => void; onDownload: () => void; onCelebrate: () => void }) {
@@ -62,7 +65,7 @@ function StickyNav({ onReset, onDownload, onCelebrate }: { onReset: () => void; 
             style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
             ✨ Celebrate
           </button>
-          <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+          <button onClick={onDownload}
             className="font-ui text-[9px] tracking-[2px] uppercase rounded-full py-1 px-3 cursor-pointer transition-all hover:opacity-80"
             style={{ background: 'none', color: 'var(--dh-text-light)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
             ⬇ Download
@@ -139,11 +142,15 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const bb = 'group relative flex flex-col items-center gap-1 py-2.5 px-3.5 cursor-pointer rounded-[10px] mx-1 font-ui text-[8px] tracking-[2px] uppercase font-medium text-dh-text-light transition-colors hover:text-dh-accent-dark min-w-[52px] overflow-hidden';
+  const bb = 'group relative flex items-center gap-2 cursor-pointer rounded-xl mx-1.5 font-ui text-[8px] tracking-[1.6px] uppercase font-medium text-dh-text-light transition-colors hover:text-dh-accent-dark overflow-hidden';
 
   return (
-    <div className="dh-no-print fixed left-5 z-[550] hidden md:flex flex-col gap-0.5 rounded-2xl py-2 px-0 shadow-[0_4px_32px_rgba(0,0,0,0.08)]"
-      style={{ top: '50%', transform: 'translateY(-50%)', marginTop: '26px', background: 'var(--dh-sidebar-bg)', backdropFilter: 'blur(16px)', border: '1px solid var(--dh-glass-border)' }}>
+    <div className="dh-left-results-rail dh-no-print fixed left-5 top-[76px] bottom-5 z-[550] hidden md:flex flex-col gap-1 rounded-[22px] py-3 px-1.5 shadow-[0_10px_42px_rgba(107,82,64,0.10)] overflow-y-auto overscroll-contain"
+      style={{ width: 142, maxHeight: 'calc(100vh - 96px)', background: 'rgba(255,250,244,0.76)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '1px solid rgba(var(--dh-accent-rgb),0.18)', scrollbarWidth: 'none' }}>
+      <div className="px-3 pt-1 pb-2">
+        <p className="font-ui text-[7px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Rooms</p>
+        <div className="h-px mt-2" style={{ background: 'rgba(var(--dh-accent-rgb),0.18)' }} />
+      </div>
       {ROOMS.map(([id, lbl]) => {
         const num = lbl.split(' ')[0];
         const label = lbl.split(' ').slice(1).join(' ');
@@ -151,28 +158,29 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
           <button key={id} onClick={() => { playClick('soft'); scrollTo(id); }}
             className={bb}
             style={{
+              padding: '7px 9px',
               background: activeRoom === id ? 'rgba(var(--dh-accent-rgb), 0.12)' : 'none',
               color: activeRoom === id ? 'var(--dh-accent-dark)' : undefined,
-              border: 'none',
+              border: `1px solid ${activeRoom === id ? 'rgba(var(--dh-accent-rgb),0.24)' : 'transparent'}`,
             }}>
             {/* Hover shimmer lines */}
             <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
             <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
-            <span className="font-display text-[11px] leading-none">{num}</span>
-            {label}
+            <span className="font-display text-[12px] leading-none min-w-[18px] text-center">{num}</span>
+            <span className="text-left whitespace-nowrap">{label}</span>
           </button>
         );
       })}
       <div className="h-px mx-2" style={{ background: 'rgba(var(--dh-accent-rgb), 0.15)' }} />
       <button onClick={(e) => { e.preventDefault(); playClick('soft'); document.getElementById('dh-about')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-        className={bb} style={{ background: 'none', border: 'none' }}>
+        className={bb} style={{ padding: '7px 9px', background: 'none', border: '1px solid transparent' }}>
         <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
         <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         About
       </button>
       <button onClick={(e) => { e.preventDefault(); playClick('soft'); document.getElementById('dh-boutique')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-        className={bb} style={{ background: 'none', border: 'none' }}>
+        className={bb} style={{ padding: '7px 9px', background: 'none', border: '1px solid transparent' }}>
         <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
         <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
         <span className="text-[11px] leading-none">♥</span>
@@ -181,13 +189,13 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
       <div className="h-px mx-2" style={{ background: 'rgba(var(--dh-accent-rgb), 0.15)' }} />
       <button onClick={() => { playClick('soft'); onCelebrate(); }}
         className={bb}
-        style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none', borderRadius: '10px' }}>
+        style={{ padding: '8px 9px', background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none', borderRadius: '12px' }}>
         <span className="text-[11px] leading-none">✨</span>
         Celebrate
       </button>
-      <button onClick={() => { playClick('soft'); document.querySelector('.dh-download-trigger')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); }}
+      <button onClick={onDownload}
         className={bb}
-        style={{ background: 'none', color: 'var(--dh-text-light)', border: 'none' }}>
+        style={{ padding: '7px 9px', background: 'none', color: 'var(--dh-text-light)', border: '1px solid transparent' }}>
         <span className="text-[11px] leading-none">⬇</span>
         Save
       </button>
@@ -198,7 +206,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
 export default function ResultsScreen() {
   const { answers, aiResults, resetAll, setScreen, toggleTheme } = useQuiz();
   const d = derive(answers);
-  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, audience, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine, blocker, budget } = d;
+  const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, productDetails, audience, currentStatus, successGoal, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine, setupStageNote, successGoalNote, blocker, budget, executionContent } = d;
 
   // Apply aesthetic-driven CSS-variable shifts (subtle, only on Results screen)
   useEffect(() => {
@@ -215,9 +223,9 @@ export default function ResultsScreen() {
   const [soundTrack, setSoundTrack] = useState(-1);
   const [scrollProgress, setScrollProgress] = useState(0);
   const downloadRef = useRef<(() => void) | null>(null);
-  const [showReadyPopup, setShowReadyPopup] = useState(true);
   const [showConfetti, setShowConfetti] = useState(true);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [checkedLaunchSteps, setCheckedLaunchSteps] = useState<Record<string, boolean>>({});
   const unlockedRooms = useRef<Set<string>>(new Set());
 
   const copyScript = (text: string) => {
@@ -244,6 +252,93 @@ export default function ResultsScreen() {
         : longestCoverWord >= 10
           ? 'clamp(40px, 5vw, 64px)'
           : 'clamp(46px, 6vw, 80px)';
+  const firstPlatform = (aiResults?.recommendedPlatforms || topPlatforms)[0] || 'your platform';
+  const firstSocial = (aiResults?.socialMedia?.recommended || social)[0] || social[0] || 'Instagram';
+  const beginnerOffer = vibe === 'Service / Events'
+    ? {
+        title: `${product} Starter Booking`,
+        deliverable: `One clear service package for ${customer}: what happens, how long it takes, what they receive, and how to book.${productDetails ? ` Build around this detail: ${productDetails}.` : ''}`,
+        proof: 'Use one before/after, one client-style example, or one story that proves you can deliver.',
+        guarantee: 'Promise clear communication, simple next steps, and a defined delivery window.',
+      }
+    : vibe === 'Digital products'
+    ? {
+        title: `${product} Quick-Start Version`,
+        deliverable: `One instantly downloadable version of ${product} that solves one specific problem for ${customer}.${productDetails ? ` Use this angle: ${productDetails}.` : ''}`,
+        proof: 'Show screenshots, a page preview, or a tiny free sample so buyers know exactly what they get.',
+        guarantee: 'Promise instant access, simple instructions, and no complicated setup.',
+      }
+    : vibe === 'Curated / Resale'
+    ? {
+        title: `${product} First Drop`,
+        deliverable: `A small curated drop with 5-10 pieces that all share one style, use case, or story for ${customer}.${productDetails ? ` Curate around: ${productDetails}.` : ''}`,
+        proof: 'Show close-ups, condition notes, styling ideas, and why each item made the edit.',
+        guarantee: 'Promise accurate descriptions, clear photos, and simple pickup or shipping details.',
+      }
+    : {
+        title: `${product} First Batch`,
+        deliverable: `A small first run of 6-12 ${product} pieces so ${customer} can buy without waiting for a huge launch.${productDetails ? ` Make the first batch feel specific to: ${productDetails}.` : ''}`,
+        proof: 'Show the making process, materials, scale, packaging, and one in-use photo.',
+        guarantee: 'Promise handmade care, clear delivery timing, and what happens if there is an issue.',
+      };
+  const firstSaleTarget = answers.budget === '$200+' ? '$250' : answers.budget === '$50–$200' ? '$150' : '$75';
+  const profileBio = `${product} for ${customer} | ${productDetails ? productDetails.slice(0, 42) : `${aesthetic.toLowerCase()} ${vibe.toLowerCase()}`} | Shop/Book: [link]`;
+  const firstCaption = `I made ${product} for ${customer.toLowerCase()} who want ${productDetails || `something that feels ${aesthetic.toLowerCase()} without overthinking it`}. My first ${vibe === 'Service / Events' ? 'booking spots' : 'drop'} is live now on ${firstPlatform}. Comment "INFO" or tap the link to see it.`;
+  const first48 = executionContent.first48Hours;
+  const salesPageOutline = executionContent.salesPageOutline
+    .replaceAll('[PRODUCT]', product)
+    .replaceAll('[product]', product)
+    .replaceAll('[Service]', product)
+    .replaceAll('[service]', product)
+    .replaceAll('[specific type of client]', customer.toLowerCase())
+    .replaceAll('[specific benefit]', d.salesScript.value)
+    .replaceAll('[common pain point]', blocker.toLowerCase() || 'overwhelm')
+    .trim();
+  const launchAssets = [
+    {
+      title: 'Launch Caption 01',
+      body: firstCaption,
+    },
+    {
+      title: 'Launch Caption 02',
+      body: `I built ${product} for ${customer.toLowerCase()} who want something that feels ${aesthetic.toLowerCase()}, useful, and easy to buy. This is the first version, and I would love for you to see it before I build the next drop. Link: [link]`,
+    },
+    {
+      title: 'Story Prompt',
+      body: `Post a 3-frame story: 1) "I finally made ${product}" 2) show the product/process 3) "Want the link? Reply INFO."`,
+    },
+    {
+      title: 'Warm DM',
+      body: executionContent.firstSaleScript.replaceAll('[product name]', product).replaceAll('[service name]', product).replaceAll('[Name]', '[Name]'),
+    },
+    {
+      title: 'Follow-Up Message',
+      body: `Hey [Name], just checking back in about ${product}. No pressure at all — I wanted to make sure you saw it because I genuinely thought of you for this. Here's the link again: [link]`,
+    },
+    {
+      title: 'Proof Request',
+      body: `Thank you so much for being one of my first buyers. If you have 30 seconds, could you send me one honest sentence about what made you buy or what you liked? It would help me so much as I build this. ♥`,
+    },
+  ];
+  const launchHooks = executionContent.hooks.slice(0, 5).map(hook => hook.replaceAll('[product]', product));
+  const progressItems = [
+    `Create your ${firstPlatform} account`,
+    'Add payment processing or checkout link',
+    `Publish one clear ${vibe === 'Service / Events' ? 'service package' : 'product listing'}`,
+    `Update your ${firstSocial} bio with what you sell and who it is for`,
+    'Post your first launch caption',
+    'Send 5 warm DMs',
+    'Follow up with every interested person within 24 hours',
+    'Collect one proof point, review, screenshot, or piece of feedback',
+  ];
+  const completedLaunchSteps = progressItems.filter(item => checkedLaunchSteps[item]).length;
+  const noSalesDiagnostics = [
+    ['Views but no clicks', 'Your photo, headline, or first line is not creating curiosity. Make the benefit clearer and show the product in use.'],
+    ['Clicks but no sales', 'Your offer page is not building enough trust. Add what is included, who it is for, delivery timing, FAQ, and one proof point.'],
+    ['Messages but no payment', 'People are interested but uncertain. Send the follow-up script, answer the objection directly, and make checkout one click.'],
+    ['No views or engagement', `Your audience has not seen enough repetition yet. Post ${answers.time === 'Under 5 hours' ? '3' : '5'} times this week and DM warm leads instead of waiting for strangers.`],
+    ['Sales then silence', 'Document why the buyer said yes, turn that proof into 3 posts, and make the same offer to 10 similar people.'],
+  ];
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -255,6 +350,21 @@ export default function ResultsScreen() {
       scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
       playClick('soft');
     }
+  };
+  const triggerDownload = () => {
+    playClick('soft');
+    if (downloadRef.current) {
+      downloadRef.current();
+      return;
+    }
+
+    const trigger = document.querySelector('.dh-download-trigger');
+    if (trigger) {
+      trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      return;
+    }
+
+    document.getElementById('dh-download-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   // Track active room + scroll progress
@@ -337,7 +447,7 @@ export default function ResultsScreen() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggleTheme, soundTrack]);
 
-  // Email capture — save to Supabase
+  // Email capture — local-only save for the zero-server build.
   const handleEmailSubmit = async () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) { setEmailFb('Please enter a valid email address.'); return; }
     playClick('success');
@@ -353,9 +463,10 @@ export default function ResultsScreen() {
 
   const faqItems = [
     ['Can I retake the quiz?', 'Yes — hit Start Over at the top of this page to reset everything and begin again.'],
-    ['Is this actually personalised to me?', 'Yes. Every room — your platforms, product recommendation, pricing logic, first sale plan, brand colours, marketing strategy — is generated using your 16 answers. No two blueprints are the same.'],
-    ['What if the AI sections did not load?', 'Some rooms use AI to go deeper. If the connection was slow, those rooms show a personalised static version instead. Your blueprint is still fully built from your answers.'],
-    ['How do I save my blueprint?', 'Use the Save Your Blueprint section below to download it as an HTML file, or copy it as text notes.'],
+    ['Is this actually personalised to me?', 'Yes. The blueprint uses your 19 answers, including custom offer details, current stage, success goal, customer, budget, time, and selling style. The launch kit then adapts those details into actions, scripts, pricing, and troubleshooting.'],
+    ['What changed in this version?', 'The blueprint now includes 17 rooms: core strategy rooms plus a first-48-hours plan, sales page builder, launch asset pack, beginner tracker, and no-sales troubleshooter.'],
+    ['Does this need a server or login?', 'No. The app is designed as a zero-server brand studio: password access, quiz answers, blueprint state, saved email leads, and the PDF flow all run in the browser.'],
+    ['How do I save my blueprint?', 'Use the Save Your Blueprint section below to download the full results page as a PDF, including the launch kit. You can also copy scripts and notes directly from each room.'],
     ['I have a question — who do I contact?', 'Head to shopdollhouse.co and reach out from there. We read everything.'],
   ];
 
@@ -363,65 +474,44 @@ export default function ResultsScreen() {
     <div className="w-full">
       {/* Gold confetti celebration */}
       <GoldConfetti active={showConfetti} />
-      {showReadyPopup && (
-        <div className="fixed bottom-6 right-6 z-[900] w-[360px] max-w-[calc(100vw-48px)] animate-glass-slide" style={{ animationDuration: '0.35s' }}>
-          <div className="rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.25)]" style={{ border: '1px solid var(--dh-glass-border)' }}>
-            {/* Dark header strip */}
-            <div className="relative px-5 pt-5 pb-4" style={{ background: 'linear-gradient(160deg, #1e0f09 0%, #2d1810 50%, #1a0e08 100%)' }}>
-              <button onClick={() => setShowReadyPopup(false)} className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-[10px] cursor-pointer transition-all hover:opacity-80" style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'rgba(255,255,255,0.5)' }}>✕</button>
-              <div className="absolute top-0 left-[10%] right-[10%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.4), transparent)' }} />
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(196,168,154,0.12)', border: '1px solid rgba(196,168,154,0.2)' }}>
-                  <DollhouseMark size={20} />
-                </div>
-                <div>
-                  <p className="font-ui text-[8px] tracking-[3px] uppercase font-medium mb-0.5" style={{ color: 'rgba(196,168,154,0.5)' }}>Blueprint Complete</p>
-                  <p className="font-display italic text-[17px] leading-[1.3]" style={{ color: 'rgba(255,255,255,0.9)' }}>{displayName}'s Dollhouse is ready</p>
-                </div>
-              </div>
-            </div>
-            {/* Light body */}
-            <div className="px-5 py-4" style={{ background: 'hsl(var(--background))' }}>
-              <p className="font-body text-[12px] text-dh-text-mid font-light leading-[1.7] mb-3">
-                <strong className="font-medium" style={{ color: 'var(--dh-text)' }}>12 personalised rooms</strong> built from your answers — brand, platforms, pricing, marketing, and more.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Brand Progress Line */}
       <div className="fixed top-0 left-0 right-0 h-[2px] z-[200]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.1)' }}>
         <div className="h-full transition-all duration-150" style={{ width: `${scrollProgress * 100}%`, background: 'linear-gradient(90deg, var(--dh-accent), var(--dh-accent-dark))' }} />
       </div>
-      <LeftSidebar activeRoom={activeRoom} onDownload={() => downloadRef.current?.()} onCelebrate={() => setShowSuccessScreen(true)} />
+      <LeftSidebar activeRoom={activeRoom} onDownload={triggerDownload} onCelebrate={() => setShowSuccessScreen(true)} />
       <div id="dh-results-inner" className="w-full max-w-[800px] mx-auto px-5 animate-cinematic-reveal" style={{ padding: '80px 20px 120px' }}>
 
         {/* ══ ROOM 00: THE COVER — Dollhouse Blush Edition ══ */}
         <div
           data-room-id="r00"
-          className="relative rounded-3xl overflow-hidden mb-12"
+          className="dh-certificate-cover relative overflow-hidden mb-12"
           style={{
-            backgroundColor: '#f5dcd3',
+            backgroundColor: '#f8e3dc',
             backgroundImage: `url(${dollhouseCoverBg})`,
             backgroundSize: 'contain',
             backgroundPosition: 'left bottom',
             backgroundRepeat: 'no-repeat',
-            minHeight: '760px',
-            boxShadow: '0 30px 100px rgba(196,168,154,0.25), 0 0 0 1px rgba(196,168,154,0.18)',
+            minHeight: '780px',
+            borderRadius: '34px',
+            border: '1px solid rgba(196, 151, 91, 0.28)',
+            boxShadow: '0 34px 110px rgba(83,48,35,0.18), 0 0 0 1px rgba(255,255,255,0.62) inset',
           }}
         >
           {/* Outer subtle frame line */}
           <div
-            className="absolute inset-6 rounded-[18px] pointer-events-none"
-            style={{ border: '1px solid rgba(156, 123, 110, 0.12)' }}
+            className="absolute inset-6 rounded-[28px] pointer-events-none"
+            style={{ border: '1px solid rgba(196, 151, 91, 0.22)' }}
+          />
+          <div
+            className="absolute inset-10 rounded-[22px] pointer-events-none"
+            style={{ border: '1px solid rgba(196, 151, 91, 0.10)' }}
           />
 
           {/* Right-side content column */}
-          <div className="relative z-[2] grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] min-h-[760px]">
+          <div className="relative z-[2] grid grid-cols-1 md:grid-cols-[1.08fr_0.92fr] min-h-[780px]">
             <div className="hidden md:block" />
 
-            <div className="flex flex-col items-center justify-center text-center px-6 md:px-10 py-12 min-w-0 overflow-hidden">
+            <div className="flex flex-col items-center justify-center text-center px-6 md:px-9 py-14 min-w-0 overflow-hidden">
               {/* Tiny gold arch glyph */}
               <div className="mb-3" style={{ color: '#b8956a' }}>
                 <svg width="34" height="44" viewBox="0 -4 56 80" fill="none">
@@ -431,8 +521,12 @@ export default function ResultsScreen() {
                 </svg>
               </div>
 
+              <div className="dh-premium-chip mb-8" style={{ background: 'rgba(255,255,255,0.22)', borderColor: 'rgba(201,165,119,0.45)', color: '#a07a4f' }}>
+                Private Strategy File
+              </div>
+
               {/* THE DOLLHOUSE wordmark with gold rules */}
-              <div className="flex items-center gap-3 mb-10">
+              <div className="flex items-center gap-3 mb-8">
                 <div className="h-px w-10" style={{ background: 'linear-gradient(to right, transparent, #c9a577)' }} />
                 <p
                   className="font-ui font-medium uppercase"
@@ -488,11 +582,12 @@ export default function ResultsScreen() {
               </div>
 
               {/* Pill tags */}
-              <div className="flex items-center gap-3 mb-10 flex-wrap justify-center">
+              <div className="flex items-center gap-3 mb-8 flex-wrap justify-center">
                 {[
                   aesthetic,
                   new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
-                  '12 Rooms',
+                  '17 Rooms',
+                  'First Sale Sprint',
                 ].map((tag, i) => (
                   <span
                     key={i}
@@ -536,7 +631,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* At a Glance Drawer */}
-        <div className="mb-6 rounded-[20px] overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(var(--dh-accent-rgb), 0.13) 0%, hsl(var(--card)) 60%)', border: '1.5px solid var(--dh-accent)', boxShadow: '0 4px 32px rgba(var(--dh-accent-rgb), 0.18)' }}>
+        <div className="mb-6 rounded-[20px] overflow-hidden dh-premium-panel" style={{ background: 'linear-gradient(135deg, rgba(var(--dh-accent-rgb), 0.13) 0%, hsl(var(--card)) 60%)', border: '1.5px solid var(--dh-accent)' }}>
           <div onClick={() => { playClick('soft'); setGlanceOpen(o => !o); }} className="flex items-center justify-between cursor-pointer" style={{ padding: '22px 28px', background: 'rgba(var(--dh-accent-rgb), 0.07)' }}>
             <div>
               <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-1 font-semibold">Your Blueprint at a Glance</p>
@@ -555,6 +650,8 @@ export default function ResultsScreen() {
                   ['Price range', aiResults?.startingPrice ? aiResults.startingPrice.split('—')[0].split('(')[0].trim() : priceHint],
                   ['Grow on', social.join(' + ')],
                   ['Aesthetic', aesthetic],
+                  ['Stage', currentStatus],
+                  ['Win', successGoal],
                   ['Timeline', urgency === 'This week' ? 'Start today' : urgency === 'This month' ? 'This month' : 'Your pace'],
                 ].map(([label, val]) => (
                   <div key={label} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.07)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
@@ -567,15 +664,54 @@ export default function ResultsScreen() {
           )}
         </div>
 
+        {/* Premium action dossier */}
+        <div className="dh-no-print grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-4 mb-7">
+          <div className="dh-premium-panel rounded-3xl p-7">
+            <div className="flex items-center gap-2.5 mb-3">
+              <Target size={15} className="text-dh-accent-dark" />
+              <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark font-medium">Start Here</p>
+            </div>
+            <p className="font-display italic text-[24px] leading-[1.35] mb-3" style={{ color: 'var(--dh-text)' }}>Your first 24 hours are already chosen.</p>
+            <p className="font-body text-[13px] leading-[1.85] text-dh-text-mid font-light mb-5">
+              Open {firstPlatform}, publish the first sellable version of {product}, then send 5 personal messages using the script in the First Sale room.
+            </p>
+            <div className="grid grid-cols-3 gap-2.5">
+              {[
+                [Clock3, 'Today', 'Set up'],
+                [Copy, '5 DMs', 'Send'],
+                [BadgeCheck, '1 proof', 'Collect'],
+              ].map(([Icon, label, action]) => {
+                const TileIcon = Icon as typeof Clock3;
+                return (
+                  <div key={label as string} className="dh-value-tile rounded-xl p-3">
+                    <TileIcon size={14} className="text-dh-accent-dark mb-1.5" />
+                    <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{label as string}</p>
+                    <p className="font-body text-[11px] text-dh-text-light font-light">{action as string}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="rounded-3xl p-7 text-center relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e0f09 0%, #2d1810 52%, #1a0e08 100%)', border: '1px solid rgba(196,168,154,0.18)' }}>
+            <div className="absolute top-0 left-[12%] right-[12%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.45), transparent)' }} />
+            <Download size={22} className="mx-auto mb-4" style={{ color: 'rgba(196,168,154,0.75)' }} />
+            <p className="font-ui text-[8px] tracking-[4px] uppercase mb-2 font-medium" style={{ color: 'rgba(196,168,154,0.48)' }}>Keep Your File</p>
+            <p className="font-display italic text-[21px] leading-[1.35] mb-4" style={{ color: 'rgba(255,255,255,0.92)' }}>Save this blueprint before you start.</p>
+            <button onClick={triggerDownload} className="dh-snappy rounded-full py-3 px-6 font-ui text-[9px] tracking-[3px] uppercase cursor-pointer" style={{ background: 'rgba(255,255,255,0.9)', color: '#1e0f09', border: 'none' }}>
+              Download PDF
+            </button>
+          </div>
+        </div>
+
         {/* Rooms divider */}
         <div className="flex items-center gap-4 my-10">
           <div className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
-          <p className="font-ui text-[9px] tracking-[5px] uppercase text-dh-text-light font-medium whitespace-nowrap">Your 12 Rooms</p>
+          <p className="font-ui text-[9px] tracking-[5px] uppercase text-dh-text-light font-medium whitespace-nowrap">Your Strategy Rooms</p>
           <div className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
         </div>
 
         {/* Room 01 - Front Door */}
-        <div data-room-id="r01" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r01" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">01 — The Front Door<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           {brand ? (
             <p className="font-display italic text-center tracking-[6px] my-4" style={{ fontSize: 'clamp(26px, 5vw, 50px)', color: 'var(--dh-text)' }}>{brand}</p>
@@ -592,6 +728,18 @@ export default function ResultsScreen() {
           <div className="p-5 rounded-xl mt-1" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
             <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-medium flex items-center gap-3">Your Mission<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
             <p className="font-display italic text-[16px] leading-[1.9]" style={{ color: 'var(--dh-text)' }}>{missionLine}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-3 mt-3">
+            {[
+              ['Where you are now', setupStageNote],
+              ['What success means here', successGoalNote],
+            ].map(([label, text]) => (
+              <div key={label} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark mb-1.5 font-medium">{label}</p>
+                <p className="font-body text-[12px] leading-[1.75] text-dh-text-mid font-light">{text}</p>
+              </div>
+            ))}
           </div>
 
           {/* Blocker-Specific Mission Context */}
@@ -615,7 +763,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 02 - Marketplace */}
-        <div data-room-id="r02" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r02" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">02 — The Marketplace Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">{marketplaceIntro}</p>
           <div className="flex flex-wrap gap-2 mb-5">
@@ -652,7 +800,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 03 - Product */}
-        <div data-room-id="r03" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r03" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">03 — The Product Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {aiResults?.productRecommendation || `Your product is ${product}. Based on your answers — your budget, your audience, your time — this is the right thing to build first.`}
@@ -668,16 +816,38 @@ export default function ResultsScreen() {
             <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Strategy for your niche</p>
             <p className="font-body text-[13px] leading-[1.85] text-dh-text-mid font-light">{productStrategy}</p>
           </div>
+          {productDetails && (
+            <div className="p-4 rounded-xl mb-3" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', borderLeft: '2px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+              <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Your Custom Detail</p>
+              <p className="font-body text-[13px] leading-[1.85] text-dh-text-mid font-light">{productDetails}</p>
+            </div>
+          )}
           {aiResults?.startingPrice && (
             <div className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
               <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Starting Price</p>
               <p className="font-body text-sm leading-[1.9] text-dh-text-mid font-light">{aiResults.startingPrice}</p>
             </div>
           )}
+
+          {/* Beginner Minimum Viable Offer */}
+          <div className="mt-5 p-5 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1.5px solid rgba(var(--dh-accent-rgb), 0.32)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">Your First Sellable Offer</p>
+            <p className="font-display italic text-[18px] mb-3" style={{ color: 'var(--dh-text)' }}>{beginnerOffer.title}</p>
+            {[
+              ['What to sell first', beginnerOffer.deliverable],
+              ['What proves it is worth buying', beginnerOffer.proof],
+              ['What makes buyers feel safe', beginnerOffer.guarantee],
+            ].map(([label, text]) => (
+              <div key={label} className="mb-3 pb-3 last:mb-0 last:pb-0" style={{ borderBottom: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }}>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">{label}</p>
+                <p className="font-body text-[13px] leading-[1.8] text-dh-text-mid font-light">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Room 04 - Money */}
-        <div data-room-id="r04" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r04" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">04 — The Money Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           {/* Dynamic Pricing Strategy */}
           {(() => {
@@ -702,6 +872,12 @@ export default function ResultsScreen() {
                 <div className="p-[18px_22px] rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.06)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)', borderLeft: '3px solid var(--dh-accent)' }}>
                   <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">{pricingStrategy.type === 'lowcost-bundling' ? 'Bundle Strategy' : 'Pricing Strategy'}</p>
                   <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">{pricingStrategy.strategy}</p>
+                </div>
+                <div className="mt-4 p-[18px_22px] rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+                  <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">First Sale Math</p>
+                  <p className="font-body text-[13px] leading-[1.9] text-dh-text-mid font-light">
+                    Your first money target is <strong>{firstSaleTarget}</strong>, not a perfect full-time business. Start with the core offer, then ask: "How many buyers do I need to hit {firstSaleTarget}?" That number is your first campaign goal. For most beginners, 1-5 buyers is enough proof to keep going.
+                  </p>
                 </div>
               </>
             );
@@ -735,7 +911,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 05 - Social */}
-        <div data-room-id="r05" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r05" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">05 — The Social Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {vibe === 'Digital products'
@@ -771,6 +947,24 @@ export default function ResultsScreen() {
             <p className="font-body text-[13px] text-dh-text-mid font-light leading-[1.8] whitespace-pre-line">{getWeeklyContentCalendar(answers.time || '', blocker)}</p>
           </div>
 
+          {/* Launch-ready profile assets */}
+          <div className="grid md:grid-cols-2 gap-3.5 mb-5">
+            {[
+              ['Profile Bio', profileBio],
+              ['First Launch Caption', firstCaption],
+            ].map(([label, text]) => (
+              <div key={label} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{label}</p>
+                  <button onClick={() => copyScript(text)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                    <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                  </button>
+                </div>
+                <p className="font-body text-[13px] leading-[1.75] text-dh-text-mid font-light">{text}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Blocker-Adapted Content Rotation */}
           {(() => {
             const adapted = getBlockerAdaptedRotation(blocker);
@@ -801,7 +995,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 05b - Foundation (Platform Setup) */}
-        <div data-room-id="r05b" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r05b" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">05b — The Foundation Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">These are the exact steps to get {name} live on {topPlatforms.join(' and ')}. Do one platform fully before touching the second.</p>
 
@@ -843,7 +1037,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 07 - Content Studio */}
-        <div data-room-id="r07" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r07" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">07 — The Content Studio<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           {answers.time === 'Under 5 hours' ? (
             <>
@@ -882,7 +1076,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 09 - Marketing */}
-        <div data-room-id="r09" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r09" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">09 — The Marketing Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">This plan is built for someone {audience.toLowerCase()} — not a generic launch checklist. Every step is calibrated to your actual starting point.</p>
 
@@ -922,7 +1116,7 @@ export default function ResultsScreen() {
         </div>
 
         {/* Room 10 - 90-Day */}
-        <div data-room-id="r10" className="dh-reveal glass rounded-3xl p-[52px_56px] mb-7 shadow-[0_4px_32px_rgba(0,0,0,0.04)]">
+        <div data-room-id="r10" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">10 — The 90-Day Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Three months. That's all it takes to go from zero to a real, running business — if you focus on the right things at the right time.</p>
           {(() => {
@@ -954,6 +1148,23 @@ export default function ResultsScreen() {
               <p className="font-body text-sm text-dh-text-mid font-light leading-7">{bp?.ninetyDayGoal || `By the end of month 3, your goal is: ${monthPlans.scale.split(' ').slice(0, 15).join(' ')}...`}</p>
             </div>
           )}
+          <div className="mt-5 p-5 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.04)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Weekly Scoreboard</p>
+            <div className="grid gap-2.5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))' }}>
+              {[
+                ['Offers sent', '5+ / week'],
+                ['Posts published', answers.time === 'Under 5 hours' ? '3 / week' : '5+ / week'],
+                ['Conversations started', '10 / week'],
+                ['Proof collected', '1 / week'],
+              ].map(([label, target]) => (
+                <div key={label} className="p-3.5 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }}>
+                  <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">{label}</p>
+                  <p className="font-display italic text-[17px]" style={{ color: 'var(--dh-text)' }}>{target}</p>
+                </div>
+              ))}
+            </div>
+            <p className="font-body text-[12px] leading-[1.8] text-dh-text-light font-light mt-3">Track actions before emotions. If these numbers are happening every week, the business is moving even before the sales feel consistent.</p>
+          </div>
         </div>
 
         {/* Room 11 - Business Plan */}
@@ -964,6 +1175,183 @@ export default function ResultsScreen() {
         {/* Room 12 - Branding */}
         <div data-room-id="r12" className="dh-reveal">
           <BrandingRoom aiResults={aiResults} brandId={brandId} product={product} customer={customer} aesthetic={aesthetic} />
+        </div>
+
+        {/* Execution Kit divider */}
+        <div className="flex items-center gap-4 my-10">
+          <div className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
+          <p className="font-ui text-[9px] tracking-[5px] uppercase text-dh-text-light font-medium whitespace-nowrap">Your Launch Kit</p>
+          <div className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
+        </div>
+
+        {/* Room 13 - First 48 Hours */}
+        <div data-room-id="r13" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
+          <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">13 — The First 48 Hours<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">This is the shortest path from "I have a plan" to "I am open for sales." Follow the schedule in order before adding anything new.</p>
+          <div className="p-4 rounded-xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', borderLeft: '3px solid var(--dh-accent)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1.5 font-medium">Customized Starting Point</p>
+            <p className="font-body text-[13px] leading-[1.8] text-dh-text-mid font-light">{setupStageNote}</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              ['Day 1 — Open The Door', first48.day1],
+              ['Day 2 — Ask For The Sale', first48.day2],
+            ].map(([title, tasks]) => (
+              <div key={title as string} className="p-5 rounded-2xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+                <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">{title as string}</p>
+                <div className="space-y-2.5">
+                  {(tasks as string[]).map((task, i) => (
+                    <div key={i} className="flex gap-3 items-start pb-2.5 last:pb-0" style={{ borderBottom: i < (tasks as string[]).length - 1 ? '1px solid rgba(var(--dh-accent-rgb), 0.14)' : 'none' }}>
+                      <span className="font-ui text-[8px] tracking-[2px] uppercase py-1 px-2 rounded-md flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.09)', color: 'var(--dh-accent-dark)' }}>{String(i + 1).padStart(2, '0')}</span>
+                      <p className="font-body text-[12px] leading-[1.75] text-dh-text-mid font-light">{task.replaceAll('[product]', product).replaceAll('[product name]', product)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Room 14 - Sales Page Builder */}
+        <div data-room-id="r14" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+              <FileText size={18} className="text-dh-accent-dark" />
+            </div>
+            <div>
+              <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-1.5 font-medium">14 — Sales Page Builder</p>
+              <p className="font-display italic text-[17px] leading-[1.75] text-dh-text-mid">Copy this into Stan Store, Etsy, Gumroad, Shopify, or your booking page. It gives buyers enough clarity to trust the checkout button.</p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3.5 mb-5">
+            {[
+              ['Hero headline', `${product} for ${customer.toLowerCase()} who want ${aesthetic.toLowerCase()} results without overthinking the next step.`],
+              ['Short description', `${product} helps ${customer.toLowerCase()} get a clear, useful result with a buying experience that feels simple, trustworthy, and worth paying for.`],
+              ['What they get', beginnerOffer.deliverable],
+              ['Buyer reassurance', beginnerOffer.guarantee],
+            ].map(([label, text]) => (
+              <div key={label} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.22)' }}>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{label}</p>
+                  <button onClick={() => copyScript(text)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                    <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                  </button>
+                </div>
+                <p className="font-body text-[13px] leading-[1.75] text-dh-text-mid font-light">{text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-5 rounded-2xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', borderLeft: '3px solid var(--dh-accent)' }}>
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Full Sales Page Outline</p>
+              <button onClick={() => copyScript(salesPageOutline)} className="inline-flex items-center gap-2 py-2 px-3 rounded-full font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)', color: 'var(--dh-accent-dark)' }}>
+                <Copy size={12} /> Copy
+              </button>
+            </div>
+            <p className="font-body text-[12px] leading-[1.85] text-dh-text-mid font-light whitespace-pre-line">{salesPageOutline}</p>
+          </div>
+        </div>
+
+        {/* Room 15 - Launch Asset Pack */}
+        <div data-room-id="r15" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
+          <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">15 — Launch Asset Pack<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Use these when you are too tired to write from scratch. Your job is to customize the brackets, post, and send.</p>
+          <div className="grid md:grid-cols-2 gap-3.5 mb-5">
+            {launchAssets.map(asset => (
+              <div key={asset.title} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{asset.title}</p>
+                  <button onClick={() => copyScript(asset.body)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                    <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                  </button>
+                </div>
+                <p className="font-body text-[12px] leading-[1.75] text-dh-text-mid font-light whitespace-pre-line">{asset.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="p-5 rounded-2xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', border: '1px solid rgba(var(--dh-accent-rgb), 0.2)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">5 Short-Form Hooks</p>
+            <div className="space-y-2">
+              {launchHooks.map((hook, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="font-ui text-[8px] tracking-[2px] uppercase py-1 px-2 rounded-md flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.09)', color: 'var(--dh-accent-dark)' }}>{i + 1}</span>
+                  <p className="font-body text-[13px] leading-[1.7] text-dh-text-mid font-light">{hook}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Room 16 - Launch Tracker */}
+        <div data-room-id="r16" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+              <ListChecks size={19} className="text-dh-accent-dark" />
+            </div>
+            <div>
+              <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-1.5 font-medium">16 — Beginner Launch Tracker</p>
+              <p className="font-display italic text-[17px] leading-[1.75] text-dh-text-mid">{completedLaunchSteps} of {progressItems.length} launch actions complete. Track actions before emotions.</p>
+            </div>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.12)' }}>
+            <div className="h-full transition-all duration-500" style={{ width: `${(completedLaunchSteps / progressItems.length) * 100}%`, background: 'var(--dh-accent-dark)' }} />
+          </div>
+          <div className="grid md:grid-cols-2 gap-2.5">
+            {progressItems.map((item, i) => {
+              const checked = Boolean(checkedLaunchSteps[item]);
+              return (
+                <div
+                  key={item}
+                  onClick={() => {
+                    playClick('soft');
+                    setCheckedLaunchSteps(prev => ({ ...prev, [item]: !prev[item] }));
+                  }}
+                  className="p-4 rounded-xl cursor-pointer transition-all"
+                  style={{ background: checked ? 'rgba(var(--dh-accent-rgb), 0.12)' : 'rgba(var(--dh-accent-rgb), 0.045)', border: `1px solid ${checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.22)'}` }}
+                >
+                  <div className="flex gap-3 items-start">
+                    <CheckCircle2 size={17} className="flex-shrink-0 mt-0.5" style={{ color: checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.35)' }} />
+                    <div>
+                      <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">Step {String(i + 1).padStart(2, '0')}</p>
+                      <p className="font-body text-[13px] leading-[1.65] text-dh-text-mid font-light">{item}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Room 17 - No Sales Troubleshooter */}
+        <div data-room-id="r17" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
+              <Search size={18} className="text-dh-accent-dark" />
+            </div>
+            <div>
+              <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-1.5 font-medium">17 — If Sales Do Not Come Yet</p>
+              <p className="font-display italic text-[17px] leading-[1.75] text-dh-text-mid">No sales is not a verdict. It is feedback. Use this room to diagnose the bottleneck and fix the next smallest thing.</p>
+            </div>
+          </div>
+          <div className="p-5 rounded-2xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', borderLeft: '3px solid var(--dh-accent)' }}>
+            <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-2 font-medium">Your Reality Check — {executionContent.realityCheck.trapName}</p>
+            <p className="font-body text-[12px] leading-[1.85] text-dh-text-mid font-light whitespace-pre-line">{executionContent.realityCheck.content.replaceAll('[product]', product)}</p>
+          </div>
+          <div className="space-y-3">
+            {noSalesDiagnostics.map(([symptom, fix]) => (
+              <div key={symptom} className="p-4 rounded-xl flex gap-3 items-start" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', border: '1px solid rgba(var(--dh-accent-rgb), 0.22)' }}>
+                <AlertCircle size={15} className="text-dh-accent-dark flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">{symptom}</p>
+                  <p className="font-body text-[13px] leading-[1.75] text-dh-text-mid font-light">{fix}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 p-5 rounded-2xl text-center" style={{ background: 'linear-gradient(160deg, #1e0f09 0%, #2d1810 52%, #1a0e08 100%)', border: '1px solid rgba(196,168,154,0.18)' }}>
+            <p className="font-ui text-[8px] tracking-[4px] uppercase mb-2 font-medium" style={{ color: 'rgba(196,168,154,0.48)' }}>Your Next Move</p>
+            <p className="font-display italic text-[20px] leading-[1.45]" style={{ color: 'rgba(255,255,255,0.92)' }}>Do not rebuild the whole business. Fix one bottleneck, then ask for the sale again.</p>
+          </div>
         </div>
 
         {/* ══ BRAND SUMMARY — The "Screenshot" Card ══ */}
@@ -989,12 +1377,12 @@ export default function ResultsScreen() {
 
         {/* ── Performance Header + House Archives ── */}
         <div className="dh-upsell dh-no-print mb-7">
-          {/* Performance Stats Bar */}
-          <div className="flex items-center justify-center gap-0 mb-10 py-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(12px)', border: '1px solid rgba(196,168,154,0.15)' }}>
+          {/* Blueprint value bar */}
+          <div className="flex items-center justify-center gap-0 mb-10 py-5 rounded-2xl dh-premium-panel">
             {[
-              { val: '4.9 ★', label: 'Average Rating' },
-              { val: '1,200+', label: 'Blueprints Built' },
-              { val: '4 Days', label: 'Avg. First Sale' },
+              { val: '17', label: 'Blueprint Rooms' },
+              { val: '19', label: 'Quiz Signals' },
+              { val: 'PDF', label: 'Downloadable File' },
             ].map((s, i) => (
               <div key={i} className="flex-1 text-center" style={ i > 0 ? { borderLeft: '1px solid rgba(196,168,154,0.2)' } : {}}>
                 <p className="font-display italic text-[24px] mb-1" style={{ color: 'var(--dh-text)' }}>{s.val}</p>
@@ -1050,8 +1438,8 @@ export default function ResultsScreen() {
           </div>
           {faqOpen && (
             <div style={{ padding: '0 28px 28px' }}>
-              <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mt-5 mb-3.5">Your answers to 16 questions were processed to generate a personalised business blueprint across 12 rooms — your platforms, product, pricing, social strategy, first sale plan, branding, marketing, and 90-day roadmap.</p>
-              <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mb-5">Everything here is built specifically for <em>{name}</em> — your aesthetic, your time, your budget, your customer. No two blueprints are the same.</p>
+              <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mt-5 mb-3.5">Your answers to 19 questions were processed to generate a personalised business blueprint across 17 rooms — your platforms, product, pricing, social strategy, first sale plan, branding, marketing, 90-day roadmap, and execution kit.</p>
+              <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] mb-5">Everything here is built specifically for <em>{name}</em> — your offer details, current stage, success goal, aesthetic, time, budget, customer, and selling style. No two blueprints are the same.</p>
               <div className="h-px mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} />
               <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium">Common Questions</p>
               {faqItems.map(([q, a], i) => <FaqItem key={i} q={q} a={a} />)}
@@ -1082,22 +1470,30 @@ export default function ResultsScreen() {
         </div>
 
         {/* ── Boutique divider ── */}
-        <p className="font-body text-[12px] text-dh-text-light font-light text-center mb-3 opacity-60">Everything below is optional — your complete blueprint is above.</p>
-        <p className="font-display italic text-[22px] text-center mb-10 leading-[1.6]" style={{ color: 'var(--dh-text)' }}>
-          Shop the Collection
-        </p>
+        <div className="relative rounded-3xl overflow-hidden mb-7 dh-premium-panel" style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.44), rgba(var(--dh-accent-rgb),0.08))', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(var(--dh-accent-rgb),0.55), transparent)' }} />
+          <div className="p-[44px_36px] text-center">
+            <p className="font-ui text-[8px] tracking-[6px] uppercase text-dh-accent-dark mb-3 font-medium">Founder Next Steps</p>
+            <p className="font-display italic text-[30px] text-center mb-3 leading-[1.15]" style={{ color: 'var(--dh-text)' }}>
+              Shop the Collection
+            </p>
+            <p className="font-body text-[13px] text-dh-text-light font-light text-center max-w-[560px] mx-auto leading-[1.9]">
+              Your blueprint is complete. These are optional upgrades for founders who want templates, prompts, or done-for-you polish after they choose their first move.
+            </p>
+          </div>
+        </div>
 
         {/* Boutique Bento Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
           {[
             { name: 'Brand Workbook', tag: 'Build It Yourself', desc: 'An interactive web app walking you through every foundational business decision.', price: '$47', was: '$261', href: 'https://stan.store/shopdollhouse/p/-build-a-real-brand-from-scratch', icon: 'book' },
             { name: 'AI Prompt Kit', tag: '50+ Prompts', desc: 'Copy, content, strategy — prompts across 8 rooms, ready to customise and use instantly.', price: '$17', was: '', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-prompt-kit', icon: 'layers' },
           ].map((item, i) => (
             <a key={i} href={item.href} target="_blank" rel="noreferrer"
-              className="no-underline rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_56px_rgba(0,0,0,0.14)] flex flex-col group"
-              style={{ background: 'rgba(255,255,255,0.35)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(196,168,154,0.2)' }}>
-              <div className="p-8 flex flex-col items-center text-center flex-1">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(196,168,154,0.2)' }}>
+              className="no-underline rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_56px_rgba(0,0,0,0.14)] flex flex-col group dh-premium-panel"
+              style={{ background: i === 0 ? 'linear-gradient(145deg, rgba(255,255,255,0.5), rgba(243,220,205,0.2))' : 'linear-gradient(145deg, rgba(255,255,255,0.42), rgba(200,168,119,0.12))', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(196,168,154,0.24)' }}>
+              <div className="p-7 flex flex-col items-start text-left flex-1">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-105" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(196,168,154,0.2)' }}>
                   {item.icon === 'book' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dh-accent-dark)" strokeWidth="1.4" strokeLinecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>}
                   {item.icon === 'layers' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dh-accent-dark)" strokeWidth="1.4" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>}
                   {item.icon === 'calendar' && <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dh-accent-dark)" strokeWidth="1.4" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
@@ -1109,7 +1505,7 @@ export default function ResultsScreen() {
                   {item.was && <span className="font-body text-[11px] text-dh-text-light line-through font-light">{item.was}</span>}
                   <span className="font-display text-[24px] font-normal" style={{ color: 'var(--dh-text)' }}>{item.price}</span>
                 </div>
-                <span className="inline-flex items-center gap-2 py-3 px-7 rounded-full font-ui text-[9px] tracking-[3px] uppercase font-medium transition-all duration-300 group-hover:shadow-[0_4px_24px_rgba(var(--dh-accent-rgb),0.25)]"
+                <span className="inline-flex items-center gap-2 py-2.5 px-5 rounded-full font-ui text-[8px] tracking-[3px] uppercase font-medium transition-all duration-300 group-hover:shadow-[0_4px_24px_rgba(var(--dh-accent-rgb),0.25)]"
                   style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: '1px solid rgba(196,168,154,0.2)' }}>
                   Explore →
                 </span>
@@ -1119,7 +1515,7 @@ export default function ResultsScreen() {
           }</div>
 
         {/* Premium Done-For-You */}
-        <div className="grid gap-5 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+        <div className="grid gap-5 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
           {[
             { name: 'The Starter Suite', tag: 'Done For You · Premium', desc: `Your complete ${aesthetic.toLowerCase()} brand identity — strategy, visuals, voice — delivered ready to launch.`, price: '$497', was: '$540', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-brand-suite' },
             { name: 'The Full House', tag: 'Done For You · Everything', desc: 'The ultimate done-for-you package — your brand, built for every platform you sell on.', price: '$997', was: '$1,530', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-full-house' },
@@ -1146,7 +1542,11 @@ export default function ResultsScreen() {
         </div>
 
         {/* Download */}
-        <DownloadCard answers={answers} aiResults={aiResults} onDownloadRef={(fn: () => void) => { downloadRef.current = fn; }} />
+        <div id="dh-download-section">
+          <Suspense fallback={<div className="dh-no-print rounded-3xl p-10 text-center mb-7 glass">Preparing your download...</div>}>
+            <DownloadCard answers={answers} aiResults={aiResults} onDownloadRef={(fn: () => void) => { downloadRef.current = fn; }} />
+          </Suspense>
+        </div>
 
         {/* Email Capture — "Join the House" */}
         <div className="dh-no-print glass rounded-3xl p-[40px_44px] mb-7 text-center relative overflow-hidden">
@@ -1184,14 +1584,18 @@ export default function ResultsScreen() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full py-[60px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-        <div className="max-w-[600px] mx-auto px-5">
-          <p className="font-display italic text-[14px] text-dh-text-light mb-6">Find us everywhere</p>
-          <div className="animate-float-arch inline-block mb-12 block mx-auto"><DollhouseMark size={40} /></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <footer className="w-full py-[72px_20px] text-center mt-8" style={{ borderTop: '1px solid rgba(var(--dh-accent-rgb), 0.25)', background: 'linear-gradient(180deg, transparent, rgba(var(--dh-accent-rgb), 0.07))' }}>
+        <div className="max-w-[820px] mx-auto px-5">
+          <div className="rounded-3xl p-[44px_36px] mb-6 dh-premium-panel" style={{ background: 'rgba(255,255,255,0.28)', border: '1px solid rgba(var(--dh-accent-rgb),0.22)' }}>
+            <div className="animate-float-arch inline-block mb-4 mx-auto"><DollhouseMark size={42} /></div>
+            <p className="font-ui text-[8px] tracking-[5px] uppercase text-dh-accent-dark mb-2 font-medium">The Dollhouse</p>
+            <p className="font-display italic text-[28px] leading-[1.15] mb-3" style={{ color: 'var(--dh-text)' }}>Business tools for beautiful brands.</p>
+            <p className="font-body text-[13px] text-dh-text-light font-light leading-[1.8] max-w-[540px] mx-auto">Apps, templates, and brand systems for founders who want their business to feel intentional from the first sale.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
             {/* Official Website Card */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(243, 220, 205, 0.12)', border: '1px solid rgba(243, 220, 205, 0.25)' }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(243, 220, 205, 0.3)' }}>
+            <div className="p-6 rounded-2xl text-left dh-premium-panel transition-transform hover:-translate-y-1" style={{ background: 'rgba(243, 220, 205, 0.12)', border: '1px solid rgba(243, 220, 205, 0.25)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto md:mx-0" style={{ background: 'rgba(243, 220, 205, 0.3)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(243, 220, 205)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
               <h3 className="font-display text-[16px] text-dh-text mb-1">Official Website</h3>
@@ -1201,8 +1605,8 @@ export default function ResultsScreen() {
             </div>
 
             {/* Etsy Shop Card */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(200, 168, 119, 0.12)', border: '1px solid rgba(200, 168, 119, 0.25)' }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(200, 168, 119, 0.3)' }}>
+            <div className="p-6 rounded-2xl text-left dh-premium-panel transition-transform hover:-translate-y-1" style={{ background: 'rgba(200, 168, 119, 0.12)', border: '1px solid rgba(200, 168, 119, 0.25)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto md:mx-0" style={{ background: 'rgba(200, 168, 119, 0.3)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(200, 168, 119)" strokeWidth="2" strokeLinecap="round"><path d="M6 9h12M6 9v8c0 1 .5 2 1.5 2h7c1 0 1.5-1 1.5-2V9M9 5h6v4H9z"/></svg>
               </div>
               <h3 className="font-display text-[16px] text-dh-text mb-1">Etsy Shop</h3>
@@ -1212,8 +1616,8 @@ export default function ResultsScreen() {
             </div>
 
             {/* Stan Store Card */}
-            <div className="p-6 rounded-2xl" style={{ background: 'rgba(196, 168, 154, 0.12)', border: '1px solid rgba(196, 168, 154, 0.25)' }}>
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'rgba(196, 168, 154, 0.3)' }}>
+            <div className="p-6 rounded-2xl text-left dh-premium-panel transition-transform hover:-translate-y-1" style={{ background: 'rgba(196, 168, 154, 0.12)', border: '1px solid rgba(196, 168, 154, 0.25)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto md:mx-0" style={{ background: 'rgba(196, 168, 154, 0.3)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(196, 168, 154)" strokeWidth="2" strokeLinecap="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/><path d="M9 13h6M9 17h3"/></svg>
               </div>
               <h3 className="font-display text-[16px] text-dh-text mb-1">Stan Store</h3>
@@ -1231,7 +1635,7 @@ export default function ResultsScreen() {
             <p className="font-body text-[12px] text-dh-text-light font-light leading-[1.8]">This blueprint is licensed for personal use only. <strong className="font-medium" style={{ color: 'var(--dh-accent-dark)' }}>It may not be resold, redistributed, shared, or reproduced in any form</strong> without prior written permission from The Dollhouse. © 2026 The Dollhouse.</p>
           </div>
 
-          <p className="font-body text-[11px] text-dh-text-light font-light opacity-45 cursor-default select-none" onDoubleClick={downloadLeadsCSV}>© 2026 The Dollhouse · <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="text-dh-accent-dark no-underline">shopdollhouse.co</a></p>
+          <p className="font-body text-[11px] text-dh-text-light font-light opacity-45 cursor-default select-none">© 2026 The Dollhouse · <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="text-dh-accent-dark no-underline">shopdollhouse.co</a></p>
         </div>
       </footer>
 

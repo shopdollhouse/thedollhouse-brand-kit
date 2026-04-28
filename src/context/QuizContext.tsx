@@ -11,6 +11,8 @@ export interface Question {
   placeholder?: string;
   skipLabel?: string;
   options?: string[];
+  allowOther?: boolean;
+  otherPlaceholder?: string;
 }
 
 export interface AIResults {
@@ -91,14 +93,17 @@ const QUESTIONS: Question[] = [
   { id: "firstName", type: "text", text: "First, what's your name?", placeholder: "e.g. Jasmine" },
   { id: "brandName", type: "text-optional", text: "Do you have a brand name in mind?", placeholder: "e.g. The Wild Bloom Co.", skipLabel: "I don't have one yet" },
   { id: "product", type: "text", text: "What do you make, sell, or offer?", placeholder: "e.g. handmade candles, face painting, digital planners..." },
-  { id: "customer", type: "choice", text: "Who is your ideal customer?", options: ["Busy mums & women juggling everything", "Young women building their first brand", "Creative women who value aesthetics", "Men growing a side business or brand", "Small business owners & entrepreneurs", "People who love quality & beautiful things"] },
-  { id: "vibe", type: "choice", text: "What best describes your business type?", options: ["Handmade / Physical", "Digital products", "Service / Events", "Curated / Resale"] },
-  { id: "aesthetic", type: "choice", text: "What's the feeling you want your brand to give off?", options: ["Soft & feminine", "Bold & editorial", "Clean & minimal", "Warm & earthy", "Playful & colourful"] },
+  { id: "productDetails", type: "text-optional", text: "What should we know about this offer so the blueprint feels specific?", placeholder: "e.g. low-ticket sticker packs for craft fair girls, luxury bridal face painting, Canva templates for salon owners...", skipLabel: "Nothing else yet" },
+  { id: "customer", type: "choice", text: "Who is your ideal customer?", options: ["Busy mums & women juggling everything", "Young women building their first brand", "Creative women who value aesthetics", "Men growing a side business or brand", "Small business owners & entrepreneurs", "People who love quality & beautiful things"], allowOther: true, otherPlaceholder: "e.g. lash techs who want prettier client forms" },
+  { id: "vibe", type: "choice", text: "What best describes your business type?", options: ["Handmade / Physical", "Digital products", "Service / Events", "Curated / Resale"], allowOther: true, otherPlaceholder: "e.g. coaching, rentals, subscription box, local classes" },
+  { id: "aesthetic", type: "choice", text: "What's the feeling you want your brand to give off?", options: ["Soft & feminine", "Bold & editorial", "Clean & minimal", "Warm & earthy", "Playful & colourful"], allowOther: true, otherPlaceholder: "e.g. luxury goth, Y2K glam, cozy maximalist" },
   { id: "sellType", type: "choice", text: "Do you prefer selling online, in person, or both?", options: ["Online", "In Person", "Both"] },
   { id: "audience", type: "choice", text: "Do you already have an audience or following?", options: ["Starting from zero", "A small following (under 1k)", "A decent audience (1k+)"] },
+  { id: "currentStatus", type: "choice", text: "Where are you right now?", options: ["Just an idea", "I have something made but not listed", "I listed it but have no sales yet", "I made a few sales and want consistency", "I'm rebranding or starting over"] },
   { id: "time", type: "choice", text: "How much time per week can you commit?", options: ["Under 5 hours", "5–10 hours", "10+ hours"] },
   { id: "budget", type: "choice", text: "What is your starting budget?", options: ["Under $50", "$50–$200", "$200+"] },
   { id: "blocker", type: "choice", text: "What's your biggest blocker right now?", options: ["Not sure what to make or sell", "Don't know how to market", "Scared nobody will buy", "I just need to start"] },
+  { id: "successGoal", type: "text-optional", text: "What would make this blueprint a win for you?", placeholder: "e.g. my first sale this week, a better Stan Store page, knowing what to post, pricing my offer...", skipLabel: "Just help me start" },
   { id: "urgency", type: "choice", text: "How quickly do you need to make money?", options: ["This week", "This month", "No rush"] },
   { id: "experience", type: "choice", text: "Have you sold anything before?", options: ["Never", "I've tried but didn't get far", "Yes, some experience"] },
   { id: "shipping", type: "choice", text: "Are you comfortable with shipping products?", options: ["Yes", "No", "Maybe — I'd like to learn"] },
@@ -119,7 +124,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   // Restore from localStorage
   const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
     try {
-      const unlocked = localStorage.getItem(LS_UNLOCKED);
+      const unlocked = sessionStorage.getItem('dh_access_verified');
       if (!unlocked) return 'gate';
       const saved = localStorage.getItem(LS_SCREEN) as ScreenId | null;
       // Don't restore loading screen — go to results or questions
@@ -158,7 +163,6 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       localStorage.setItem(LS_SCREEN, currentScreen);
-      if (currentScreen !== 'gate') localStorage.setItem(LS_UNLOCKED, '1');
     } catch {}
   }, [currentScreen]);
 
@@ -210,6 +214,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem(LS_ANSWERS);
       localStorage.removeItem(LS_QUESTION);
       localStorage.removeItem(LS_SCREEN);
+      sessionStorage.removeItem('dh_access_verified');
     } catch {}
   }, []);
 

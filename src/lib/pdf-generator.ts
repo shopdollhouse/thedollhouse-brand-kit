@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { derive, getPricingStrategy, type PricingStrategy } from './quiz-helpers';
 
 interface PDFData {
@@ -19,6 +20,150 @@ interface PDFData {
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '');
   return [parseInt(h.substring(0, 2), 16) || 0, parseInt(h.substring(2, 4), 16) || 0, parseInt(h.substring(4, 6), 16) || 0];
+}
+
+interface ResultsPDFOptions {
+  name: string;
+  brand: string;
+}
+
+function removeExportNoise(root: HTMLElement) {
+  root.querySelectorAll('#dh-download-section, #dh-about, #dh-boutique, .dh-upsell').forEach(el => el.remove());
+  root.querySelectorAll('button, input, textarea').forEach(el => el.remove());
+  root.querySelectorAll('[aria-hidden="true"]').forEach(el => el.removeAttribute('aria-hidden'));
+  root.querySelectorAll('.dh-acc-closed').forEach(el => el.classList.remove('dh-acc-closed'));
+  root.querySelectorAll('.dh-no-print').forEach(el => el.classList.remove('dh-no-print'));
+  root.querySelectorAll('[style]').forEach(el => {
+    const element = el as HTMLElement;
+    element.style.animation = 'none';
+    element.style.transition = 'none';
+  });
+}
+
+async function addCanvasToPDF(doc: jsPDF, canvas: HTMLCanvasElement, margin: number) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const usableW = pageW - margin * 2;
+  const usableH = pageH - margin * 2;
+  const imgH = (canvas.height * usableW) / canvas.width;
+
+  if (imgH <= usableH) {
+    doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, imgH);
+    return;
+  }
+
+  const sliceHeight = Math.floor((usableH * canvas.width) / usableW);
+  let offset = 0;
+  while (offset < canvas.height) {
+    const currentSliceHeight = Math.min(sliceHeight, canvas.height - offset);
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = currentSliceHeight;
+    const ctx = sliceCanvas.getContext('2d');
+    if (!ctx) throw new Error('Could not prepare PDF canvas slice.');
+    ctx.fillStyle = '#f8f1ed';
+    ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+    ctx.drawImage(canvas, 0, offset, canvas.width, currentSliceHeight, 0, 0, canvas.width, currentSliceHeight);
+    const sliceImgH = (currentSliceHeight * usableW) / canvas.width;
+    doc.addImage(sliceCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, usableW, sliceImgH);
+    offset += currentSliceHeight;
+    if (offset < canvas.height) doc.addPage();
+  }
+}
+
+export async function generateResultsPagePDF(options: ResultsPDFOptions): Promise<Blob> {
+  const source = document.getElementById('dh-results-inner');
+  if (!source) throw new Error('Results page is not available to export.');
+
+  const clone = source.cloneNode(true) as HTMLElement;
+  clone.id = 'dh-pdf-export-root';
+  removeExportNoise(clone);
+
+  const exportStyles = document.createElement('style');
+  exportStyles.textContent = `
+    #dh-pdf-export-stage {
+      position: fixed;
+      left: -10000px;
+      top: 0;
+      width: 900px;
+      background: hsl(var(--background));
+      pointer-events: none;
+      z-index: -1;
+    }
+    #dh-pdf-export-root {
+      width: 820px !important;
+      max-width: 820px !important;
+      padding: 32px 10px 48px !important;
+      margin: 0 auto !important;
+      background: hsl(var(--background));
+      color: var(--dh-text);
+    }
+    #dh-pdf-export-root *,
+    #dh-pdf-export-root *::before,
+    #dh-pdf-export-root *::after {
+      animation: none !important;
+      transition: none !important;
+      caret-color: transparent !important;
+    }
+    #dh-pdf-export-root .dh-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    #dh-pdf-export-root .dh-acc-body {
+      display: block !important;
+      max-height: none !important;
+      height: auto !important;
+      opacity: 1 !important;
+      overflow: visible !important;
+    }
+  `;
+
+  const stage = document.createElement('div');
+  stage.id = 'dh-pdf-export-stage';
+  stage.appendChild(exportStyles);
+  stage.appendChild(clone);
+  document.body.appendChild(stage);
+
+  try {
+    await document.fonts?.ready;
+    const sections = Array.from(clone.children).filter(section => {
+      const el = section as HTMLElement;
+      return el.offsetHeight > 8 && el.textContent?.trim();
+    }) as HTMLElement[];
+
+    if (!sections.length) throw new Error('No results sections found to export.');
+
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const margin = 8;
+
+    for (let i = 0; i < sections.length; i += 1) {
+      const section = sections[i];
+      section.style.breakInside = 'avoid';
+      const canvas = await html2canvas(section, {
+        backgroundColor: '#f8f1ed',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: 900,
+      });
+
+      if (i > 0) doc.addPage();
+      await addCanvasToPDF(doc, canvas, margin);
+    }
+
+    const pageCount = doc.getNumberOfPages();
+    for (let page = 1; page <= pageCount; page += 1) {
+      doc.setPage(page);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+      doc.setTextColor(150, 120, 105);
+      doc.text(`${options.brand || 'The Dollhouse'} · Built for ${options.name} · Page ${page} of ${pageCount}`, 105, 292, { align: 'center' });
+    }
+
+    return doc.output('blob');
+  } finally {
+    stage.remove();
+  }
 }
 
 export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
@@ -182,7 +327,7 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   const chips = [
     (data.aesthetic || 'Editorial').toUpperCase(),
     date.toUpperCase(),
-    '12 ROOMS',
+    '17 ROOMS',
   ];
   const chipH = 9;
   const chipPadX = 6;
@@ -299,20 +444,8 @@ export async function generateBlueprintPDF(data: PDFData): Promise<Blob> {
   // ═══ ROOM 04: PRICING ═══
   addPage('04', 'The Money Room');
 
-  // DEBUG: Log what we're using
-  console.log('Room 04 Debug:', {
-    vibe: d.vibe,
-    budget: d.budget,
-    product: data.product,
-    customer: d.customer
-  });
-
   // Get smart pricing strategy based on product type
   const pricingStrategy = getPricingStrategy(d.vibe, d.budget, data.product, d.customer);
-
-  // DEBUG: Log what strategy was returned
-  console.log('Pricing Strategy Type:', pricingStrategy.type);
-  console.log('Pricing Strategy:', pricingStrategy);
 
   writeText(pricingStrategy.description, 10, 'bold', accent);
   y += 2;

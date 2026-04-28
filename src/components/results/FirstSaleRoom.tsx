@@ -2,6 +2,7 @@ import { AIResults } from '@/context/QuizContext';
 import { Shield, Lock, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { playClick } from '@/lib/sounds';
+import { derive, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
 
 interface FirstSaleRoomProps {
   answers: Record<string, string>;
@@ -17,6 +18,11 @@ export default function FirstSaleRoom({ answers, aiResults, topPlatforms, social
   const vibe = answers.vibe || '';
   const urgency = answers.urgency || '';
   const blocker = answers.blocker || '';
+  const d = derive(answers);
+  const weekOnePlan = fs?.weekOnePlan || d.w1Static;
+  const weekTwoPlan = fs?.weekTwoPlan || d.w2Static;
+  const todayAction = fs?.todayAction || d.todayAction;
+  const quickWins = getPrioritizedQuickWins(topPlatforms, social, answers.budget || '');
 
   // ── 4 Distinct Blocker Plans ──
   const blockerPlans: Record<string, { title: string; icon: string; note: string }> = {
@@ -61,6 +67,23 @@ export default function FirstSaleRoom({ answers, aiResults, topPlatforms, social
     return `Hey [Name]! I've just launched ${product} and would love your support. I hand-pick every item for quality — nothing generic, nothing filler. Here's the link: [link]. ♥`;
   })();
 
+  const objectionReplies = [
+    {
+      q: 'I need to think about it.',
+      a: `Of course. The simplest way to decide is this: if ${product} would save you time, make something easier, or feel genuinely useful right now, it's worth grabbing. If not, no pressure at all.`,
+    },
+    {
+      q: 'How much is it?',
+      a: `It starts at [price]. I made it intentionally simple for the first launch, so you can try ${product} without a big commitment.`,
+    },
+    {
+      q: 'What do I get?',
+      a: vibe === 'Service / Events'
+        ? `You get [deliverable], [timeline], and clear communication from booking to delivery. I handle the details so you are not guessing.`
+        : `You get ${product}, clear instructions or care details, and support if you have a question after buying.`,
+    },
+  ];
+
   return (
     <div className="rounded-3xl p-[60px_56px] mb-7 relative overflow-hidden shadow-[0_16px_60px_rgba(0,0,0,0.18)]"
       style={{ background: 'var(--dh-dark-bg)' }}>
@@ -99,9 +122,24 @@ export default function FirstSaleRoom({ answers, aiResults, topPlatforms, social
           <span className="font-ui text-[8px] tracking-[3px] uppercase py-[5px] px-2.5 flex-shrink-0 mt-[3px] rounded font-medium"
             style={{ color: 'var(--dh-accent)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>NOW</span>
           <p className="font-body text-[15px] leading-[1.9] font-light" style={{ color: '#F5EAE0' }}>
-            {fs?.todayAction || `Open ${topPlatforms[0]} right now and create your account. It takes under 30 minutes and costs nothing.`}
+            {todayAction}
           </p>
         </div>
+      </div>
+
+      {/* First sale math */}
+      <div className="grid md:grid-cols-3 gap-3 mb-7">
+        {[
+          ['Warm messages', '5 today', 'Personal notes to people who already trust you.'],
+          ['Follow-ups', '2 days later', 'Most beginner sales happen in the follow-up, not the first message.'],
+          ['Proof target', '1 review', 'One screenshot or testimonial becomes your first marketing asset.'],
+        ].map(([label, value, note]) => (
+          <div key={label} className="p-4 rounded-[12px]" style={{ background: 'rgba(196,168,154,0.05)', border: '1px solid rgba(196,168,154,0.1)' }}>
+            <p className="font-ui text-[8px] tracking-[3px] uppercase mb-1.5" style={{ color: 'rgba(196,168,154,0.45)' }}>{label}</p>
+            <p className="font-display italic text-[20px] mb-1" style={{ color: '#F5EAE0' }}>{value}</p>
+            <p className="font-body text-[11px] leading-[1.6] font-light" style={{ color: 'rgba(245,234,224,0.62)' }}>{note}</p>
+          </div>
+        ))}
       </div>
 
       {/* Week plans */}
@@ -111,7 +149,7 @@ export default function FirstSaleRoom({ answers, aiResults, topPlatforms, social
             {i === 0 ? 'WEEK ONE — DAYS 1–7' : 'WEEK TWO — DAYS 8–14'}
           </p>
           <p className="font-body text-sm leading-8 whitespace-pre-line font-light" style={{ color: 'rgba(245,234,224,0.85)' }}>
-            {fs?.[key as keyof typeof fs] as string || 'Follow the day-by-day plan in your blueprint.'}
+            {i === 0 ? weekOnePlan : weekTwoPlan}
           </p>
         </div>
       ))}
@@ -134,6 +172,31 @@ export default function FirstSaleRoom({ answers, aiResults, topPlatforms, social
         <p className="font-body text-xs italic font-light mt-2.5" style={{ color: 'rgba(196,168,154,0.4)' }}>
           Send this to 5 real people today. Not a broadcast — individual messages.
         </p>
+      </div>
+
+      {/* Objection replies */}
+      <div className="mb-7">
+        <p className="font-ui text-[10px] tracking-[4px] uppercase mb-3 font-medium" style={{ color: 'rgba(196,168,154,0.5)' }}>IF THEY REPLY — SAY THIS</p>
+        {objectionReplies.map(({ q, a }) => (
+          <div key={q} className="p-4 rounded-[10px] mb-2.5" style={{ background: 'rgba(196,168,154,0.045)', border: '1px solid rgba(196,168,154,0.1)' }}>
+            <p className="font-ui text-[8px] tracking-[2px] uppercase mb-1.5" style={{ color: 'rgba(196,168,154,0.45)' }}>{q}</p>
+            <p className="font-body text-[13px] leading-[1.75] font-light" style={{ color: 'rgba(245,234,224,0.84)' }}>{a}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Fastest route */}
+      <div className="mb-7">
+        <p className="font-ui text-[10px] tracking-[4px] uppercase mb-3 font-medium" style={{ color: 'rgba(196,168,154,0.5)' }}>FASTEST ROUTE TO CASH</p>
+        {quickWins.slice(0, 3).map(win => (
+          <div key={win.order} className="flex gap-3 items-start p-3.5 rounded-[10px] mb-2" style={{ background: 'rgba(196,168,154,0.04)', border: '1px solid rgba(196,168,154,0.09)' }}>
+            <span className="font-ui text-[8px] tracking-[2px] uppercase py-1 px-2 rounded flex-shrink-0" style={{ color: 'var(--dh-accent)', background: 'rgba(255,255,255,0.06)' }}>#{win.order}</span>
+            <div>
+              <p className="font-body text-[13px] leading-[1.7] font-light" style={{ color: '#F5EAE0' }}>{win.task}</p>
+              <p className="font-body text-[11px] mt-0.5 font-light" style={{ color: 'rgba(196,168,154,0.45)' }}>{win.time} · {win.impact}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Legal disclaimer inside dark room */}

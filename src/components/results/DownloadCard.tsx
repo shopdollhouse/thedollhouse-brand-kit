@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { playClick, playChime } from '@/lib/sounds';
 import { toast } from 'sonner';
-import { generateBlueprintPDF } from '@/lib/pdf-generator';
+import { generateBlueprintPDF, generateResultsPagePDF } from '@/lib/pdf-generator';
 import { getBrandIdentity } from '@/lib/brand-identity';
 import { derive } from '@/lib/quiz-helpers';
 import GoldConfetti from '../GoldConfetti';
@@ -97,14 +97,20 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
         d,
       };
 
-      const blob = await generateBlueprintPDF(pdfData);
+      const blob = await generateResultsPagePDF({ name, brand: brand || name }).catch(err => {
+        console.warn('Results export failed, falling back to structured PDF:', err);
+        return generateBlueprintPDF(pdfData);
+      });
       const slug = (brand || name).replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `${slug}_blueprint.pdf`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
       a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 500);
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
 
       playChime();
       setShowConfetti(true);
@@ -150,7 +156,7 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
         <div className="mb-[18px]"><DollhouseMark size={40} /></div>
         <p className="font-ui text-[10px] tracking-[6px] uppercase mb-3.5 font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>Save Your Blueprint</p>
         <p className="font-display italic mb-2" style={{ fontSize: 'clamp(20px, 3vw, 28px)', color: 'rgba(255,255,255,0.92)' }}>Your Blueprint is Ready</p>
-        <p className="font-body text-sm font-light mb-6 leading-[1.8]" style={{ color: 'rgba(255,255,255,0.4)' }}>Beautifully typeset with your name, brand colours, and strategy — yours to keep forever.</p>
+        <p className="font-body text-sm font-light mb-6 leading-[1.8]" style={{ color: 'rgba(255,255,255,0.4)' }}>Exports the full premium results page — your rooms, strategy, visuals, and first-sale plan — yours to keep forever.</p>
         <div className="flex flex-col items-center gap-2.5 mb-5">
           <button onClick={downloadPDF} disabled={generating}
             className="dh-download-trigger inline-flex items-center justify-center gap-2.5 py-[17px] px-9 rounded-full font-ui text-[10px] tracking-[4px] uppercase font-medium w-full max-w-[320px] cursor-pointer transition-all hover:opacity-90 disabled:opacity-50"
@@ -158,7 +164,7 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
             {generating ? (
               <>
                 <span className="inline-block w-3 h-3 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--dh-dark-bg)', borderTopColor: 'transparent' }} />
-                Generating PDF…
+                Exporting PDF…
               </>
             ) : (
               '⬇ Download Blueprint PDF'

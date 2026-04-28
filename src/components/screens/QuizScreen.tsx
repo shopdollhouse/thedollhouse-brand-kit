@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { playClick } from '@/lib/sounds';
+import { DoorOpen, Sparkles } from 'lucide-react';
 
 export default function QuizScreen() {
   const { questions, currentQuestion, setCurrentQuestion, answers, setAnswer, setScreen } = useQuiz();
@@ -10,7 +11,7 @@ export default function QuizScreen() {
 
   const q = questions[currentQuestion];
   const firstName = answers.firstName ? answers.firstName.split(' ')[0] : '';
-  const pctDone = currentQuestion / questions.length;
+  const pctDone = (currentQuestion + 1) / questions.length;
 
   const encouragements = [
     '', 'Nice to meet you ♥', 'Great start.', "You're building something.",
@@ -71,6 +72,11 @@ export default function QuizScreen() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-start pt-[80px] px-5 pb-[120px] animate-rise-in relative z-[1]">
       {/* Room pill */}
+      <div className="dh-premium-chip mb-4">
+        <DoorOpen />
+        Room {currentQuestion + 1} of {questions.length}
+      </div>
+
       <div className="inline-flex items-center gap-2 rounded-full py-1.5 px-4 font-ui text-[10px] tracking-[3px] uppercase text-dh-accent-dark font-medium mb-4"
         style={{ background: 'rgba(var(--dh-accent-rgb), 0.1)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
         <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0"
@@ -91,7 +97,11 @@ export default function QuizScreen() {
       </p>
 
       {/* Card */}
-      <div ref={cardRef} className="glass rounded-[24px] p-12 max-w-[560px] w-full" style={{ boxShadow: 'var(--dh-shadow-soft)' }}>
+      <div ref={cardRef} className="glass dh-premium-panel rounded-[24px] p-12 max-w-[560px] w-full">
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <Sparkles size={14} className="text-dh-accent-dark" />
+          <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Building Your Private Blueprint</p>
+        </div>
         <p className="font-content text-center leading-[1.45] mb-8 font-medium" style={{ fontSize: 'clamp(18px, 3vw, 24px)', color: 'var(--dh-text)' }}>
           {q.text}
         </p>
@@ -137,7 +147,7 @@ export default function QuizScreen() {
             {q.options?.map((opt) => (
               <button
                 key={opt}
-                className="block w-full py-[15px] px-5 pl-11 mb-2.5 rounded-[14px] font-content text-[15px] font-normal text-left cursor-pointer transition-all relative"
+              className="dh-snappy block w-full py-[15px] px-5 pl-11 mb-2.5 rounded-[14px] font-content text-[15px] font-normal text-left cursor-pointer transition-all relative"
                 style={{
                   background: answers[q.id] === opt ? 'rgba(var(--dh-accent-rgb), 0.08)' : 'hsl(var(--card))',
                   border: `1.5px solid ${answers[q.id] === opt ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.25)'}`,
@@ -156,11 +166,11 @@ export default function QuizScreen() {
               </button>
             ))}
 
-            {/* "Other" option for customer question */}
-            {q.id === 'customer' && (
+            {/* "Other" option for questions where preset buckets may miss the buyer */}
+            {q.allowOther && (
               <>
                 <button
-                  className="block w-full py-[15px] px-5 pl-11 mb-2.5 rounded-[14px] font-content text-[15px] font-normal text-left cursor-pointer transition-all relative"
+                  className="dh-snappy block w-full py-[15px] px-5 pl-11 mb-2.5 rounded-[14px] font-content text-[15px] font-normal text-left cursor-pointer transition-all relative"
                   style={{
                     background: showOther ? 'rgba(var(--dh-accent-rgb), 0.08)' : 'hsl(var(--card))',
                     border: `1.5px solid ${showOther ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.25)'}`,
@@ -189,7 +199,7 @@ export default function QuizScreen() {
                         border: '1.5px solid rgba(var(--dh-accent-rgb), 0.25)',
                         color: 'var(--dh-text)',
                       }}
-                      placeholder="e.g. Men who want to grow a side business"
+                      placeholder={q.otherPlaceholder || 'Tell us in your own words'}
                       value={otherInput}
                       onChange={(e) => {
                         setOtherInput(e.target.value);

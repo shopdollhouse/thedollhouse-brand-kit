@@ -1,24 +1,46 @@
-import { createClient } from '@supabase/supabase-js';
+const LEADS_KEY = 'dh_leads';
 
-const supabaseUrl = 'https://dlgdswsvwvuzzsslwolm.supabase.co';
-const supabaseKey = 'sb_publishable_PgWJrh39aisLu2Fjy4rsag_ew70UHtw';
+type LocalLead = {
+  email: string;
+  name: string;
+  brand: string;
+  product: string;
+  createdAt: string;
+};
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const readLeads = (): LocalLead[] => {
+  try {
+    return JSON.parse(localStorage.getItem(LEADS_KEY) || '[]');
+  } catch {
+    return [];
+  }
+};
+
+export const supabase = {
+  from: () => ({
+    insert: async (rows: LocalLead[]) => {
+      const existing = readLeads();
+      localStorage.setItem(LEADS_KEY, JSON.stringify([...rows, ...existing].slice(0, 500)));
+      return { data: rows, error: null };
+    },
+  }),
+};
 
 export async function saveLead(email: string, name: string, brand: string, product: string) {
   try {
-    const { data, error } = await supabase
-      .from('leads')
-      .insert([{ email, name, brand, product }]);
+    const lead = {
+      email,
+      name,
+      brand,
+      product,
+      createdAt: new Date().toISOString(),
+    };
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data };
+    const existing = readLeads();
+    localStorage.setItem(LEADS_KEY, JSON.stringify([lead, ...existing].slice(0, 500)));
+    return { success: true, data: lead };
   } catch (err) {
-    console.error('Error saving lead:', err);
+    console.error('Error saving lead locally:', err);
     return { success: false, error: String(err) };
   }
 }

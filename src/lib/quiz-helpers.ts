@@ -167,24 +167,35 @@ export function getPrioritizedQuickWins(topPlatforms: string[], social: string[]
   ];
 }
 
+type BusinessModel = 'digital' | 'service' | 'curated' | 'physical';
+
+function inferBusinessModel(vibe: string, product = ''): BusinessModel {
+  const text = `${vibe} ${product}`.toLowerCase();
+  if (/(digital|template|planner|ebook|course|guide|download|notion|canva|preset|spreadsheet|workbook|prompt|membership)/.test(text)) return 'digital';
+  if (/(service|event|coach|consult|booking|appointment|session|class|workshop|rental|party|face paint|makeup|hair|photo|design|done for you)/.test(text)) return 'service';
+  if (/(curated|resale|vintage|thrift|secondhand|dropship|boutique|sourced|collection|edit|bundle box|subscription box)/.test(text)) return 'curated';
+  return 'physical';
+}
+
 // ── Derive platforms from answers ──
-export function derivePlatforms(vibe: string, sellType: string): string[] {
+export function derivePlatforms(vibe: string, sellType: string, product = ''): string[] {
+  const model = inferBusinessModel(vibe, product);
   const platforms: string[] = [];
   if (sellType === 'Online' || sellType === 'Both') {
-    if (vibe === 'Handmade / Physical') platforms.push('Etsy', 'Instagram Shop');
-    else if (vibe === 'Digital products') platforms.push('Stan Store', 'Gumroad');
-    else if (vibe === 'Service / Events') platforms.push('Google Business Profile', 'Bark.com');
-    else if (vibe === 'Curated / Resale') platforms.push('Facebook Marketplace', 'Etsy');
-    else platforms.push('Etsy', 'Instagram Shop');
+    if (model === 'physical') platforms.push('Etsy', 'Instagram Shop');
+    else if (model === 'digital') platforms.push('Stan Store', 'Gumroad');
+    else if (model === 'service') platforms.push('Google Business Profile', 'Instagram');
+    else if (model === 'curated') platforms.push('Facebook Marketplace', 'Etsy');
   }
   if (sellType === 'In Person' || sellType === 'Both') platforms.push('Local events', 'Farmers markets');
   return [...new Set(platforms)].slice(0, 2);
 }
 
-export function deriveSocial(sellType: string, vibe: string): string[] {
+export function deriveSocial(sellType: string, vibe: string, product = ''): string[] {
+  const model = inferBusinessModel(vibe, product);
   if (sellType === 'In Person') return ['Facebook', 'Instagram'];
-  if (vibe === 'Digital products') return ['TikTok', 'Instagram'];
-  if (vibe === 'Service / Events') return ['Instagram', 'Facebook'];
+  if (model === 'digital') return ['TikTok', 'Instagram'];
+  if (model === 'service') return ['Instagram', 'Facebook'];
   return ['TikTok', 'Instagram'];
 }
 
@@ -208,13 +219,14 @@ export interface PricingStrategy {
 }
 
 export function getPricingStrategy(vibe: string, budget: string, product: string, customer: string): PricingStrategy {
+  const model = inferBusinessModel(vibe, product);
   // Detect if product is inherently low-cost based on keywords
   const lowCostKeywords = ['sticker', 'pin', 'button', 'bookmark', 'postcard', 'print', 'digital', 'template', 'ebook', 'guide', 'printable', 'badge', 'patch', 'download', 'small'];
   const productLower = (product || '').toLowerCase();
   const isLowCostProduct = lowCostKeywords.some(keyword => productLower.includes(keyword));
 
   // DIGITAL PRODUCTS — Value-based, no production cost
-  if (vibe === 'Digital products') {
+  if (model === 'digital') {
     return {
       type: 'digital',
       description: 'Digital Product Pricing',
@@ -233,7 +245,7 @@ export function getPricingStrategy(vibe: string, budget: string, product: string
   }
 
   // SERVICES / EVENTS — Package-based, time or value-based
-  if (vibe === 'Service / Events') {
+  if (model === 'service') {
     return {
       type: 'service',
       description: 'Service Package Pricing',
@@ -253,7 +265,7 @@ export function getPricingStrategy(vibe: string, budget: string, product: string
 
   // LOW-COST PRODUCTS (stickers, pins, small items) — Bundling strategy
   // Check FIRST if it's a low-cost product type, regardless of budget
-  if (isLowCostProduct && (vibe === 'Handmade / Physical' || vibe === 'Curated / Resale' || vibe === 'Digital products')) {
+  if (isLowCostProduct && (model === 'physical' || model === 'curated' || model === 'digital')) {
     return {
       type: 'lowcost-bundling',
       description: 'Low-Cost Bundling Strategy',
@@ -272,7 +284,7 @@ export function getPricingStrategy(vibe: string, budget: string, product: string
   }
 
   // MID-RANGE HANDMADE — Three-tier strategy
-  if (vibe === 'Handmade / Physical' && (budget === '$50–$200' || budget === 'Higher')) {
+  if (model === 'physical' && (budget === '$50–$200' || budget === 'Higher')) {
     return {
       type: 'midrange-tiered',
       description: 'Three-Tier Handmade Pricing',
@@ -291,7 +303,7 @@ export function getPricingStrategy(vibe: string, budget: string, product: string
   }
 
   // CURATED / RESALE — Rarity-based pricing
-  if (vibe === 'Curated / Resale') {
+  if (model === 'curated') {
     return {
       type: 'curated',
       description: 'Curated Rarity Pricing',
@@ -384,7 +396,10 @@ export interface DerivedData {
   aesthetic: string;
   customer: string;
   product: string;
+  productDetails: string;
   audience: string;
+  currentStatus: string;
+  successGoal: string;
   urgency: string;
   blocker: string;
   vibe: string;
@@ -398,6 +413,8 @@ export interface DerivedData {
   monthPlans: { foundation: string; traction: string; scale: string };
   executiveSummary: string;
   missionLine: string;
+  setupStageNote: string;
+  successGoalNote: string;
   /* EXECUTION POWERHOUSE — New actionable content */
   executionContent: ExecutionContent;
 }
@@ -478,20 +495,33 @@ export function derive(a: Record<string, string>): DerivedData {
   const aesthetic = a.aesthetic || 'Warm & earthy';
   const customer = a.customer || 'people who love quality';
   const product = a.product || 'your product';
+  const productDetails = a.productDetails && a.productDetails !== '__skip__' ? a.productDetails : '';
   const audience = a.audience || 'Starting from zero';
+  const currentStatus = a.currentStatus || 'Just an idea';
+  const successGoal = a.successGoal && a.successGoal !== '__skip__' ? a.successGoal : 'get clear enough to start';
   const urgency = a.urgency || '';
   const blocker = a.blocker || '';
   const name = (a.firstName || '').split(' ')[0] || 'You';
   const brand = a.brandName && a.brandName !== '__skip__' ? a.brandName : null;
 
-  const topPlatforms = derivePlatforms(vibe, sell);
-  const social = deriveSocial(sell, vibe);
+  const topPlatforms = derivePlatforms(vibe, sell, product);
+  const social = deriveSocial(sell, vibe, product);
   const pricing = derivePricing(budget);
   const brandId = getBrandIdentity(aesthetic, vibe, budget, customer, product);
 
   const mission = brand
-    ? `${brand} exists to bring ${product} to ${customer} — with intention, quality, and a brand they'll remember.`
-    : `Your business exists to bring ${product} to ${customer} — built with intention and a brand they'll remember.`;
+    ? `${brand} exists to bring ${product} to ${customer} — ${productDetails ? `specifically ${productDetails}, ` : ''}with intention, quality, and a brand they'll remember.`
+    : `Your business exists to bring ${product} to ${customer} — ${productDetails ? `specifically ${productDetails}, ` : ''}built with intention and a brand they'll remember.`;
+
+  const setupStageNote: Record<string, string> = {
+    'Just an idea': `You are still shaping the offer, so your first job is proof: define one sellable version of ${product}, put a price on it, and ask five real people if they want it.`,
+    'I have something made but not listed': `You are past the idea stage. The bottleneck is visibility, so this blueprint prioritizes listing, photos, payment setup, and your first direct asks.`,
+    'I listed it but have no sales yet': `You do not need to start over. Your bottleneck is conversion: stronger photos, clearer offer copy, more proof, and direct follow-up.`,
+    'I made a few sales and want consistency': `You have proof. The next step is consistency: repeat the buyer path, collect testimonials, and turn the winning message into a weekly system.`,
+    "I'm rebranding or starting over": `You are rebuilding with more clarity. Keep what already worked, simplify the offer, and relaunch with sharper positioning instead of changing everything at once.`,
+  };
+
+  const successGoalNote = `Your stated win is: "${successGoal}". Every recommendation should be judged against that outcome first.`;
 
   const blockerNote: Record<string, string> = {
     'Not sure what to make or sell': `This blueprint has made that decision for you. Based on everything you told us, ${product} is your strongest starting point.`,
@@ -645,7 +675,7 @@ export function derive(a: Record<string, string>): DerivedData {
   const productStrategy = vibe === 'Service / Events'
     ? `Lead with one signature offer — ${product} — and resist the urge to launch a menu on day one. ${isStartingZero ? `Without an audience, ${customer} need clarity more than choice.` : `Your existing audience already trusts you; one focused offer converts faster than three competing ones.`}`
     : vibe === 'Digital products'
-    ? `Build one core ${product} and one tiny entry-priced version. ${budget === 'Under $50' ? 'Both can launch on free tools — no design budget required.' : 'Reinvest the early sales into better cover art and a short video walkthrough.'}`
+    ? `Build one core ${product} and one tiny entry-priced version. ${productDetails ? `Use this specificity as the hook: ${productDetails}. ` : ''}${budget === 'Under $50' ? 'Both can launch on free tools — no design budget required.' : 'Reinvest the early sales into better cover art and a short video walkthrough.'}`
     : vibe === 'Curated / Resale'
     ? `Source small batches of ${product} that all share one through-line — colour, era, or story. ${customer} buy a curator's eye, not random inventory.`
     : `Make a small first run of ${product} — six to twelve pieces is plenty. ${budget === 'Under $50' ? 'Materials should be sourced locally and photographed against your real workspace, not a backdrop.' : 'Put a third of your budget into materials and packaging — first impressions on unboxing drive repeat orders.'}`;
@@ -686,8 +716,8 @@ export function derive(a: Record<string, string>): DerivedData {
   const adj = aestheticAdj[aesthetic] || aestheticAdj['Soft & feminine'];
   const frame = vibeFrame[vibe] || `${product}`;
   const executiveSummary = brand
-    ? `${brand} is built for ${customer.toLowerCase()} who want ${frame} — and want it to feel ${adj} from the very first look.`
-    : `Your business is built for ${customer.toLowerCase()} who want ${frame} — and want it to feel ${adj} from the very first look.`;
+    ? `${brand} is built for ${customer.toLowerCase()} who want ${frame}${productDetails ? `, especially ${productDetails}` : ''} — and want it to feel ${adj} from the very first look.`
+    : `Your business is built for ${customer.toLowerCase()} who want ${frame}${productDetails ? `, especially ${productDetails}` : ''} — and want it to feel ${adj} from the very first look.`;
 
   // ── Mission line nudged by blocker ──
   const missionLine = blocker === 'Scared nobody will buy'
@@ -709,8 +739,8 @@ export function derive(a: Record<string, string>): DerivedData {
     blockerNote: blockerNote[blocker] || 'You have everything you need to start.',
     expNote, urgencyNote, pillar2, launchPlan, w1Static, w2Static,
     staticScript, todayAction, promise, name, brand, aesthetic, customer, product,
-    audience, urgency, blocker, vibe, budget, salesScript, threePostStrategy,
+    productDetails, audience, currentStatus, successGoal, urgency, blocker, vibe, budget, salesScript, threePostStrategy,
     themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans,
-    executiveSummary, missionLine, executionContent,
+    executiveSummary, missionLine, setupStageNote: setupStageNote[currentStatus] || setupStageNote['Just an idea'], successGoalNote, executionContent,
   };
 }

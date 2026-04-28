@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuiz } from '@/context/QuizContext';
 import { generateBlueprint } from '@/lib/ai-generation';
+import { BadgeCheck, FileText, Sparkles } from 'lucide-react';
 
 const loadingMessages = [
   ['Choosing your platforms…', 'Matched to your product, budget & time'],
@@ -52,7 +53,7 @@ export default function LoadingScreen() {
       setPct(100);
       // Results screen is already showing from partial callback
     }).catch((err) => {
-      console.warn('AI generation error:', err.message);
+      console.warn('Blueprint generation error:', err.message);
       clearInterval(msgInterval);
       clearTimeout(timeout);
       setPct(100);
@@ -107,45 +108,68 @@ export default function LoadingScreen() {
         ))}
       </div>
 
-      <p className="font-ui text-[11px] tracking-[5px] uppercase text-dh-text-light text-center font-medium relative z-[2]">
-        {loadingMessages[msgIdx][0]}
-      </p>
-      <p className="font-display text-[15px] italic text-dh-text-light mt-2.5 text-center relative z-[2]">
-        {loadingMessages[msgIdx][1]}
-      </p>
+      <div className="glass dh-premium-panel rounded-[28px] p-10 w-full max-w-[460px] text-center relative z-[2]">
+        <div className="dh-premium-chip mb-6 mx-auto">
+          <Sparkles />
+          Assembling Your Rooms
+        </div>
+        <p className="font-ui text-[11px] tracking-[5px] uppercase text-dh-accent-dark text-center font-medium">
+          {loadingMessages[msgIdx][0]}
+        </p>
+        <p className="font-display text-[17px] italic text-dh-text-mid mt-2.5 text-center">
+          {loadingMessages[msgIdx][1]}
+        </p>
 
-      {/* Dots */}
-      <div className="flex gap-2 mt-7 relative z-[2]">
-        {[0, 1, 2].map(i => (
+        {/* Dots */}
+        <div className="flex gap-2 mt-7 justify-center">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="w-1 h-1 rounded-full"
+              style={{
+                background: 'var(--dh-accent)',
+                animation: `dotPulse 1.5s ease-in-out infinite`,
+                animationDelay: `${i * 0.3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-full h-1 rounded-full mt-8 mx-auto overflow-hidden" style={{ background: 'rgba(var(--dh-accent-rgb), 0.18)' }}>
           <div
-            key={i}
-            className="w-1 h-1 rounded-full"
+            className="h-full rounded-full transition-all duration-1000"
             style={{
-              background: 'var(--dh-accent)',
-              animation: `dotPulse 1.5s ease-in-out infinite`,
-              animationDelay: `${i * 0.3}s`,
+              width: `${pct}%`,
+              background: 'linear-gradient(to right, var(--dh-accent), var(--dh-accent-dark))',
             }}
           />
-        ))}
-      </div>
+        </div>
+        <p className="font-ui text-[8px] tracking-[4px] uppercase text-dh-accent text-center mt-3 opacity-70 font-medium">
+          {pct}%
+        </p>
 
-      {/* Progress bar */}
-      <div className="w-60 h-0.5 rounded-sm mt-8 mx-auto overflow-hidden relative z-[2]" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }}>
-        <div
-          className="h-full rounded-sm transition-all duration-1000"
-          style={{
-            width: `${pct}%`,
-            background: 'linear-gradient(to right, var(--dh-accent), var(--dh-accent-dark))',
-          }}
-        />
-      </div>
-      <p className="font-ui text-[8px] tracking-[4px] uppercase text-dh-accent text-center mt-3 opacity-70 font-medium relative z-[2]">
-        {pct}%
-      </p>
+        <div className="grid grid-cols-2 gap-2.5 mt-6 text-left">
+          {[
+            [BadgeCheck, 'Offer'],
+            [FileText, 'Roadmap'],
+            [Sparkles, 'Brand'],
+            [BadgeCheck, 'First sale'],
+          ].map(([Icon, label]) => {
+            const TileIcon = Icon as typeof BadgeCheck;
+            return (
+              <div key={label as string} className="dh-value-tile rounded-xl p-3">
+                <TileIcon size={14} className="text-dh-accent-dark mb-1.5" />
+                <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{label as string}</p>
+              </div>
+            );
+          })}
+        </div>
 
-      <p className="font-body text-[12px] text-dh-text-light font-light text-center mt-6 max-w-[300px] relative z-[2]">
-        {parts.length ? parts.join(' · ') : 'Your blueprint'} — your blueprint appears in about 10 seconds, then enriches automatically.
-      </p>
+        <p className="font-body text-[12px] text-dh-text-light font-light text-center mt-6 max-w-[320px] mx-auto">
+          {parts.length ? parts.join(' · ') : 'Your blueprint'} — your blueprint appears quickly, then enriches automatically.
+        </p>
+      </div>
     </div>
   );
 }
