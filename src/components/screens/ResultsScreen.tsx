@@ -145,8 +145,8 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
   const bb = 'group relative flex items-center gap-2 cursor-pointer rounded-xl mx-1.5 font-ui text-[8px] tracking-[1.6px] uppercase font-medium text-dh-text-light transition-colors hover:text-dh-accent-dark overflow-hidden';
 
   return (
-    <div className="dh-left-results-rail dh-no-print fixed left-5 top-[76px] bottom-5 z-[550] hidden md:flex flex-col gap-1 rounded-[22px] py-3 px-1.5 shadow-[0_10px_42px_rgba(107,82,64,0.10)] overflow-y-auto overscroll-contain"
-      style={{ width: 142, maxHeight: 'calc(100vh - 96px)', background: 'rgba(255,250,244,0.76)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '1px solid rgba(var(--dh-accent-rgb),0.18)', scrollbarWidth: 'none' }}>
+    <div className="dh-left-results-rail dh-no-print fixed left-5 top-[76px] z-[550] hidden md:flex flex-col gap-1 rounded-[22px] py-3 px-1.5 shadow-[0_10px_42px_rgba(107,82,64,0.10)] overflow-y-auto overscroll-contain"
+      style={{ width: 142, maxHeight: 'calc(100vh - 104px)', background: 'rgba(255,250,244,0.76)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '1px solid rgba(var(--dh-accent-rgb),0.18)', scrollbarWidth: 'none' }}>
       <div className="px-3 pt-1 pb-2">
         <p className="font-ui text-[7px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Rooms</p>
         <div className="h-px mt-2" style={{ background: 'rgba(var(--dh-accent-rgb),0.18)' }} />
