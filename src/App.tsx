@@ -41,7 +41,8 @@ function Sidebar() {
     setTrack(newTrack);
   };
 
-  const bb = 'group relative flex flex-col items-center gap-1.5 py-3 px-3.5 cursor-pointer rounded-[12px] mx-1 font-ui text-[8.5px] tracking-[2px] uppercase font-semibold text-dh-text-light transition-colors hover:text-dh-accent-dark min-w-[54px] overflow-hidden';
+  const bb = 'group relative flex flex-col items-center gap-1.5 py-3 px-3.5 cursor-pointer rounded-[12px] mx-1 font-ui text-[8.5px] tracking-[2px] uppercase font-normal text-dh-text-light transition-colors hover:text-dh-accent-dark hover:font-semibold min-w-[54px] overflow-hidden';
+  const railDivider = <div className="h-px mx-5 my-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.22), transparent)' }} />;
 
   return (
     <>
@@ -54,6 +55,7 @@ function Sidebar() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
             Stats
           </button>
+          {railDivider}
           <button onClick={() => { playClick('soft'); toggleTheme(); }} className={bb} style={{ background: 'none', border: 'none' }}>
             <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
             <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
@@ -67,6 +69,7 @@ function Sidebar() {
               {theme === 'blush' ? 'Blush mode' : 'Dark mode'}
             </span>
           </button>
+          {railDivider}
           <button onClick={() => { playClick('soft'); setSoundOpen(o => !o); }} className={bb} style={{ background: 'none', border: 'none', color: track >= 0 ? 'var(--dh-accent-dark)' : undefined }}>
             <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
             <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />

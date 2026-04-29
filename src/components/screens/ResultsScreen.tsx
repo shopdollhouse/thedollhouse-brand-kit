@@ -140,7 +140,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const bb = 'group relative flex items-center gap-2.5 cursor-pointer rounded-[14px] mx-1.5 font-ui text-[9px] tracking-[1.9px] uppercase font-semibold text-dh-text-light transition-colors hover:text-dh-accent-dark overflow-hidden';
+  const bb = 'group relative flex items-center gap-2.5 cursor-pointer rounded-[14px] mx-1.5 font-ui text-[9px] tracking-[2px] uppercase font-normal text-dh-text-light transition-colors hover:text-dh-accent-dark hover:font-semibold overflow-hidden';
 
   return (
     <div className="dh-left-results-rail dh-no-print fixed left-5 top-[74px] z-[550] hidden md:flex flex-col gap-1.5 rounded-[26px] py-4 px-2 shadow-[0_14px_48px_rgba(107,82,64,0.12)] overflow-y-auto overscroll-contain"
