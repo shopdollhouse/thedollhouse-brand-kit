@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
         Brand Starter System
       </div>
       
-      <p className="dh-wordmark-kicker text-center mb-1 uppercase opacity-90" style={{ fontSize: 'clamp(11px, 1.4vw, 14px)', letterSpacing: '0.35em' }}>The</p>
+      <p className="dh-wordmark-kicker text-center mb-0 opacity-90" style={{ fontSize: 'clamp(38px, 5vw, 58px)', letterSpacing: '0.01em' }}>the</p>
       <h1 className="dh-wordmark text-center uppercase" style={{ fontSize: 'clamp(56px, 8vw, 96px)', letterSpacing: '0.04em' }}>DOLLHOUSE</h1>
       
       <div className="flex items-center gap-3.5 w-[200px] mx-auto mt-0 mb-7">

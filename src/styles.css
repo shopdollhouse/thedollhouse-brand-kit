@@ -203,12 +203,15 @@
 .font-content { font-family: var(--font-content); }
 
 .dh-wordmark-kicker {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
+  font-family: 'Pinyon Script', 'Cormorant Garamond', cursive;
+  font-style: normal;
   font-weight: 400;
-  letter-spacing: 0.02em;
-  line-height: 0.9;
+  letter-spacing: 0.01em;
+  line-height: 0.72;
+  text-transform: none;
   color: var(--dh-rose-gold);
+  transform: translateY(0.08em) rotate(-1deg);
+  text-shadow: 0 7px 18px rgba(176, 112, 105, 0.14);
 }
 
 .dh-wordmark {
