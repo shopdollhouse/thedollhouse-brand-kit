@@ -304,6 +304,26 @@ export default function ResultsScreen() {
   const firstSaleTarget = answers.budget === '$200+' ? '$250' : answers.budget === '$50–$200' ? '$150' : '$75';
   const profileBio = `${product} for ${customer} | ${productDetails ? productDetails.slice(0, 42) : `${aesthetic.toLowerCase()} ${vibe.toLowerCase()}`} | Shop/Book: [link]`;
   const firstCaption = `I made ${product} for ${customer.toLowerCase()} who want ${productDetails || `something that feels ${aesthetic.toLowerCase()} without overthinking it`}. My first ${vibe === 'Service / Events' ? 'booking spots' : 'drop'} is live now on ${firstPlatform}. Comment "INFO" or tap the link to see it.`;
+  const listingCopy = {
+    title: `${beginnerOffer.title} for ${customer}`,
+    subtitle: `${aesthetic} ${vibe === 'Service / Events' ? 'booking' : vibe === 'Digital products' ? 'digital resource' : vibe === 'Curated / Resale' ? 'curated drop' : 'starter batch'} designed to help ${customer.toLowerCase()} get a clear, beautiful result without overthinking the next step.`,
+    description: [
+      `Meet ${beginnerOffer.title}: a simple first offer built for ${customer.toLowerCase()} who want ${productDetails || `${product.toLowerCase()} that feels ${aesthetic.toLowerCase()}, useful, and easy to say yes to`}.`,
+      `This is for you if you want ${d.salesScript.value.toLowerCase()} and you prefer a buying experience that feels clear, thoughtful, and beginner-friendly.`,
+      `Start here if you want the most direct version of ${product.toLowerCase()} before the next drop or upgrade is released.`,
+    ].join('\n\n'),
+    includes: [
+      beginnerOffer.deliverable,
+      beginnerOffer.proof,
+      beginnerOffer.guarantee,
+    ],
+    faq: [
+      ['Who is this for?', `This is best for ${customer.toLowerCase()} who want a simple first step into ${product.toLowerCase()}.`],
+      ['How do I get it?', vibe === 'Service / Events' ? `Book through ${firstPlatform}, then watch your inbox for the next steps.` : `Buy through ${firstPlatform}, then follow the delivery or pickup details on the listing.`],
+      ['Why buy now?', `This first version is intentionally focused. It helps you start with ${product.toLowerCase()} before prices, bundles, or availability change.`],
+    ],
+    cta: `Ready? Tap buy/book now, or message me "INFO" and I will send the link.`,
+  };
   const first48 = executionContent.first48Hours;
   const salesPageOutline = executionContent.salesPageOutline
     .replaceAll('[PRODUCT]', product)
@@ -314,33 +334,75 @@ export default function ResultsScreen() {
     .replaceAll('[specific benefit]', d.salesScript.value)
     .replaceAll('[common pain point]', blocker.toLowerCase() || 'overwhelm')
     .trim();
-  const launchAssets = [
+  const captionPack = [
     {
-      title: 'Launch Caption 01',
+      title: 'Launch Caption',
       body: firstCaption,
     },
     {
-      title: 'Launch Caption 02',
-      body: `I built ${product} for ${customer.toLowerCase()} who want something that feels ${aesthetic.toLowerCase()}, useful, and easy to buy. This is the first version, and I would love for you to see it before I build the next drop. Link: [link]`,
+      title: 'Founder Story Caption',
+      body: `I started building ${product} because I kept thinking about ${customer.toLowerCase()} who want ${productDetails || `something ${aesthetic.toLowerCase()}, useful, and simple to buy`}.\n\nThis is the first version, and it is live now on ${firstPlatform}. If you have been waiting for a sign to try it, this is it. Comment "INFO" and I will send you the link.`,
     },
     {
-      title: 'Story Prompt',
-      body: `Post a 3-frame story: 1) "I finally made ${product}" 2) show the product/process 3) "Want the link? Reply INFO."`,
+      title: 'Problem/Solution Caption',
+      body: `If you are ${customer.toLowerCase()} and you have been wanting ${d.salesScript.value.toLowerCase()}, this was made for you.\n\n${product} is designed to keep the next step clear, beautiful, and easy to act on. The first ${vibe === 'Service / Events' ? 'booking spots' : 'drop'} is open now: [link]`,
     },
+    {
+      title: 'Soft Sell Caption',
+      body: `A little reminder: ${product} is now available for ${customer.toLowerCase()}.\n\nNo pressure, no complicated launch. Just a clear first offer, a simple checkout, and something made with care. See it here: [link]`,
+    },
+    {
+      title: 'Last Call Caption',
+      body: `Last call for the first version of ${product}. If you wanted to be one of the first people to try it, today is the day.\n\nComment "INFO" or tap the link before I move into the next batch/version: [link]`,
+    },
+  ];
+  const dmScripts = [
     {
       title: 'Warm DM',
       body: executionContent.firstSaleScript.replaceAll('[product name]', product).replaceAll('[service name]', product).replaceAll('[Name]', '[Name]'),
     },
     {
-      title: 'Follow-Up Message',
-      body: `Hey [Name], just checking back in about ${product}. No pressure at all — I wanted to make sure you saw it because I genuinely thought of you for this. Here's the link again: [link]`,
+      title: '24-Hour Follow-Up',
+      body: `Hey [Name], just checking back in about ${product}. No pressure at all — I wanted to make sure you saw it because I genuinely thought of you for this. Here is the link again: [link]`,
+    },
+    {
+      title: 'Objection Reply',
+      body: `Totally understand. The simplest way to think about it is: this helps with ${d.salesScript.value.toLowerCase()}. If you want, I can send the quick version of what is included so you can decide without digging through the whole page.`,
     },
     {
       title: 'Proof Request',
       body: `Thank you so much for being one of my first buyers. If you have 30 seconds, could you send me one honest sentence about what made you buy or what you liked? It would help me so much as I build this. ♥`,
     },
   ];
+  const launchAssets = [
+    {
+      title: 'Bio Line',
+      body: profileBio,
+    },
+    {
+      title: 'Product Title',
+      body: listingCopy.title,
+    },
+    {
+      title: 'Product Description',
+      body: `${listingCopy.subtitle}\n\n${listingCopy.description}`,
+    },
+    {
+      title: 'Story Prompt',
+      body: `Post a 3-frame story: 1) "I finally made ${product}" 2) show the product/process 3) "Want the link? Reply INFO."`,
+    },
+    ...dmScripts,
+  ];
   const launchHooks = executionContent.hooks.slice(0, 5).map(hook => hook.replaceAll('[product]', product));
+  const sevenDaySprint = [
+    { id: 'day1', title: 'Day 1 — Make the offer real', action: `Use the product title "${listingCopy.title}" and publish the simplest version on ${firstPlatform}.`, asset: listingCopy.subtitle },
+    { id: 'day2', title: 'Day 2 — Build trust', action: `Post the Founder Story Caption on ${firstSocial} and show one behind-the-scenes image or screen recording.`, asset: captionPack[1].body },
+    { id: 'day3', title: 'Day 3 — Ask directly', action: 'Send the Warm DM to 5 people who already know you, like your taste, or asked about your work before.', asset: dmScripts[0].body },
+    { id: 'day4', title: 'Day 4 — Make the page clearer', action: 'Add the FAQ answers, buyer reassurance, and one proof point to your listing or booking page.', asset: listingCopy.faq.map(([q, a]) => `${q}: ${a}`).join('\n') },
+    { id: 'day5', title: 'Day 5 — Sell softly', action: `Post the Soft Sell Caption on ${firstSocial}. Do not apologize for selling; make the buying path obvious.`, asset: captionPack[3].body },
+    { id: 'day6', title: 'Day 6 — Follow up', action: 'Send the 24-Hour Follow-Up to everyone who clicked, replied, liked, saved, or said maybe.', asset: dmScripts[1].body },
+    { id: 'day7', title: 'Day 7 — Collect proof', action: 'Ask for one sentence of feedback, then turn that sentence into next week’s proof post.', asset: dmScripts[3].body },
+  ];
   const progressItems = [
     `Create your ${firstPlatform} account`,
     'Add payment processing or checkout link',
@@ -415,13 +477,28 @@ export default function ResultsScreen() {
       'FIRST SALE SCRIPT',
       staticScript,
       '',
+      'DONE-FOR-YOU PRODUCT LISTING',
+      `Title: ${listingCopy.title}`,
+      `Subtitle: ${listingCopy.subtitle}`,
+      listingCopy.description,
+      `CTA: ${listingCopy.cta}`,
+      '',
+      'LAUNCH CAPTION PACK',
+      ...captionPack.map(caption => `${caption.title}\n${caption.body}`),
+      '',
+      'DM + FOLLOW-UP SCRIPTS',
+      ...dmScripts.map(script => `${script.title}\n${script.body}`),
+      '',
+      '7-DAY FIRST-SALE SPRINT',
+      ...sevenDaySprint.map(day => `${day.title}\n${day.action}`),
+      '',
       'YOUR 19 QUIZ SIGNALS',
       ...answeredList,
       '',
       'Built with The Dollhouse Brand Studio',
       'shopdollhouse.co | @thedollhouse_studio',
     ].join('\n\n');
-  }, [aesthetic, aiResults?.businessPlan?.mission, aiResults?.startingPrice, answers, brand, customer, displayName, firstPlatform, firstSocial, missionLine, priceHint, product, questions, staticScript, todayAction]);
+  }, [aesthetic, aiResults?.businessPlan?.mission, aiResults?.startingPrice, answers, brand, captionPack, customer, displayName, dmScripts, firstPlatform, firstSocial, listingCopy, missionLine, priceHint, product, questions, sevenDaySprint, staticScript, todayAction]);
   const filenameBase = (brand || product || displayName || 'dollhouse_blueprint').toString().replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '').toLowerCase() || 'dollhouse_blueprint';
   const copyPortableBlueprint = useCallback(async () => {
     playClick('soft');
@@ -1410,10 +1487,10 @@ export default function ResultsScreen() {
           </div>
           <div className="grid md:grid-cols-2 gap-3.5 mb-5">
             {[
-              ['Hero headline', `${product} for ${customer.toLowerCase()} who want ${aesthetic.toLowerCase()} results without overthinking the next step.`],
-              ['Short description', `${product} helps ${customer.toLowerCase()} get a clear, useful result with a buying experience that feels simple, trustworthy, and worth paying for.`],
+              ['Product title', listingCopy.title],
+              ['Short description', listingCopy.subtitle],
               ['What they get', beginnerOffer.deliverable],
-              ['Buyer reassurance', beginnerOffer.guarantee],
+              ['Buy button CTA', listingCopy.cta],
             ].map(([label, text]) => (
               <div key={label} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.05)', border: '1px solid rgba(var(--dh-accent-rgb), 0.22)' }}>
                 <div className="flex items-center justify-between gap-3 mb-2">
@@ -1425,6 +1502,31 @@ export default function ResultsScreen() {
                 <p className="font-body text-[13px] leading-[1.75] text-dh-text-mid font-light">{text}</p>
               </div>
             ))}
+          </div>
+          <div className="p-5 rounded-2xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Done-For-You Product Listing</p>
+              <button onClick={() => copyScript(`${listingCopy.title}\n\n${listingCopy.subtitle}\n\n${listingCopy.description}\n\nWHAT'S INCLUDED\n${listingCopy.includes.map(item => `- ${item}`).join('\n')}\n\nFAQ\n${listingCopy.faq.map(([q, a]) => `${q}: ${a}`).join('\n')}\n\n${listingCopy.cta}`)} className="inline-flex items-center gap-2 py-2 px-3 rounded-full font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)', color: 'var(--dh-accent-dark)' }}>
+                <Copy size={12} /> Copy Listing
+              </button>
+            </div>
+            <p className="font-body text-[12px] leading-[1.85] text-dh-text-mid font-light whitespace-pre-line mb-4">{listingCopy.description}</p>
+            <div className="grid md:grid-cols-3 gap-2.5 mb-4">
+              {listingCopy.includes.map((item, i) => (
+                <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.24)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }}>
+                  <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">Include {i + 1}</p>
+                  <p className="font-body text-[11px] leading-[1.6] text-dh-text-mid font-light">{item}</p>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {listingCopy.faq.map(([q, a]) => (
+                <div key={q} className="flex gap-3 items-start">
+                  <span className="font-ui text-[7px] tracking-[2px] uppercase py-1 px-2 rounded-md flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.09)', color: 'var(--dh-accent-dark)' }}>FAQ</span>
+                  <p className="font-body text-[12px] leading-[1.7] text-dh-text-mid font-light"><strong>{q}</strong> {a}</p>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="p-5 rounded-2xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', borderLeft: '3px solid var(--dh-accent)' }}>
             <div className="flex items-center justify-between gap-4 mb-3">
@@ -1440,7 +1542,59 @@ export default function ResultsScreen() {
         {/* Room 15 - Launch Asset Pack */}
         <div data-room-id="r15" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">15 — Launch Asset Pack<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
-          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Use these when you are too tired to write from scratch. Your job is to customize the brackets, post, and send.</p>
+          <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">Use these when you are too tired to write from scratch. Your job is to customize the brackets, post, send, and follow up.</p>
+
+          <div className="p-5 rounded-2xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.07)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1 font-medium">Caption Pack</p>
+                <p className="font-body text-[12px] leading-[1.7] text-dh-text-light font-light">Five launch captions built for different buyer moments: announce, story, problem/solution, soft sell, and last call.</p>
+              </div>
+              <button onClick={() => copyScript(captionPack.map(caption => `${caption.title}\n${caption.body}`).join('\n\n'))} className="inline-flex items-center gap-2 py-2 px-3 rounded-full font-ui text-[8px] tracking-[2px] uppercase cursor-pointer flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)', color: 'var(--dh-accent-dark)' }}>
+                <Copy size={12} /> Copy All
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {captionPack.map(caption => (
+                <div key={caption.title} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.24)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }}>
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{caption.title}</p>
+                    <button onClick={() => copyScript(caption.body)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                      <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                    </button>
+                  </div>
+                  <p className="font-body text-[12px] leading-[1.75] text-dh-text-mid font-light whitespace-pre-line">{caption.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.045)', border: '1px solid rgba(var(--dh-accent-rgb), 0.22)' }}>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1 font-medium">DM + Follow-Up Scripts</p>
+                <p className="font-body text-[12px] leading-[1.7] text-dh-text-light font-light">Warm outreach, a soft follow-up, an objection reply, and a proof request so the first sale does not depend on guessing what to say.</p>
+              </div>
+              <button onClick={() => copyScript(dmScripts.map(script => `${script.title}\n${script.body}`).join('\n\n'))} className="inline-flex items-center gap-2 py-2 px-3 rounded-full font-ui text-[8px] tracking-[2px] uppercase cursor-pointer flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)', color: 'var(--dh-accent-dark)' }}>
+                <Copy size={12} /> Copy All
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              {dmScripts.map(script => (
+                <div key={script.title} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }}>
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{script.title}</p>
+                    <button onClick={() => copyScript(script.body)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                      <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                    </button>
+                  </div>
+                  <p className="font-body text-[12px] leading-[1.75] text-dh-text-mid font-light whitespace-pre-line">{script.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Portable Asset Cards</p>
           <div className="grid md:grid-cols-2 gap-3.5 mb-5">
             {launchAssets.map(asset => (
               <div key={asset.title} className="p-4 rounded-xl" style={{ background: 'rgba(var(--dh-accent-rgb), 0.055)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
@@ -1476,6 +1630,54 @@ export default function ResultsScreen() {
             <div>
               <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-1.5 font-medium">16 — Beginner Launch Tracker</p>
               <p className="font-display italic text-[17px] leading-[1.75] text-dh-text-mid">{completedLaunchSteps} of {progressItems.length} launch actions complete. Track actions before emotions.</p>
+            </div>
+          </div>
+          <div className="p-5 rounded-2xl mb-6" style={{ background: 'rgba(var(--dh-accent-rgb), 0.07)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)' }}>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+              <div>
+                <p className="font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark mb-1 font-medium">7-Day First-Sale Sprint</p>
+                <p className="font-body text-[12px] leading-[1.7] text-dh-text-light font-light">A one-week path from blueprint to first buyer. Each day has one action and one asset to copy.</p>
+              </div>
+              <button onClick={() => copyScript(sevenDaySprint.map(day => `${day.title}\nAction: ${day.action}\nAsset:\n${day.asset}`).join('\n\n'))} className="inline-flex items-center gap-2 py-2 px-3 rounded-full font-ui text-[8px] tracking-[2px] uppercase cursor-pointer flex-shrink-0" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.24)', color: 'var(--dh-accent-dark)' }}>
+                <Copy size={12} /> Copy Sprint
+              </button>
+            </div>
+            <div className="space-y-2.5">
+              {sevenDaySprint.map((day, i) => {
+                const key = `sprint-${day.id}`;
+                const checked = Boolean(checkedLaunchSteps[key]);
+                return (
+                  <div key={day.id} className="rounded-xl overflow-hidden" style={{ background: checked ? 'rgba(var(--dh-accent-rgb), 0.12)' : 'rgba(255,255,255,0.2)', border: `1px solid ${checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.18)'}` }}>
+                    <div className="p-4 flex gap-3 items-start">
+                      <button
+                        onClick={() => {
+                          playClick('soft');
+                          setCheckedLaunchSteps(prev => ({ ...prev, [key]: !prev[key] }));
+                        }}
+                        className="mt-0.5 flex-shrink-0 cursor-pointer"
+                        style={{ background: 'none', border: 'none', padding: 0 }}
+                        title={checked ? 'Mark incomplete' : 'Mark complete'}
+                      >
+                        <CheckCircle2 size={18} style={{ color: checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb), 0.35)' }} />
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">Day {String(i + 1).padStart(2, '0')}</p>
+                        <p className="font-display italic text-[17px] leading-[1.25] mb-1" style={{ color: 'var(--dh-text)' }}>{day.title.replace(/^Day \d+ — /, '')}</p>
+                        <p className="font-body text-[12px] leading-[1.7] text-dh-text-mid font-light mb-3">{day.action}</p>
+                        <div className="rounded-xl p-3" style={{ background: 'rgba(var(--dh-accent-rgb),0.05)', border: '1px solid rgba(var(--dh-accent-rgb),0.15)' }}>
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark font-medium">Copy-ready asset</p>
+                            <button onClick={() => copyScript(day.asset)} className="p-1.5 rounded-lg cursor-pointer" style={{ background: 'rgba(var(--dh-accent-rgb), 0.08)', border: '1px solid rgba(var(--dh-accent-rgb), 0.18)' }} title="Copy">
+                              <Copy size={12} style={{ color: 'var(--dh-accent-dark)' }} />
+                            </button>
+                          </div>
+                          <p className="font-body text-[11px] leading-[1.65] text-dh-text-light font-light whitespace-pre-line">{day.asset}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="h-2 rounded-full overflow-hidden mb-5" style={{ background: 'rgba(var(--dh-accent-rgb), 0.12)' }}>
