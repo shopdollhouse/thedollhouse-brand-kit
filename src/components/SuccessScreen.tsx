@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
 import HeartIcon from './HeartIcon';
 import certificateBg from '@/assets/password-bg.jpg';
-import { cleanAnswer, strategicPlaceholder } from '@/lib/quiz-helpers';
+import { cleanAnswer, derive, strategicPlaceholder } from '@/lib/quiz-helpers';
 
 interface SuccessScreenProps {
   onClose?: () => void;
@@ -16,9 +16,10 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
   const brand = cleanAnswer(answers.brandName, strategicPlaceholder('brand'));
   const aesthetic = cleanAnswer(answers.aesthetic, strategicPlaceholder('aesthetic'));
   const product = cleanAnswer(answers.product, strategicPlaceholder('product'));
+  const mission = derive(answers).missionLine || strategicPlaceholder('mission');
   const certificateTitle = product || brand;
   const date = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
-  const socialHandle = '@thedollhouse_studio';
+  const socialHandle = '@shopdollhouse.co';
   const website = 'shopdollhouse.co';
 
   const handleShare = async () => {
@@ -117,7 +118,7 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
                 for completing a private 19-question brand blueprint for <span style={{ color: '#b96d67' }}>{brand}</span>.
               </p>
               <p className="mt-1.5 max-w-[390px] font-body text-[10px] leading-[1.45]" style={{ color: 'rgba(112,78,62,0.70)' }}>
-                Their custom launch file includes positioning, offer direction, pricing, content prompts, sales scripts, and a first-sale action plan for {certificateTitle}.
+                Their custom launch file is built around {certificateTitle}: {mission}
               </p>
 
               <div className="my-3 flex items-center justify-center gap-3">

@@ -496,7 +496,7 @@ export default function ResultsScreen() {
       ...answeredList,
       '',
       'Built with The Dollhouse Brand Studio',
-      'shopdollhouse.co | @thedollhouse_studio',
+      'shopdollhouse.co | @shopdollhouse.co',
     ].join('\n\n');
   }, [aesthetic, aiResults?.businessPlan?.mission, aiResults?.startingPrice, answers, brand, captionPack, customer, displayName, dmScripts, firstPlatform, firstSocial, listingCopy, missionLine, priceHint, product, questions, sevenDaySprint, staticScript, todayAction]);
   const filenameBase = (brand || product || displayName || 'dollhouse_blueprint').toString().replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '').toLowerCase() || 'dollhouse_blueprint';
@@ -1874,7 +1874,7 @@ export default function ResultsScreen() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
           {[
             { name: 'Brand Workbook', tag: 'Build It Yourself', desc: 'An interactive web app walking you through every foundational business decision.', price: '$47', was: '$261', href: 'https://stan.store/shopdollhouse/p/-build-a-real-brand-from-scratch', icon: 'book' },
-            { name: 'AI Prompt Kit', tag: '50+ Prompts', desc: 'Copy, content, strategy — prompts across 8 rooms, ready to customise and use instantly.', price: '$17', was: '', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-prompt-kit', icon: 'layers' },
+            { name: 'AI Prompt Kit', tag: '50+ Prompts', desc: 'Copy, content, strategy — prompts across 8 rooms, ready to customise and use instantly.', price: '$17', was: '', href: 'https://stan.store/shopdollhouse', icon: 'layers' },
           ].map((item, i) => (
             <a key={i} href={item.href} target="_blank" rel="noreferrer"
               className="no-underline rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_20px_56px_rgba(0,0,0,0.14)] flex flex-col group dh-premium-panel"
@@ -1905,7 +1905,7 @@ export default function ResultsScreen() {
         <div className="grid gap-5 mb-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
           {[
             { name: 'The Starter Suite', tag: 'Done For You · Premium', desc: `Your complete ${aesthetic.toLowerCase()} brand identity — strategy, visuals, voice — delivered ready to launch.`, price: '$497', was: '$540', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-brand-suite' },
-            { name: 'The Full House', tag: 'Done For You · Everything', desc: 'The ultimate done-for-you package — your brand, built for every platform you sell on.', price: '$997', was: '$1,530', href: 'https://stan.store/shopdollhouse/p/the-dollhouse-full-house' },
+            { name: 'The Full House', tag: 'Done For You · Everything', desc: 'The ultimate done-for-you package — your brand, built for every platform you sell on.', price: '$997', was: '$1,530', href: 'https://stan.store/shopdollhouse' },
           ].map((item, i) => (
             <a key={i} href={item.href} target="_blank" rel="noreferrer"
               className="no-underline rounded-3xl overflow-hidden relative transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_56px_rgba(0,0,0,0.22)]"
@@ -2014,15 +2014,15 @@ export default function ResultsScreen() {
               <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark no-underline font-medium inline-flex items-center gap-1.5">Learn more <span>→</span></a>
             </div>
 
-            {/* Etsy Shop Card */}
+            {/* Digital Shop Card */}
             <div className="p-6 rounded-2xl text-left dh-premium-panel transition-transform hover:-translate-y-1" style={{ background: 'rgba(200, 168, 119, 0.12)', border: '1px solid rgba(200, 168, 119, 0.25)' }}>
               <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto md:mx-0" style={{ background: 'rgba(200, 168, 119, 0.3)' }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgb(200, 168, 119)" strokeWidth="2" strokeLinecap="round"><path d="M6 9h12M6 9v8c0 1 .5 2 1.5 2h7c1 0 1.5-1 1.5-2V9M9 5h6v4H9z"/></svg>
               </div>
-              <h3 className="font-display text-[16px] text-dh-text mb-1">Etsy Shop</h3>
+              <h3 className="font-display text-[16px] text-dh-text mb-1">Digital Shop</h3>
               <p className="font-body text-[12px] text-dh-text-light mb-4">Interactive apps & resources</p>
               <p className="font-body text-[12px] text-dh-text-mid leading-[1.6] mb-4">Digital templates, checklists & planning tools</p>
-              <a href="https://www.etsy.com/shop/herDOLLHOUSE" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark no-underline font-medium inline-flex items-center gap-1.5">Learn more <span>→</span></a>
+              <a href="https://stan.store/shopdollhouse" target="_blank" rel="noreferrer" className="font-ui text-[10px] tracking-[2px] uppercase text-dh-accent-dark no-underline font-medium inline-flex items-center gap-1.5">Learn more <span>→</span></a>
             </div>
 
             {/* Stan Store Card */}
@@ -2098,14 +2098,15 @@ export default function ResultsScreen() {
             <p className="font-ui text-[12px] tracking-[5px] uppercase font-semibold mb-5">Certificate of Completion</p>
             <p className="font-display italic text-[34px] leading-none mb-4" style={{ color: '#ba7d78' }}>awarded to</p>
             <p className="font-display italic leading-none mb-8" style={{ color: '#b96d67', fontSize: 92 }}>{displayName}</p>
-            <p className="font-display italic text-[30px] leading-[1.5] mb-8" style={{ color: 'rgba(156,95,88,0.82)' }}>for completing a private 19-question brand blueprint for {brand || strategicPlaceholder('brand')}.</p>
+            <p className="font-display italic text-[30px] leading-[1.5] mb-4" style={{ color: 'rgba(156,95,88,0.82)' }}>for completing a private 19-question brand blueprint for {brand || strategicPlaceholder('brand')}.</p>
+            <p className="font-body text-[18px] leading-[1.5] mb-8" style={{ color: 'rgba(112,78,62,0.72)' }}>Mission: {missionLine}</p>
             <div className="grid grid-cols-2 gap-4 mb-10">
               {[aesthetic, product, '17 Rooms Complete', new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })].map(item => (
                 <div key={item} className="rounded-full px-5 py-4 font-ui text-[11px] tracking-[4px] uppercase font-semibold" style={{ border: '2px solid rgba(190,145,88,0.62)' }}>{item}</div>
               ))}
             </div>
             <p className="font-ui text-[12px] tracking-[5px] uppercase font-semibold">Built With The Dollhouse Brand Studio</p>
-            <p className="font-ui text-[11px] tracking-[3px] uppercase font-semibold mt-4">@thedollhouse_studio | shopdollhouse.co</p>
+            <p className="font-ui text-[11px] tracking-[3px] uppercase font-semibold mt-4">@shopdollhouse.co | shopdollhouse.co</p>
           </div>
         </div>
       </div>
