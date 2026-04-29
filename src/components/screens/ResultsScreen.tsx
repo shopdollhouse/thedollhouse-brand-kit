@@ -154,7 +154,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
         const label = lbl.split(' ').slice(1).join(' ');
         return (
           <button key={id} onClick={() => { playClick('soft'); scrollTo(id); }}
-            className={bb}
+            className={`${bb} ${activeRoom === id ? 'font-semibold' : ''}`}
             style={{
               padding: '8px 11px',
               background: activeRoom === id ? 'rgba(var(--dh-accent-rgb), 0.12)' : 'none',
