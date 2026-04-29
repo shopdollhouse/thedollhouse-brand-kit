@@ -140,14 +140,14 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const bb = 'group relative flex items-center gap-2 cursor-pointer rounded-xl mx-1.5 font-ui text-[8px] tracking-[1.6px] uppercase font-medium text-dh-text-light transition-colors hover:text-dh-accent-dark overflow-hidden';
+  const bb = 'group relative flex items-center gap-2.5 cursor-pointer rounded-[14px] mx-1.5 font-ui text-[9px] tracking-[1.9px] uppercase font-semibold text-dh-text-light transition-colors hover:text-dh-accent-dark overflow-hidden';
 
   return (
-    <div className="dh-left-results-rail dh-no-print fixed left-5 top-[76px] z-[550] hidden md:flex flex-col gap-1 rounded-[22px] py-3 px-1.5 shadow-[0_10px_42px_rgba(107,82,64,0.10)] overflow-y-auto overscroll-contain"
-      style={{ width: 142, maxHeight: 'calc(100vh - 104px)', background: 'rgba(255,250,244,0.76)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '1px solid rgba(var(--dh-accent-rgb),0.18)', scrollbarWidth: 'none' }}>
-      <div className="px-3 pt-1 pb-2">
-        <p className="font-ui text-[7px] tracking-[3px] uppercase text-dh-accent-dark font-medium">Rooms</p>
-        <div className="h-px mt-2" style={{ background: 'rgba(var(--dh-accent-rgb),0.18)' }} />
+    <div className="dh-left-results-rail dh-no-print fixed left-5 top-[74px] z-[550] hidden md:flex flex-col gap-1.5 rounded-[26px] py-4 px-2 shadow-[0_14px_48px_rgba(107,82,64,0.12)] overflow-y-auto overscroll-contain"
+      style={{ width: 168, maxHeight: 'calc(100vh - 100px)', background: 'rgba(255,250,244,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(var(--dh-accent-rgb),0.2)', scrollbarWidth: 'none' }}>
+      <div className="px-4 pt-1 pb-2">
+        <p className="font-ui text-[8px] tracking-[3.5px] uppercase text-dh-accent-dark font-semibold">Rooms</p>
+        <div className="h-px mt-3" style={{ background: 'rgba(var(--dh-accent-rgb),0.2)' }} />
       </div>
       {ROOMS.map(([id, lbl]) => {
         const num = lbl.split(' ')[0];
@@ -156,7 +156,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
           <button key={id} onClick={() => { playClick('soft'); scrollTo(id); }}
             className={bb}
             style={{
-              padding: '7px 9px',
+              padding: '8px 11px',
               background: activeRoom === id ? 'rgba(var(--dh-accent-rgb), 0.12)' : 'none',
               color: activeRoom === id ? 'var(--dh-accent-dark)' : undefined,
               border: `1px solid ${activeRoom === id ? 'rgba(var(--dh-accent-rgb),0.24)' : 'transparent'}`,
@@ -164,37 +164,37 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
             {/* Hover shimmer lines */}
             <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
             <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
-            <span className="font-display text-[12px] leading-none min-w-[18px] text-center">{num}</span>
+            <span className="font-display text-[13px] leading-none min-w-[22px] text-center">{num}</span>
             <span className="text-left whitespace-nowrap">{label}</span>
           </button>
         );
       })}
       <div className="h-px mx-2" style={{ background: 'rgba(var(--dh-accent-rgb), 0.15)' }} />
       <button onClick={(e) => { e.preventDefault(); playClick('soft'); document.getElementById('dh-about')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-        className={bb} style={{ padding: '7px 9px', background: 'none', border: '1px solid transparent' }}>
+        className={bb} style={{ padding: '8px 11px', background: 'none', border: '1px solid transparent' }}>
         <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
         <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         About
       </button>
       <button onClick={(e) => { e.preventDefault(); playClick('soft'); document.getElementById('dh-boutique')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-        className={bb} style={{ padding: '7px 9px', background: 'none', border: '1px solid transparent' }}>
+        className={bb} style={{ padding: '8px 11px', background: 'none', border: '1px solid transparent' }}>
         <span className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.35), transparent)', animation: 'loadingLine 2s ease-in-out infinite' }} />
         <span className="absolute inset-x-0 bottom-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(90deg, transparent, rgba(var(--dh-accent-rgb), 0.25), transparent)', animation: 'loadingLine 2.3s ease-in-out infinite', animationDelay: '0.4s' }} />
-        <span className="text-[11px] leading-none">♥</span>
+        <span className="text-[13px] leading-none min-w-[22px] text-center">♥</span>
         Shop
       </button>
       <div className="h-px mx-2" style={{ background: 'rgba(var(--dh-accent-rgb), 0.15)' }} />
       <button onClick={() => { playClick('soft'); onCelebrate(); }}
         className={bb}
-        style={{ padding: '8px 9px', background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none', borderRadius: '12px' }}>
-        <span className="text-[11px] leading-none">✨</span>
+        style={{ padding: '10px 11px', background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none', borderRadius: '14px' }}>
+        <span className="text-[13px] leading-none min-w-[22px] text-center">✨</span>
         Celebrate
       </button>
       <button onClick={onDownload} title="Download your PDF blueprint"
         className={bb}
-        style={{ padding: '7px 9px', background: 'none', color: 'var(--dh-text-light)', border: '1px solid transparent' }}>
-        <span className="text-[11px] leading-none">⬇</span>
+        style={{ padding: '8px 11px', background: 'none', color: 'var(--dh-text-light)', border: '1px solid transparent' }}>
+        <span className="text-[13px] leading-none min-w-[22px] text-center">⬇</span>
         Save
       </button>
     </div>
