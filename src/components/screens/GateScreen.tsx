@@ -12,7 +12,7 @@ export default function GateScreen() {
   const [pw, setPw] = useState('');
   const [show, setShow] = useState(false);
   const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState('Incorrect password — try again');
+  const [errMsg, setErrMsg] = useState('Incorrect access key — try again');
   const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState('Enter');
   const [unlocking, setUnlocking] = useState(false);
@@ -36,7 +36,7 @@ export default function GateScreen() {
       setTimeout(() => playChime(), 150);
       setUnlocking(true);
     } else {
-      setErrMsg('Incorrect password — try again');
+      setErrMsg('Incorrect access key — try again');
       setErr(true); setLoading(false); setLoadMsg('Enter');
     }
   };
@@ -77,7 +77,7 @@ export default function GateScreen() {
         {[
           [FileText, '17 Rooms'],
           [Sparkles, 'Custom Plan'],
-          [BadgeCheck, 'PDF Kit'],
+          [BadgeCheck, 'Portable Save'],
         ].map(([Icon, label]) => {
           const TileIcon = Icon as typeof FileText;
           return (
@@ -89,20 +89,20 @@ export default function GateScreen() {
         })}
       </div>
       <p className="font-body text-[12px] font-light leading-[1.7] text-center max-w-[300px] mx-auto mb-4" style={{ color: 'rgba(107,82,64,0.68)' }}>
-        Your password is in your purchase confirmation email. Questions?{' '}
+        Your access key is in your purchase confirmation email. Questions?{' '}
         <a href="https://shopdollhouse.co" target="_blank" rel="noreferrer" className="text-dh-accent-dark no-underline">shopdollhouse.co</a>
       </p>
 
-      {/* Password box */}
+      {/* Access key box */}
       <div className="text-center p-6 px-7 rounded-[20px] max-w-[380px] w-[90%] glass dh-premium-panel">
-        <p className="font-ui text-[11px] tracking-[4px] uppercase text-dh-accent-dark mb-3 font-medium">Enter your password</p>
+        <p className="font-ui text-[11px] tracking-[4px] uppercase text-dh-accent-dark mb-3 font-medium">Enter your access key</p>
         <div className="relative mb-1">
           <input
             type={show ? 'text' : 'password'}
             value={pw}
             onChange={e => setPw(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && go()}
-            placeholder="Password"
+            placeholder="Access Key"
             className="w-full py-3 px-4 pr-[42px] rounded-lg text-sm font-body tracking-[3px] text-center outline-none transition-colors"
             style={{
               border: `1.5px solid ${err ? '#c4604a' : 'var(--dh-glass-border)'}`,

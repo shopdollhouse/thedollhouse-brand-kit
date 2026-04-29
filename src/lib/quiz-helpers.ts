@@ -9,6 +9,29 @@ export function sanitize(str: string): string {
   return d.innerHTML;
 }
 
+export const SKIPPED_ANSWER = '__skip__';
+
+export function isBlankAnswer(value?: string | null): boolean {
+  return !value || !value.trim() || value === SKIPPED_ANSWER;
+}
+
+export function cleanAnswer(value: string | undefined | null, fallback = ''): string {
+  return isBlankAnswer(value) ? fallback : value!.trim();
+}
+
+export function strategicPlaceholder(field: 'brand' | 'mission' | 'goal' | 'details' | 'product' | 'customer' | 'aesthetic'): string {
+  const placeholders = {
+    brand: 'Working Title',
+    mission: 'Refining your core mission (strategic placeholder: empowering through intentional design).',
+    goal: 'Build a clear first-sale path and take one confident action today.',
+    details: 'Position this as a focused starter offer with one clear promise, one simple buying path, and one proof point.',
+    product: 'your signature starter offer',
+    customer: 'beginner-friendly buyers who value clarity, quality, and a beautiful experience',
+    aesthetic: 'Soft & feminine',
+  };
+  return placeholders[field];
+}
+
 // ── Safe JSON parsing with repair ──
 export function safeJSON(raw: string): any {
   const normalize = (s: string) => s.replace(/[\u0000-\u001F\u007F]/g, (c: string) => c === '\n' ? '\\n' : c === '\r' ? '\\r' : c === '\t' ? '\\t' : '');
@@ -491,18 +514,18 @@ export function applyThemePreset(p: ThemePreset | null) {
 }
 
 export function derive(a: Record<string, string>): DerivedData {
-  const vibe = a.vibe || '', sell = a.sellType || '', budget = a.budget || '';
-  const aesthetic = a.aesthetic || 'Warm & earthy';
-  const customer = a.customer || 'people who love quality';
-  const product = a.product || 'your product';
-  const productDetails = a.productDetails && a.productDetails !== '__skip__' ? a.productDetails : '';
-  const audience = a.audience || 'Starting from zero';
-  const currentStatus = a.currentStatus || 'Just an idea';
-  const successGoal = a.successGoal && a.successGoal !== '__skip__' ? a.successGoal : 'get clear enough to start';
-  const urgency = a.urgency || '';
-  const blocker = a.blocker || '';
-  const name = (a.firstName || '').split(' ')[0] || 'You';
-  const brand = a.brandName && a.brandName !== '__skip__' ? a.brandName : null;
+  const vibe = cleanAnswer(a.vibe), sell = cleanAnswer(a.sellType), budget = cleanAnswer(a.budget);
+  const aesthetic = cleanAnswer(a.aesthetic, strategicPlaceholder('aesthetic'));
+  const customer = cleanAnswer(a.customer, strategicPlaceholder('customer'));
+  const product = cleanAnswer(a.product, strategicPlaceholder('product'));
+  const productDetails = cleanAnswer(a.productDetails);
+  const audience = cleanAnswer(a.audience, 'Starting from zero');
+  const currentStatus = cleanAnswer(a.currentStatus, 'Just an idea');
+  const successGoal = cleanAnswer(a.successGoal, strategicPlaceholder('goal'));
+  const urgency = cleanAnswer(a.urgency);
+  const blocker = cleanAnswer(a.blocker);
+  const name = cleanAnswer(a.firstName, 'You').split(' ')[0] || 'You';
+  const brand = cleanAnswer(a.brandName) || null;
 
   const topPlatforms = derivePlatforms(vibe, sell, product);
   const social = deriveSocial(sell, vibe, product);

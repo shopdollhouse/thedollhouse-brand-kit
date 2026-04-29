@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuiz } from '@/context/QuizContext';
-import { derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins } from '@/lib/quiz-helpers';
+import { cleanAnswer, derive, generateNames, applyThemePreset, getPricingStrategy, type PricingStrategy, getMonthlyRevenueTargets, getWeeklyContentCalendar, getMonthlyDecisionTree, getProductExplanation, getPlatformContext, getBlockerAdaptedRotation, getPrioritizedQuickWins, strategicPlaceholder } from '@/lib/quiz-helpers';
 import { saveLead } from '@/lib/lead-storage';
 import RoomCard from '../results/RoomCard';
 import SummaryCard from '../results/SummaryCard';
@@ -9,7 +9,7 @@ import BrandingRoom from '../results/BrandingRoom';
 import MarketingRoom from '../results/MarketingRoom';
 import BusinessPlanRoom from '../results/BusinessPlanRoom';
 import { playClick, playRoomUnlock, toggleAmbientTrack, setAmbientVolume } from '@/lib/sounds';
-import { BadgeCheck, CheckCircle2, Clock3, Copy, AlertCircle, Download, FileText, ListChecks, Search, Target } from 'lucide-react';
+import { BadgeCheck, CheckCircle2, Clock3, Copy, AlertCircle, Download, FileText, ListChecks, Search, Target, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import GoldConfetti from '../GoldConfetti';
 import dollhouseCoverBg from '@/assets/password-bg.jpg';
@@ -63,10 +63,10 @@ function StickyNav({ onReset, onDownload, onCelebrate }: { onReset: () => void; 
             style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
             ✨ Celebrate
           </button>
-          <button onClick={onDownload} title="PDF download is coming soon"
+          <button onClick={onDownload} title="Download your PDF blueprint"
             className="font-ui text-[9px] tracking-[2px] uppercase rounded-full py-1 px-3 cursor-pointer transition-all hover:opacity-80"
             style={{ background: 'none', color: 'var(--dh-text-light)', border: '1px solid rgba(var(--dh-accent-rgb), 0.25)' }}>
-            ⬇ Soon
+            ⬇ PDF
           </button>
           <button onClick={() => { playClick('back'); onReset(); }}
             className="font-ui text-[9px] tracking-[2px] uppercase text-dh-text-light rounded-full py-1 px-3 cursor-pointer"
@@ -191,7 +191,7 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
         <span className="text-[11px] leading-none">✨</span>
         Celebrate
       </button>
-      <button onClick={onDownload} title="PDF download is coming soon"
+      <button onClick={onDownload} title="Download your PDF blueprint"
         className={bb}
         style={{ padding: '7px 9px', background: 'none', color: 'var(--dh-text-light)', border: '1px solid transparent' }}>
         <span className="text-[11px] leading-none">⬇</span>
@@ -201,8 +201,17 @@ function LeftSidebar({ activeRoom, onDownload, onCelebrate }: { activeRoom: stri
   );
 }
 
+function ReasonTag({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="dh-no-print mb-3 inline-flex max-w-full items-start gap-2 rounded-full px-4 py-2 font-body text-[11px] leading-[1.5] text-dh-text-light" style={{ background: 'rgba(var(--dh-accent-rgb),0.07)', border: '1px solid rgba(var(--dh-accent-rgb),0.18)' }}>
+      <span className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark font-medium whitespace-nowrap">Because you said</span>
+      <span>{children}</span>
+    </div>
+  );
+}
+
 export default function ResultsScreen() {
-  const { answers, aiResults, resetAll, setScreen, toggleTheme } = useQuiz();
+  const { answers, aiResults, resetAll, setScreen, toggleTheme, questions } = useQuiz();
   const d = derive(answers);
   const { topPlatforms, social, priceHint, priceEntry, priceCore, pricePrem, mission, brandId, blockerNote, pillar2, launchPlan, w1Static, w2Static, staticScript, todayAction, promise, name, brand, aesthetic, customer, product, productDetails, audience, currentStatus, successGoal, urgency, vibe, themePreset, tierLabels, marketplaceIntro, productStrategy, monthPlans, executiveSummary, missionLine, setupStageNote, successGoalNote, blocker, budget, executionContent } = d;
 
@@ -222,13 +231,27 @@ export default function ResultsScreen() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showConfetti, setShowConfetti] = useState(true);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
-  const [checkedLaunchSteps, setCheckedLaunchSteps] = useState<Record<string, boolean>>({});
+  const [checkedLaunchSteps, setCheckedLaunchSteps] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem('dh_first_sale_action_desk') || '{}'); }
+    catch { return {}; }
+  });
   const unlockedRooms = useRef<Set<string>>(new Set());
 
   const copyScript = (text: string) => {
     navigator.clipboard?.writeText(text);
     playClick('soft');
     toast('Script copied to your brand board!', { duration: 2000 });
+  };
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   };
 
   const fs = aiResults?.firstSale;
@@ -329,6 +352,17 @@ export default function ResultsScreen() {
     'Collect one proof point, review, screenshot, or piece of feedback',
   ];
   const completedLaunchSteps = progressItems.filter(item => checkedLaunchSteps[item]).length;
+  const actionDeskItems = [
+    { id: 'price', title: 'Set your starter price', detail: `Use ${priceCore} as the first core offer anchor, then keep one lower entry option for hesitant buyers.` },
+    { id: 'platform', title: `Open ${firstPlatform}`, detail: `Create or clean up the storefront where ${customer.toLowerCase()} can buy without asking extra questions.` },
+    { id: 'title', title: 'Name the first offer', detail: beginnerOffer.title },
+    { id: 'page', title: 'Publish the sales page', detail: 'Use the Sales Page Builder room. Do not wait for perfect photos if the buying path is clear.' },
+    { id: 'post', title: `Post on ${firstSocial}`, detail: firstCaption },
+    { id: 'dm', title: 'Send 5 warm DMs', detail: staticScript },
+    { id: 'followup', title: 'Follow up once', detail: `Send the follow-up message within 24-48 hours to anyone who clicks, comments, replies, or says "maybe."` },
+    { id: 'proof', title: 'Collect one proof point', detail: 'Ask your first buyer for one sentence, screenshot, reaction, photo, or result you can reuse.' },
+  ];
+  const completedActionDesk = actionDeskItems.filter(item => checkedLaunchSteps[item.id]).length;
   const noSalesDiagnostics = [
     ['Views but no clicks', 'Your photo, headline, or first line is not creating curiosity. Make the benefit clearer and show the product in use.'],
     ['Clicks but no sales', 'Your offer page is not building enough trust. Add what is included, who it is for, delivery timing, FAQ, and one proof point.'],
@@ -348,16 +382,112 @@ export default function ResultsScreen() {
       playClick('soft');
     }
   };
-  const showDownloadComingSoon = () => {
-    playClick('soft');
-    toast('PDF download is coming soon.', {
-      description: 'We are refining this export so your saved blueprint looks as polished as the app.',
-      duration: 4200,
-    });
-  };
   const triggerDownload = () => {
-    showDownloadComingSoon();
+    downloadPDF();
   };
+  const buildPortableBlueprint = useCallback(() => {
+    const answeredList = questions.map((q, index) => {
+      const value = cleanAnswer(answers[q.id], q.type === 'text-optional' ? 'Strategic placeholder selected' : 'Not answered yet');
+      return `${String(index + 1).padStart(2, '0')}. ${q.text}\n${value}`;
+    });
+
+    return [
+      'THE DOLLHOUSE BRAND BLUEPRINT',
+      'Portable Notes Version',
+      '',
+      `Founder: ${displayName}`,
+      `Brand: ${brand || strategicPlaceholder('brand')}`,
+      `Offer: ${product}`,
+      `Aesthetic: ${aesthetic}`,
+      `Primary customer: ${customer}`,
+      `Best platform: ${firstPlatform}`,
+      `Best social channel: ${firstSocial}`,
+      `Starting price direction: ${aiResults?.startingPrice || priceHint}`,
+      '',
+      'MISSION',
+      aiResults?.businessPlan?.mission || missionLine || strategicPlaceholder('mission'),
+      '',
+      'FIRST 24 HOURS',
+      `1. ${todayAction}`,
+      '2. Publish one clear listing or booking page.',
+      '3. Send five personal messages using your First Sale script.',
+      '',
+      'FIRST SALE SCRIPT',
+      staticScript,
+      '',
+      'YOUR 19 QUIZ SIGNALS',
+      ...answeredList,
+      '',
+      'Built with The Dollhouse Brand Studio',
+      'shopdollhouse.co | @thedollhouse_studio',
+    ].join('\n\n');
+  }, [aesthetic, aiResults?.businessPlan?.mission, aiResults?.startingPrice, answers, brand, customer, displayName, firstPlatform, firstSocial, missionLine, priceHint, product, questions, staticScript, todayAction]);
+  const filenameBase = (brand || product || displayName || 'dollhouse_blueprint').toString().replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '').toLowerCase() || 'dollhouse_blueprint';
+  const copyPortableBlueprint = useCallback(async () => {
+    playClick('soft');
+    try {
+      await navigator.clipboard.writeText(buildPortableBlueprint());
+      toast('Blueprint copied to your clipboard.', {
+        description: 'Paste it into Notes, Google Docs, Notion, or your launch planner.',
+        duration: 3600,
+      });
+    } catch {
+      toast('Copy was blocked by your browser.', {
+        description: 'Try selecting the room text manually, or enable clipboard permissions.',
+        duration: 4200,
+      });
+    }
+  }, [buildPortableBlueprint]);
+  const downloadMarkdown = useCallback(() => {
+    playClick('soft');
+    const markdown = buildPortableBlueprint()
+      .split('\n\n')
+      .map((block, index) => index === 0 ? `# ${block}` : block)
+      .join('\n\n');
+    downloadBlob(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }), `${filenameBase}_brand_blueprint.md`);
+    toast('Markdown blueprint downloaded.', { description: 'You can open it in Notes, Notion, Google Docs, or any text editor.', duration: 2800 });
+  }, [buildPortableBlueprint, filenameBase]);
+  const downloadPDF = useCallback(async () => {
+    playClick('soft');
+    toast('Preparing your PDF...', { duration: 1800 });
+    try {
+      const { generateBlueprintPDF, generateResultsPagePDF } = await import('@/lib/pdf-generator');
+      const pdfData = {
+        name: displayName,
+        brand: brand || strategicPlaceholder('brand'),
+        product,
+        aesthetic,
+        mission: aiResults?.businessPlan?.mission || missionLine,
+        platforms: aiResults?.recommendedPlatforms || topPlatforms,
+        social,
+        priceHint: aiResults?.startingPrice || priceHint,
+        colours: (br?.colours?.length ? br.colours : brandId.colours).map((c: any) => ({ name: c.name || c.n, hex: c.hex || c.c, use: c.use })),
+        aiResults,
+        answers,
+        d,
+      };
+      const blob = await generateResultsPagePDF({ name: displayName, brand: brand || product }).catch(() => generateBlueprintPDF(pdfData));
+      downloadBlob(blob, `${filenameBase}_brand_blueprint.pdf`);
+      toast('PDF downloaded.', { description: 'Your complete blueprint is ready to keep.', duration: 2800 });
+    } catch {
+      toast('PDF export needs one more try.', { description: 'Use Markdown or Copy Blueprint while the browser catches up.', duration: 4200 });
+    }
+  }, [aesthetic, aiResults, answers, br?.colours, brand, brandId.colours, d, displayName, filenameBase, missionLine, priceHint, product, social, topPlatforms]);
+  const downloadCertificatePNG = useCallback(async () => {
+    playClick('soft');
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      await document.fonts?.ready;
+      const node = document.getElementById('dh-certificate-png-source');
+      if (!node) throw new Error('Certificate source missing');
+      const canvas = await html2canvas(node, { backgroundColor: '#f4d7ce', scale: 2, useCORS: true, logging: false });
+      const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNG failed')), 'image/png'));
+      downloadBlob(blob, `${filenameBase}_completion_certificate.png`);
+      toast('Certificate PNG downloaded.', { description: 'Perfect for sharing your completion moment.', duration: 3000 });
+    } catch {
+      toast('Certificate image could not export.', { description: 'Open Celebrate and use Share My Achievement as a backup.', duration: 4200 });
+    }
+  }, [filenameBase]);
 
   // Track active room + scroll progress
   useEffect(() => {
@@ -422,6 +552,10 @@ export default function ResultsScreen() {
     }
   }, [showConfetti]);
 
+  useEffect(() => {
+    try { localStorage.setItem('dh_first_sale_action_desk', JSON.stringify(checkedLaunchSteps)); } catch {}
+  }, [checkedLaunchSteps]);
+
   // Keyboard shortcuts: M = mode, S = sound, D = download
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -433,11 +567,11 @@ export default function ResultsScreen() {
         const newTrack = toggleAmbientTrack(0, soundTrack, 0.45);
         setSoundTrack(newTrack);
       }
-      if (key === 'd') { showDownloadComingSoon(); }
+      if (key === 'd') { downloadPDF(); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [toggleTheme, soundTrack]);
+  }, [toggleTheme, soundTrack, downloadPDF]);
 
   // Email capture — local-only save for the zero-server build.
   const handleEmailSubmit = async () => {
@@ -457,8 +591,8 @@ export default function ResultsScreen() {
     ['Can I retake the quiz?', 'Yes — hit Start Over at the top of this page to reset everything and begin again.'],
     ['Is this actually personalised to me?', 'Yes. The blueprint uses your 19 answers, including custom offer details, current stage, success goal, customer, budget, time, and selling style. The launch kit then adapts those details into actions, scripts, pricing, and troubleshooting.'],
     ['What changed in this version?', 'The blueprint now includes 17 rooms: core strategy rooms plus a first-48-hours plan, sales page builder, launch asset pack, beginner tracker, and no-sales troubleshooter.'],
-    ['Does this need a server or login?', 'No. The app is designed as a zero-server brand studio: password access, quiz answers, blueprint state, saved email leads, and the PDF flow all run in the browser.'],
-    ['How do I save my blueprint?', 'The polished PDF export is temporarily paused while we refine the design. For now, you can copy scripts and notes directly from each room, and the save feature will return soon.'],
+    ['Does this need a server or login?', 'No. The app is designed as a zero-server brand studio: access key entry, quiz answers, blueprint state, saved email leads, and portable save tools all run in the browser.'],
+    ['How do I save my blueprint?', 'Use Copy Blueprint to Notes for a clean portable version you can paste into Notes, Google Docs, Notion, or your launch planner. The polished PDF export is being refined and will return soon.'],
     ['I have a question — who do I contact?', 'Head to shopdollhouse.co and reach out from there. We read everything.'],
   ];
 
@@ -688,11 +822,62 @@ export default function ResultsScreen() {
           <div className="rounded-3xl p-7 text-center relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #1e0f09 0%, #2d1810 52%, #1a0e08 100%)', border: '1px solid rgba(196,168,154,0.18)' }}>
             <div className="absolute top-0 left-[12%] right-[12%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(196,168,154,0.45), transparent)' }} />
             <Download size={22} className="mx-auto mb-4" style={{ color: 'rgba(196,168,154,0.75)' }} />
-            <p className="font-ui text-[8px] tracking-[4px] uppercase mb-2 font-medium" style={{ color: 'rgba(196,168,154,0.48)' }}>Keep Your File</p>
-            <p className="font-display italic text-[21px] leading-[1.35] mb-4" style={{ color: 'rgba(255,255,255,0.92)' }}>Your polished PDF export is almost ready.</p>
-            <button onClick={triggerDownload} title="PDF download is coming soon" className="dh-snappy rounded-full py-3 px-6 font-ui text-[9px] tracking-[3px] uppercase cursor-pointer" style={{ background: 'rgba(255,255,255,0.9)', color: '#1e0f09', border: 'none' }}>
-              Coming Soon
-            </button>
+            <p className="font-ui text-[8px] tracking-[4px] uppercase mb-2 font-medium" style={{ color: 'rgba(196,168,154,0.48)' }}>Export Suite</p>
+            <p className="font-display italic text-[21px] leading-[1.35] mb-4" style={{ color: 'rgba(255,255,255,0.92)' }}>Keep it, paste it, share it.</p>
+            <div className="grid gap-2">
+              <button onClick={downloadPDF} className="dh-snappy rounded-full py-3 px-5 font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'rgba(255,255,255,0.9)', color: '#1e0f09', border: 'none' }}>
+                Download PDF
+              </button>
+              <button onClick={downloadMarkdown} className="dh-snappy rounded-full py-3 px-5 font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'rgba(196,168,154,0.14)', color: 'rgba(255,255,255,0.86)', border: '1px solid rgba(196,168,154,0.28)' }}>
+                Markdown File
+              </button>
+              <button onClick={downloadCertificatePNG} className="dh-snappy rounded-full py-3 px-5 font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'rgba(196,168,154,0.08)', color: 'rgba(255,255,255,0.78)', border: '1px solid rgba(196,168,154,0.22)' }}>
+                Certificate PNG
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* First-Sale Action Desk */}
+        <div className="dh-no-print mb-9 rounded-[28px] overflow-hidden dh-premium-panel" style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.42), rgba(var(--dh-accent-rgb),0.10))', border: '1px solid rgba(var(--dh-accent-rgb),0.26)' }}>
+          <div className="p-7" style={{ borderBottom: '1px solid rgba(var(--dh-accent-rgb),0.18)' }}>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-medium">First-Sale Action Desk</p>
+                <p className="font-display italic text-[26px] leading-[1.15]" style={{ color: 'var(--dh-text)' }}>Your launch tasks are saved in this browser.</p>
+              </div>
+              <div className="rounded-full px-5 py-2 font-ui text-[9px] tracking-[3px] uppercase text-dh-accent-dark font-medium" style={{ background: 'rgba(var(--dh-accent-rgb),0.09)', border: '1px solid rgba(var(--dh-accent-rgb),0.22)' }}>
+                {completedActionDesk}/{actionDeskItems.length} Complete
+              </div>
+            </div>
+            <div className="mt-5 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--dh-accent-rgb),0.13)' }}>
+              <div className="h-full transition-all duration-500" style={{ width: `${(completedActionDesk / actionDeskItems.length) * 100}%`, background: 'linear-gradient(90deg, var(--dh-accent), var(--dh-accent-dark))' }} />
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3 p-5">
+            {actionDeskItems.map((item, i) => {
+              const checked = Boolean(checkedLaunchSteps[item.id]);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    playClick('soft');
+                    setCheckedLaunchSteps(prev => ({ ...prev, [item.id]: !prev[item.id] }));
+                  }}
+                  className="text-left rounded-2xl p-4 cursor-pointer transition-all hover:-translate-y-0.5"
+                  style={{ background: checked ? 'rgba(var(--dh-accent-rgb),0.13)' : 'rgba(255,255,255,0.26)', border: `1px solid ${checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb),0.20)'}` }}
+                >
+                  <div className="flex gap-3 items-start">
+                    <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0" style={{ color: checked ? 'var(--dh-accent-dark)' : 'rgba(var(--dh-accent-rgb),0.34)' }} />
+                    <div>
+                      <p className="font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark mb-1 font-medium">Task {String(i + 1).padStart(2, '0')}</p>
+                      <p className="font-display italic text-[17px] leading-[1.25] mb-1" style={{ color: 'var(--dh-text)' }}>{item.title}</p>
+                      <p className="font-body text-[12px] leading-[1.6] text-dh-text-mid font-light">{item.detail}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -706,6 +891,7 @@ export default function ResultsScreen() {
         {/* Room 01 - Front Door */}
         <div data-room-id="r01" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">01 — The Front Door<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>{brand ? `you already had a brand name, we treated ${brand} like the front door.` : `you skipped the brand name, we created working titles instead of leaving this blank.`}</ReasonTag>
           {brand ? (
             <p className="font-display italic text-center tracking-[6px] my-4" style={{ fontSize: 'clamp(26px, 5vw, 50px)', color: 'var(--dh-text)' }}>{brand}</p>
           ) : (
@@ -758,6 +944,7 @@ export default function ResultsScreen() {
         {/* Room 02 - Marketplace */}
         <div data-room-id="r02" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">02 — The Marketplace Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>you chose {answers.sellType || 'a flexible selling style'} with a {budget || 'lean'} budget, so we prioritized low-friction places to get visible fast.</ReasonTag>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">{marketplaceIntro}</p>
           <div className="flex flex-wrap gap-2 mb-5">
             {(aiResults?.recommendedPlatforms || topPlatforms).map((p, i) => (
@@ -795,6 +982,7 @@ export default function ResultsScreen() {
         {/* Room 03 - Product */}
         <div data-room-id="r03" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">03 — The Product Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>you told us you sell {product}, so this room turns it into one beginner-safe offer instead of a vague idea.</ReasonTag>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {aiResults?.productRecommendation || `Your product is ${product}. Based on your answers — your budget, your audience, your time — this is the right thing to build first.`}
           </p>
@@ -842,6 +1030,7 @@ export default function ResultsScreen() {
         {/* Room 04 - Money */}
         <div data-room-id="r04" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">04 — The Money Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>your budget was {budget || 'not locked yet'}, so pricing starts with a realistic first-sale target before scaling.</ReasonTag>
           {/* Dynamic Pricing Strategy */}
           {(() => {
             const pricingStrategy = getPricingStrategy(vibe, answers.budget || '', product, customer);
@@ -906,6 +1095,7 @@ export default function ResultsScreen() {
         {/* Room 05 - Social */}
         <div data-room-id="r05" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">05 — The Social Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>your audience is {audience.toLowerCase()}, so the social plan starts with trust-building before heavy selling.</ReasonTag>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">
             {vibe === 'Digital products'
               ? `${customer} discover digital products through social proof and content. Your focus: high-conversion landing pages, lead magnets, and content that builds trust before the click.`
@@ -990,6 +1180,7 @@ export default function ResultsScreen() {
         {/* Room 05b - Foundation (Platform Setup) */}
         <div data-room-id="r05b" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">05b — The Foundation Room<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>you need a checkout path before you need a perfect brand, so setup is intentionally simple.</ReasonTag>
           <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-4">These are the exact steps to get {name} live on {topPlatforms.join(' and ')}. Do one platform fully before touching the second.</p>
 
           {/* Time expectation + budget note */}
@@ -1032,6 +1223,7 @@ export default function ResultsScreen() {
         {/* Room 07 - Content Studio */}
         <div data-room-id="r07" className="dh-reveal glass dh-premium-panel rounded-3xl p-[52px_56px] mb-7">
           <p className="font-ui text-[10px] tracking-[4px] uppercase text-dh-accent-dark mb-3.5 font-medium flex items-center gap-3">07 — The Content Studio<span className="flex-1 h-px" style={{ background: 'rgba(var(--dh-accent-rgb), 0.25)' }} /></p>
+          <ReasonTag>you can commit {answers.time || 'a realistic amount of'} time weekly, so the content plan matches your actual capacity.</ReasonTag>
           {answers.time === 'Under 5 hours' ? (
             <>
               <p className="font-display italic text-[17px] leading-[1.85] text-dh-text-mid mb-5">With limited time, focus on ONE pillar that works for your situation. Rotate it weekly and repeat.</p>
@@ -1167,7 +1359,7 @@ export default function ResultsScreen() {
 
         {/* Room 12 - Branding */}
         <div data-room-id="r12" className="dh-reveal">
-          <BrandingRoom aiResults={aiResults} brandId={brandId} product={product} customer={customer} aesthetic={aesthetic} />
+          <BrandingRoom aiResults={aiResults} brandId={brandId} product={product} customer={customer} aesthetic={aesthetic} brand={brand} priceHint={aiResults?.startingPrice || priceHint} firstPlatform={firstPlatform} />
         </div>
 
         {/* Execution Kit divider */}
@@ -1375,7 +1567,7 @@ export default function ResultsScreen() {
             {[
               { val: '17', label: 'Blueprint Rooms' },
               { val: '19', label: 'Quiz Signals' },
-              { val: 'PDF', label: 'Downloadable File' },
+              { val: 'Copy', label: 'Portable File' },
             ].map((s, i) => (
               <div key={i} className="flex-1 text-center" style={ i > 0 ? { borderLeft: '1px solid rgba(196,168,154,0.2)' } : {}}>
                 <p className="font-display italic text-[24px] mb-1" style={{ color: 'var(--dh-text)' }}>{s.val}</p>
@@ -1539,11 +1731,28 @@ export default function ResultsScreen() {
           <div className="dh-no-print rounded-3xl p-9 text-center mb-7 glass relative overflow-hidden">
             <div className="absolute top-0 left-[14%] right-[14%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(var(--dh-accent-rgb),0.42), transparent)' }} />
             <Download size={22} className="mx-auto mb-4 text-dh-accent-dark" />
-            <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-semibold">PDF Download</p>
-            <p className="font-display italic text-[22px] text-dh mb-3">Available soon</p>
+            <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-2 font-semibold">Export Suite</p>
+            <p className="font-display italic text-[22px] text-dh mb-3">Download the whole blueprint, your notes file, or your certificate.</p>
             <p className="font-body text-[13px] leading-[1.8] text-dh-text-light max-w-[520px] mx-auto">
-              We are refining the export experience so your saved blueprint is complete, beautiful, and share-ready. This feature will be available soon.
+              Your work should never live only in a browser tab. Save the polished PDF, keep a Markdown backup, copy the portable version, or download a share-ready completion certificate.
             </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {[
+                [Download, 'Download PDF', 'Complete visual blueprint', downloadPDF],
+                [FileText, 'Markdown File', 'Portable editable backup', downloadMarkdown],
+                [Copy, 'Copy to Notes', 'Paste anywhere instantly', copyPortableBlueprint],
+                [ImageIcon, 'Certificate PNG', 'Share your completion', downloadCertificatePNG],
+              ].map(([Icon, title, desc, action]) => {
+                const TileIcon = Icon as typeof Download;
+                return (
+                  <button key={title as string} onClick={action as () => void} className="rounded-2xl p-4 text-left cursor-pointer transition-all hover:-translate-y-0.5" style={{ background: 'rgba(var(--dh-accent-rgb),0.07)', border: '1px solid rgba(var(--dh-accent-rgb),0.23)' }}>
+                    <TileIcon size={16} className="text-dh-accent-dark mb-3" />
+                    <p className="font-ui text-[8px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{title as string}</p>
+                    <p className="font-body text-[11px] text-dh-text-light mt-1">{desc as string}</p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -1662,6 +1871,42 @@ export default function ResultsScreen() {
         onConfirm={confirmReset}
         onCancel={() => setShowResetConfirm(false)}
       />
+
+      <div className="fixed left-[-9999px] top-0 pointer-events-none" aria-hidden="true">
+        <div
+          id="dh-certificate-png-source"
+          className="relative overflow-hidden"
+          style={{
+            width: 1400,
+            height: 1000,
+            backgroundColor: '#f8e3dc',
+            backgroundImage: `url(${dollhouseCoverBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+            borderRadius: 34,
+            border: '1px solid rgba(195,153,98,0.42)',
+            color: '#9c6b3d',
+          }}
+        >
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(255,246,240,0.02) 0%, rgba(255,246,240,0.10) 42%, rgba(255,246,240,0.68) 66%, rgba(255,246,240,0.92) 100%)' }} />
+          <div className="absolute inset-8 rounded-[28px]" style={{ border: '1px solid rgba(196,151,91,0.38)' }} />
+          <div className="absolute right-[90px] top-[90px] w-[560px] text-center">
+            <div className="mb-8 flex justify-center"><DollhouseMark size={54} /></div>
+            <p className="font-ui text-[14px] tracking-[8px] uppercase font-semibold mb-8">The Dollhouse</p>
+            <p className="font-ui text-[12px] tracking-[5px] uppercase font-semibold mb-5">Certificate of Completion</p>
+            <p className="font-display italic text-[34px] leading-none mb-4" style={{ color: '#ba7d78' }}>awarded to</p>
+            <p className="font-display italic leading-none mb-8" style={{ color: '#b96d67', fontSize: 92 }}>{displayName}</p>
+            <p className="font-display italic text-[30px] leading-[1.5] mb-8" style={{ color: 'rgba(156,95,88,0.82)' }}>for completing a private 19-question brand blueprint for {brand || strategicPlaceholder('brand')}.</p>
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              {[aesthetic, product, '17 Rooms Complete', new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })].map(item => (
+                <div key={item} className="rounded-full px-5 py-4 font-ui text-[11px] tracking-[4px] uppercase font-semibold" style={{ border: '2px solid rgba(190,145,88,0.62)' }}>{item}</div>
+              ))}
+            </div>
+            <p className="font-ui text-[12px] tracking-[5px] uppercase font-semibold">Built With The Dollhouse Brand Studio</p>
+            <p className="font-ui text-[11px] tracking-[3px] uppercase font-semibold mt-4">@thedollhouse_studio | shopdollhouse.co</p>
+          </div>
+        </div>
+      </div>
 
       {/* Success Screen Overlay */}
       {showSuccessScreen && (

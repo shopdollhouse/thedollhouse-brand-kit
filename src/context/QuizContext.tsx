@@ -93,7 +93,7 @@ const QUESTIONS: Question[] = [
   { id: "firstName", type: "text", text: "First, what's your name?", placeholder: "e.g. Jasmine" },
   { id: "brandName", type: "text-optional", text: "Do you have a brand name in mind?", placeholder: "e.g. The Wild Bloom Co.", skipLabel: "I don't have one yet" },
   { id: "product", type: "text", text: "What do you make, sell, or offer?", placeholder: "e.g. handmade candles, face painting, digital planners..." },
-  { id: "productDetails", type: "text-optional", text: "What should we know about this offer so the blueprint feels specific?", placeholder: "e.g. low-ticket sticker packs for craft fair girls, luxury bridal face painting, Canva templates for salon owners...", skipLabel: "Nothing else yet" },
+  { id: "productDetails", type: "text-optional", text: "Tell us one detail about what you sell so your plan feels custom.", placeholder: "e.g. sticker packs under $10, bridal face painting, Canva templates for salon owners, handmade candles for gifts...", skipLabel: "I'm not sure yet" },
   { id: "customer", type: "choice", text: "Who is your ideal customer?", options: ["Busy mums & women juggling everything", "Young women building their first brand", "Creative women who value aesthetics", "Men growing a side business or brand", "Small business owners & entrepreneurs", "People who love quality & beautiful things"], allowOther: true, otherPlaceholder: "e.g. lash techs who want prettier client forms" },
   { id: "vibe", type: "choice", text: "What best describes your business type?", options: ["Handmade / Physical", "Digital products", "Service / Events", "Curated / Resale"], allowOther: true, otherPlaceholder: "e.g. coaching, rentals, subscription box, local classes" },
   { id: "aesthetic", type: "choice", text: "What's the feeling you want your brand to give off?", options: ["Soft & feminine", "Bold & editorial", "Clean & minimal", "Warm & earthy", "Playful & colourful"], allowOther: true, otherPlaceholder: "e.g. luxury goth, Y2K glam, cozy maximalist" },
@@ -103,7 +103,7 @@ const QUESTIONS: Question[] = [
   { id: "time", type: "choice", text: "How much time per week can you commit?", options: ["Under 5 hours", "5–10 hours", "10+ hours"] },
   { id: "budget", type: "choice", text: "What is your starting budget?", options: ["Under $50", "$50–$200", "$200+"] },
   { id: "blocker", type: "choice", text: "What's your biggest blocker right now?", options: ["Not sure what to make or sell", "Don't know how to market", "Scared nobody will buy", "I just need to start"] },
-  { id: "successGoal", type: "text-optional", text: "What would make this blueprint a win for you?", placeholder: "e.g. my first sale this week, a better Stan Store page, knowing what to post, pricing my offer...", skipLabel: "Just help me start" },
+  { id: "successGoal", type: "text-optional", text: "What do you want help with most by the end of this blueprint?", placeholder: "e.g. get my first sale, choose my price, know what to post, fix my Stan Store page, pick the right product...", skipLabel: "Just help me start" },
   { id: "urgency", type: "choice", text: "How quickly do you need to make money?", options: ["This week", "This month", "No rush"] },
   { id: "experience", type: "choice", text: "Have you sold anything before?", options: ["Never", "I've tried but didn't get far", "Yes, some experience"] },
   { id: "shipping", type: "choice", text: "Are you comfortable with shipping products?", options: ["Yes", "No", "Maybe — I'd like to learn"] },
@@ -124,7 +124,7 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   // Restore from localStorage
   const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
     try {
-      const unlocked = sessionStorage.getItem('dh_access_verified');
+      const unlocked = sessionStorage.getItem('dh_access_verified') || localStorage.getItem(LS_UNLOCKED);
       if (!unlocked) return 'gate';
       const saved = localStorage.getItem(LS_SCREEN) as ScreenId | null;
       // Don't restore loading screen — go to results or questions
@@ -139,7 +139,10 @@ export function QuizProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [currentQuestion, setCurrentQuestionState] = useState(() => {
-    try { return parseInt(localStorage.getItem(LS_QUESTION) || '0') || 0; }
+    try {
+      const saved = parseInt(localStorage.getItem(LS_QUESTION) || '0') || 0;
+      return Math.max(0, Math.min(saved, QUESTIONS.length - 1));
+    }
     catch { return 0; }
   });
 

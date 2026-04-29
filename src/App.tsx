@@ -13,6 +13,7 @@ import { Toaster } from 'sonner';
 import { playClick, toggleAmbientTrack, setAmbientVolume, pauseAmbient } from '@/lib/sounds';
 import { useState, useRef } from 'react';
 import passwordBg from '@/assets/password-bg.jpg';
+import { cleanAnswer, isBlankAnswer } from '@/lib/quiz-helpers';
 
 function Sidebar() {
   const { theme, toggleTheme, showStats, setShowStats } = useQuiz();
@@ -142,7 +143,7 @@ function AppContent() {
     return () => window.removeEventListener('keydown', h);
   }, [showStats, toggleTheme, setShowStats]);
 
-  const answered = Object.keys(answers).filter(k => answers[k] && answers[k] !== '__skip__').length;
+  const answered = Object.keys(answers).filter(k => !isBlankAnswer(answers[k])).length;
 
   return (
     <div
@@ -233,15 +234,15 @@ function AppContent() {
 
 function StatsPanel({ onClose }: { onClose: () => void }) {
   const { answers, questions, currentQuestion, currentScreen, theme } = useQuiz();
-  const answered = Object.keys(answers).filter(k => answers[k] && answers[k] !== '__skip__').length;
-  const product = answers.product || '—';
-  const aesthetic = answers.aesthetic || '—';
-  const customer = answers.customer || '—';
-  const vibe = answers.vibe || '—';
-  const budget = answers.budget || '—';
-  const time = answers.time || '—';
-  const status = answers.currentStatus || '—';
-  const goal = answers.successGoal && answers.successGoal !== '__skip__' ? answers.successGoal : 'Start with clarity';
+  const answered = Object.keys(answers).filter(k => !isBlankAnswer(answers[k])).length;
+  const product = cleanAnswer(answers.product, '—');
+  const aesthetic = cleanAnswer(answers.aesthetic, '—');
+  const customer = cleanAnswer(answers.customer, '—');
+  const vibe = cleanAnswer(answers.vibe, '—');
+  const budget = cleanAnswer(answers.budget, '—');
+  const time = cleanAnswer(answers.time, '—');
+  const status = cleanAnswer(answers.currentStatus, '—');
+  const goal = cleanAnswer(answers.successGoal, 'Start with clarity');
   const completion = Math.round((answered / questions.length) * 100);
   const brandReadiness = currentScreen === 'results' ? 100 : Math.min(96, completion + (answers.product ? 12 : 0) + (answers.customer ? 8 : 0));
 

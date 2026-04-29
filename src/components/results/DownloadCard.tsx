@@ -3,15 +3,15 @@ import { playClick, playChime } from '@/lib/sounds';
 import { toast } from 'sonner';
 import { generateBlueprintPDF, generateResultsPagePDF } from '@/lib/pdf-generator';
 import { getBrandIdentity } from '@/lib/brand-identity';
-import { derive } from '@/lib/quiz-helpers';
+import { cleanAnswer, derive } from '@/lib/quiz-helpers';
 import GoldConfetti from '../GoldConfetti';
 import DollhouseMark from '@/components/DollhouseMark';
 
 interface DownloadCardProps { answers: Record<string, string>; aiResults: any; onDownloadRef?: (fn: () => void) => void; }
 
 export default function DownloadCard({ answers, aiResults, onDownloadRef }: DownloadCardProps) {
-  const name = (answers.firstName || '').split(' ')[0] || 'You';
-  const brand = (answers.brandName && answers.brandName !== '__skip__') ? answers.brandName : aiResults?.businessNames?.[0] || name;
+  const name = cleanAnswer(answers.firstName, 'You').split(' ')[0] || 'You';
+  const brand = cleanAnswer(answers.brandName, aiResults?.businessNames?.[0] || name);
 
   const [generating, setGenerating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -30,8 +30,8 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
       const pdfData = {
         name,
         brand: brand || name,
-        product: answers.product || '',
-        aesthetic: answers.aesthetic || '',
+        product: cleanAnswer(answers.product),
+        aesthetic: cleanAnswer(answers.aesthetic),
         mission: aiResults?.businessPlan?.mission || d.mission || brandId.voice || '',
         platforms: aiResults?.recommendedPlatforms || d.topPlatforms || [],
         social: d.social || [],
@@ -83,22 +83,21 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
           },
           recommendedPlatforms: d.topPlatforms || [],
           platformReasons: {
-            [d.topPlatforms[0]]: `Recommended for your ${answers.vibe} business selling to ${answers.customer}`,
+            [d.topPlatforms[0]]: `Recommended for your ${d.vibe || 'starter'} business selling to ${d.customer}`,
             [d.topPlatforms[1]]: `Secondary platform to expand reach beyond your primary audience`,
           },
           platformSetup: {
             [d.topPlatforms[0]]: '1. Create your account\n2. Complete all profile fields\n3. Upload your first listing\n4. Set up payment method\n5. Share your link',
             [d.topPlatforms[1]]: '1. Create your account\n2. Complete all profile fields\n3. Link to your primary platform\n4. Start building audience',
           },
-          productRecommendation: `Focus on selling ${answers.product} to ${answers.customer}`,
+          productRecommendation: `Focus on selling ${d.product} to ${d.customer}`,
           startingPrice: d.priceHint || 'Starting at $' + (answers.budget === 'Under $50' ? '18-35' : answers.budget === '$50-$200' ? '28-65' : '45-120'),
         },
         answers,
         d,
       };
 
-      const blob = await generateResultsPagePDF({ name, brand: brand || name }).catch(err => {
-        console.warn('Results export failed, falling back to structured PDF:', err);
+      const blob = await generateResultsPagePDF({ name, brand: brand || name }).catch(() => {
         return generateBlueprintPDF(pdfData);
       });
       const slug = (brand || name).replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -116,8 +115,7 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3500);
       toast('Blueprint downloaded ✦', { duration: 2500 });
-    } catch (err) {
-      console.error('PDF generation error:', err);
+    } catch {
       toast('Download failed — try again', { duration: 3000 });
     } finally {
       setGenerating(false);
@@ -131,7 +129,7 @@ export default function DownloadCard({ answers, aiResults, onDownloadRef }: Down
       `Built for ${name}`,
       '',
       `BRAND NAME: ${brand}`,
-      `PRODUCT: ${aiResults?.productRecommendation || answers.product || '—'}`,
+      `PRODUCT: ${aiResults?.productRecommendation || cleanAnswer(answers.product, '—')}`,
       `STARTING PRICE: ${aiResults?.startingPrice || '—'}`,
       `SELL ON: ${aiResults?.recommendedPlatforms?.join(' + ') || '—'}`,
       `AESTHETIC: ${answers.aesthetic || '—'}`,

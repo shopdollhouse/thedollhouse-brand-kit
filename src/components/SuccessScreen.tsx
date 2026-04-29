@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import DollhouseMark from './DollhouseMark';
 import HeartIcon from './HeartIcon';
 import certificateBg from '@/assets/password-bg.jpg';
+import { cleanAnswer, strategicPlaceholder } from '@/lib/quiz-helpers';
 
 interface SuccessScreenProps {
   onClose?: () => void;
@@ -11,10 +12,10 @@ interface SuccessScreenProps {
 
 export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
   const { answers, setScreen } = useQuiz();
-  const name = (answers.firstName || '').split(' ')[0] || 'Founder';
-  const brand = answers.brandName || 'Your Brand';
-  const aesthetic = answers.aesthetic || 'Soft & feminine';
-  const product = answers.product || 'brand';
+  const name = cleanAnswer(answers.firstName, 'Founder').split(' ')[0] || 'Founder';
+  const brand = cleanAnswer(answers.brandName, strategicPlaceholder('brand'));
+  const aesthetic = cleanAnswer(answers.aesthetic, strategicPlaceholder('aesthetic'));
+  const product = cleanAnswer(answers.product, strategicPlaceholder('product'));
   const certificateTitle = product || brand;
   const date = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
   const socialHandle = '@thedollhouse_studio';
@@ -31,16 +32,12 @@ export default function SuccessScreen({ onClose }: SuccessScreenProps = {}) {
           text,
           url: window.location.href,
         });
-      } catch (err) {
-        console.error('Share failed:', err);
-      }
+      } catch {}
     } else {
       try {
         await navigator.clipboard.writeText(text);
         toast('Message copied. Paste to share on Threads or TikTok.');
-      } catch (err) {
-        console.error('Copy failed:', err);
-      }
+      } catch {}
     }
   };
 

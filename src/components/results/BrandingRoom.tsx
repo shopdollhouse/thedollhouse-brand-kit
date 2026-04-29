@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Check, X, Palette, Type, Sparkles, Eye, AlertCircle } from 'lucide-react';
+import { Check, X, Palette, Type, Sparkles, Eye, AlertCircle, Copy, Store, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { playClick } from '@/lib/sounds';
 import RoomCard from './RoomCard';
 
-interface BrandingRoomProps { aiResults: any; brandId: any; product: string; customer?: string; aesthetic?: string; }
+interface BrandingRoomProps { aiResults: any; brandId: any; product: string; customer?: string; aesthetic?: string; brand?: string | null; priceHint?: string; firstPlatform?: string; }
 
-export default function BrandingRoom({ aiResults, brandId, product, customer, aesthetic }: BrandingRoomProps) {
+export default function BrandingRoom({ aiResults, brandId, product, customer, aesthetic, brand, priceHint, firstPlatform }: BrandingRoomProps) {
   const br = aiResults?.branding || {};
   const colours = br.colours?.length ? br.colours : brandId.colours;
   const fonts = br.fonts || [];
@@ -14,6 +14,20 @@ export default function BrandingRoom({ aiResults, brandId, product, customer, ae
 
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const brandTitle = brand || 'Working Title';
+  const displayFont = fonts[0]?.name || brandId.typo?.split('—')[0]?.trim() || 'Cormorant Garamond';
+  const bodyFont = fonts[1]?.name || 'Outfit';
+  const getReadableInk = (hex?: string) => {
+    if (!hex || !hex.startsWith('#')) return '#2a1812';
+    const raw = hex.replace('#', '');
+    const r = parseInt(raw.slice(0, 2), 16) || 255;
+    const g = parseInt(raw.slice(2, 4), 16) || 255;
+    const b = parseInt(raw.slice(4, 6), 16) || 255;
+    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return luminance > 0.62 ? '#2a1812' : '#fff8f4';
+  };
+  const socialCardBg = colours[0]?.hex || colours[0]?.c || '#f4dfd8';
+  const socialCardInk = getReadableInk(socialCardBg);
 
   const copyHex = (hex: string, idx: number) => {
     navigator.clipboard?.writeText(hex);
@@ -21,6 +35,24 @@ export default function BrandingRoom({ aiResults, brandId, product, customer, ae
     setCopiedIdx(idx);
     toast('Saved to Brand Board!', { duration: 2000 });
     setTimeout(() => setCopiedIdx(null), 1500);
+  };
+  const copyBrandBoard = () => {
+    const text = [
+      `${brandTitle} Brand Board`,
+      `Aesthetic: ${aesthetic || 'Soft & feminine'}`,
+      `Offer: ${product}`,
+      `Customer: ${customer || 'your best-fit buyer'}`,
+      '',
+      'Palette:',
+      ...colours.map((c: any) => `${c.name || c.n}: ${c.hex || c.c} — ${c.use || 'Use intentionally across your brand system'}`),
+      '',
+      `Font Pairing: ${displayFont} + ${bodyFont}`,
+      `Logo Direction: ${logoConcepts[0]?.description || brandId.logo}`,
+      `Voice: ${br.brandVibe || brandId.voice}`,
+    ].join('\n');
+    navigator.clipboard?.writeText(text);
+    playClick('soft');
+    toast('Brand board copied!', { duration: 2200 });
   };
 
   return (
@@ -130,6 +162,56 @@ export default function BrandingRoom({ aiResults, brandId, product, customer, ae
         </div>
       )}
       <p className="font-body text-[11px] text-dh-text-light italic text-center mb-6 font-light">Tap any swatch to copy the hex code</p>
+
+      {/* Interactive Brand Board */}
+      <div className="rounded-3xl overflow-hidden mb-8" style={{ background: 'linear-gradient(145deg, rgba(var(--dh-accent-rgb),0.11), rgba(255,255,255,0.32))', border: '1px solid rgba(var(--dh-accent-rgb),0.28)' }}>
+        <div className="p-6" style={{ borderBottom: '1px solid rgba(var(--dh-accent-rgb),0.18)' }}>
+          <div className="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <p className="font-ui text-[9px] tracking-[4px] uppercase text-dh-accent-dark mb-1 font-medium">Interactive Brand Board</p>
+              <p className="font-display italic text-[22px] leading-[1.2]" style={{ color: 'var(--dh-text)' }}>{brandTitle}</p>
+            </div>
+            <button onClick={copyBrandBoard} className="inline-flex items-center gap-2 rounded-full px-4 py-2 font-ui text-[8px] tracking-[2px] uppercase cursor-pointer" style={{ background: 'var(--dh-btn-bg)', color: 'var(--dh-btn-text)', border: 'none' }}>
+              <Copy size={12} /> Copy Board
+            </button>
+          </div>
+
+          <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))' }}>
+            {colours.slice(0, 5).map((c: any, i: number) => (
+              <button key={i} onClick={() => copyHex(c.hex || c.c, i)} className="text-left rounded-2xl overflow-hidden cursor-pointer group" style={{ border: '1px solid rgba(var(--dh-accent-rgb),0.22)', background: 'rgba(255,255,255,0.28)' }}>
+                <span className="block h-16 transition-transform group-hover:scale-[1.03]" style={{ background: c.hex || c.c }} />
+                <span className="block p-3">
+                  <span className="block font-ui text-[7px] tracking-[2px] uppercase text-dh-accent-dark font-medium">{c.name || c.n}</span>
+                  <span className="block font-body text-[11px] text-dh-text-light mt-1">{c.hex || c.c}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.34)', border: '1px solid rgba(var(--dh-accent-rgb),0.20)' }}>
+              <Type size={15} className="text-dh-accent-dark mb-3" />
+              <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Font Pairing Preview</p>
+              <p className="font-display italic text-[30px] leading-none mb-2" style={{ color: 'var(--dh-text)' }}>{brandTitle}</p>
+              <p className="font-body text-[12px] leading-[1.7] text-dh-text-mid font-light">Use {displayFont} for emotional headlines and {bodyFont} for clean buying information, captions, and checkout copy.</p>
+            </div>
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.34)', border: '1px solid rgba(var(--dh-accent-rgb),0.20)' }}>
+              <ImageIcon size={15} className="text-dh-accent-dark mb-3" />
+              <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Sample Social Card</p>
+              <div className="rounded-2xl p-5 text-center" style={{ background: socialCardBg, color: socialCardInk, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.20)' }}>
+                <p className="font-display italic text-[24px] leading-[1.05] mb-2">{product}</p>
+                <p className="font-ui text-[8px] tracking-[2px] uppercase" style={{ opacity: 0.82 }}>for {customer || 'your people'}</p>
+              </div>
+            </div>
+            <div className="md:col-span-2 rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.34)', border: '1px solid rgba(var(--dh-accent-rgb),0.20)' }}>
+              <Store size={15} className="text-dh-accent-dark mb-3" />
+              <p className="font-ui text-[8px] tracking-[3px] uppercase text-dh-accent-dark mb-3 font-medium">Storefront Direction</p>
+              <p className="font-display italic text-[18px] leading-[1.55] mb-2" style={{ color: 'var(--dh-text)' }}>{brandTitle} on {firstPlatform || 'your main platform'}</p>
+              <p className="font-body text-[12px] leading-[1.8] text-dh-text-mid font-light">Lead with one clear promise, show the product in use, keep the price path simple ({priceHint || 'start with your entry offer'}), and repeat the same colours from this board so the page feels intentional.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Expert Strategy Note */}
       {customer && aesthetic && (

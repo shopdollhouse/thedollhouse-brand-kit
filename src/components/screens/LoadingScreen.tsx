@@ -52,8 +52,7 @@ export default function LoadingScreen() {
       setAiResults(merged);
       setPct(100);
       // Results screen is already showing from partial callback
-    }).catch((err) => {
-      console.warn('Blueprint generation error:', err.message);
+    }).catch(() => {
       clearInterval(msgInterval);
       clearTimeout(timeout);
       setPct(100);
