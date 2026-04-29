@@ -41,7 +41,7 @@ function Sidebar() {
     setTrack(newTrack);
   };
 
-  const bb = 'group relative flex flex-col items-center gap-1 py-2.5 px-3.5 cursor-pointer rounded-[10px] mx-1 font-ui text-[8px] tracking-[2px] uppercase font-medium text-dh-text-light transition-colors hover:text-dh-accent-dark min-w-[52px] overflow-hidden';
+  const bb = 'group relative flex flex-col items-center gap-1.5 py-3 px-3.5 cursor-pointer rounded-[12px] mx-1 font-ui text-[8.5px] tracking-[2px] uppercase font-semibold text-dh-text-light transition-colors hover:text-dh-accent-dark min-w-[54px] overflow-hidden';
 
   return (
     <>
@@ -63,7 +63,7 @@ function Sidebar() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
             {theme === 'blush' ? 'Dark' : 'Light'}
-            <span className="font-ui text-[6px] tracking-[1.4px] uppercase opacity-60 leading-none">
+            <span className="font-ui text-[8px] tracking-[1.8px] uppercase opacity-85 leading-[1.05] text-dh-accent-dark font-semibold">
               {theme === 'blush' ? 'Blush mode' : 'Dark mode'}
             </span>
           </button>
@@ -179,11 +179,11 @@ function AppContent() {
             boxShadow: scrolled ? '0 10px 34px rgba(107,82,64,0.08)' : 'none',
             pointerEvents: 'all',
           }}>
-            <div className="flex items-center gap-3 cursor-default select-none">
-              <DollhouseMark size={24} />
+            <div className="flex items-center gap-3.5 cursor-default select-none">
+              <DollhouseMark size={28} />
               <div className="flex flex-col gap-0">
-                <span className="dh-wordmark-kicker" style={{ fontSize: '8px', letterSpacing: '0.36em', opacity: 0.78 }}>the</span>
-                <span className="dh-wordmark" style={{ fontSize: '20px', letterSpacing: '0.04em', lineHeight: '1' }}>DOLLHOUSE</span>
+                <span className="dh-wordmark-kicker" style={{ fontSize: '20px', opacity: 0.98, color: 'rgba(173, 96, 91, 0.86)' }}>the</span>
+                <span className="dh-wordmark" style={{ fontSize: '24px', letterSpacing: '0.045em', lineHeight: '0.92', color: 'rgba(166, 91, 86, 0.92)', textShadow: '0 5px 18px rgba(166,91,86,0.12)' }}>DOLLHOUSE</span>
               </div>
             </div>
             <nav className="absolute left-1/2 -translate-x-1/2 flex gap-1 rounded-full p-1" style={{ background: 'rgba(255,255,255,0.34)', border: '1px solid rgba(var(--dh-accent-rgb),0.16)' }}>
