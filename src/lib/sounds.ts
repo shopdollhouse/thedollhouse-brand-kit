@@ -108,7 +108,7 @@ export function toggleAmbientTrack(trackIndex: number, currentTrack: number, vol
 
     if (!ambientGain) { ambientGain = ctx.createGain(); ambientGain.connect(ctx.destination); }
     ambientGain.gain.setValueAtTime(0, ctx.currentTime);
-    ambientGain.gain.setTargetAtTime(volume, ctx.currentTime, 0.5);
+    ambientGain.gain.setTargetAtTime(Math.min(volume, 0.38), ctx.currentTime, 0.8);
 
     const buf = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
     const d = buf.getChannelData(0);
@@ -116,9 +116,24 @@ export function toggleAmbientTrack(trackIndex: number, currentTrack: number, vol
 
     const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
     const f = ctx.createBiquadFilter();
-    f.type = (['lowpass', 'lowpass', 'bandpass', 'bandpass', 'highpass'] as BiquadFilterType[])[trackIndex] || 'lowpass';
-    f.frequency.value = [600, 200, 3000, 1000, 5000][trackIndex] || 600;
-    src.connect(f); f.connect(ambientGain); src.start();
+    const profiles: { type: BiquadFilterType; frequency: number; q: number }[] = [
+      { type: 'lowpass', frequency: 560, q: 0.32 },  // Soft Pink Noise
+      { type: 'lowpass', frequency: 430, q: 0.18 },  // Blush Silk Hiss
+      { type: 'bandpass', frequency: 220, q: 0.42 },  // Vanity Room Hum
+      { type: 'lowpass', frequency: 760, q: 0.14 },  // Champagne Air
+      { type: 'bandpass', frequency: 680, q: 0.24 },  // Rose Quartz Rain
+    ];
+    const profile = profiles[trackIndex] || profiles[0];
+    f.type = profile.type;
+    f.frequency.value = profile.frequency;
+    f.Q.value = profile.q;
+
+    const warmth = ctx.createBiquadFilter();
+    warmth.type = 'lowpass';
+    warmth.frequency.value = trackIndex === 3 ? 980 : 820;
+    warmth.Q.value = 0.12;
+
+    src.connect(f); f.connect(warmth); warmth.connect(ambientGain); src.start();
     ambientSource = src;
     return trackIndex;
   } catch (_) {

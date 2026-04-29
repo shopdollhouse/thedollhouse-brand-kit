@@ -22,7 +22,7 @@ function Sidebar() {
   const [vol, setVol] = useState(0.45);
   const [paused, setPaused] = useState(false);
   const [hint, setHint] = useState(false);
-  const tracks = ['Soft Pink Noise', 'Fireplace & Rain', 'Gentle Waves', 'Café Murmur', 'Forest Rain'];
+  const tracks = ['Soft Pink Noise', 'Blush Silk Hiss', 'Vanity Room Hum', 'Champagne Air', 'Rose Quartz Rain'];
 
   // Show a one-time hint that sound is available
   useEffect(() => {
